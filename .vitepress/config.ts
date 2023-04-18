@@ -15,7 +15,7 @@ export default defineConfig({
       }
     ],
     editLink: {
-      pattern: 'https://github.com/X-sky/X-press.git/src/:path',
+      pattern: 'https://github.com/X-sky/X-press/blob/main/src/:path',
       text: 'Edit this page on GitHub'
     },
     socialLinks: [
