@@ -1,3 +1,4 @@
+import path from 'path';
 import { defineConfig } from 'vitepress';
 import type { DefaultTheme } from 'vitepress';
 
@@ -5,9 +6,16 @@ export default defineConfig({
   title: 'X-press',
   description: 'X-press - A VitePress Site With Mass Messy',
   srcDir: 'src',
+  vite: {
+    resolve: {
+      alias: {
+        '@src': path.resolve(__dirname, '../src'),
+        '@theme/*': path.resolve(__dirname, './theme')
+      }
+    }
+  },
   themeConfig: {
     nav: getNavList(),
-
     sidebar: [
       {
         text: '前端',
