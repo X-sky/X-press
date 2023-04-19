@@ -15,13 +15,13 @@ export default defineConfig({
     }
   },
   themeConfig: {
+    outline: {
+      label: '----目录----'
+    },
     nav: getNavList(),
-    sidebar: [
-      {
-        text: '前端',
-        items: [{ text: '竞态问题', link: '/frontend/race-condition' }]
-      }
-    ],
+    sidebar: {
+      '/coding/': getCodeSidebarList()
+    },
     editLink: {
       pattern: 'https://github.com/X-sky/X-press/blob/main/src/:path',
       text: 'Edit this page on GitHub'
@@ -31,18 +31,29 @@ export default defineConfig({
     ]
   }
 });
-
+/**导航栏 */
 function getNavList(): DefaultTheme.NavItem[] {
   return [
     { text: 'Home', link: '/' },
     {
-      text: 'Docs',
+      text: 'Coding',
+      activeMatch: '/coding/',
       items: [
         {
-          text: '前端',
-          link: '/frontend/race-condition'
+          text: 'Frontend',
+          link: '/coding/frontend/race-condition'
         }
       ]
+    }
+  ];
+}
+
+function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
+  return [
+    {
+      text: '前端相关',
+      collapsed: false,
+      items: [{ text: '竞态问题', link: '/coding/frontend/race-condition' }]
     }
   ];
 }
