@@ -16,7 +16,7 @@ export default defineConfig({
   },
   themeConfig: {
     outline: {
-      label: '----目录----'
+      label: '----目录----',
     },
     nav: getNavList(),
     sidebar: {
@@ -53,7 +53,7 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
     {
       text: '前端相关',
       collapsed: false,
-      items: [{ text: '竞态问题', link: '/coding/frontend/race-condition' }]
+      items: [{ text: 'text-align实现两端对齐', link: '/coding/frontend/text-align_justify/text-align_justify' },{ text: '竞态问题', link: '/coding/frontend/race-condition' }]
     }
   ];
 }
