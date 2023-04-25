@@ -151,7 +151,7 @@ outline: deep
 
 ### ios 中的 white-space
 
-> TLDR: pre、pre-wrap、break-spaces 都会影响到 text-align:justify 的生效
+> TL;DR: pre、pre-wrap、break-spaces 都会影响到 text-align:justify 的生效
 
 在 stackoverflow 上找到了一篇回答 [如何在火狐和 safari 上两端对齐文本](https://stackoverflow.com/questions/51664036/how-to-justify-text-in-firefox-and-safari-with-css)。回答中说是 `white-space:pre-wrap` 会跟 `text-align: justify` 冲突，导致无法文本两端对齐。
 
@@ -167,21 +167,23 @@ outline: deep
 
 1. `pre` 是因为 `pre` 不会进行 [inline-formatting](https://www.w3.org/TR/CSS2/visuren.html#inline-formatting)，也就是不会进行行内文本自动换行，这种情况下讨论两端对齐是没有意义的。
 2. `nowrap` 同理
-3. `normal`作为默认值在最开始没有添加`pre-wrap`属性
+3. `normal`作为默认值，在最开始没有添加 `white-space: pre-wrap` 的时候就是生效的
 
 从测试结果上来看，当且仅当 `white-space: pre-line` 时，`text-align: justify` 才能够正常生效，当然这种情况下又产生了新的问题：那就是原本数据中的空格没有正确展示（如下图）。 ![image-20230421175600792](./assets/image-20230421175600792.png)
 
 现在先把这个空格的问题放在一边。首先需要考虑的是，为什么在众多 `white-space` 的可选属性中，只有 `pre-line` 可以生效。参考 [W3C Draft](https://w3c.github.io/csswg-drafts/css-text/#white-space-property)：
 
-> `pre-wrap`：Like `pre`, this value preserves white space; but like normal, it allows wrapping;
+> `pre-wrap`：Like `pre`, this value preserves white space; but like `normal` , it allows wrapping;
 
 > `break-spaces`: The behavior is identical to that of `pre-wrap`, except...
 
 > `pre-line`: Like `normal`, this value collapses consecutive white space characters and allows wrapping, but it preserves segment breaks in the source as forced line breaks
 
-从定义很容易就可以看出来，`pre-line` 和 `pre-wrap` 虽然都是 `pre-*` 的前缀，但他们的表现方式显然截然不同。`pre-line` 更接近 `normal`，而 `pre-wrap` 和 `break-spaces` 更接近 `pre`。
+从定义我们可以理解，`pre-line` 和 `pre-wrap` 虽然都是 `pre-*` 的前缀，但他们的表现方式有所不同。
 
-于是可以发现，之前将属性修改为 `white-space: pre-line` 之后出现的 _空格消失_ 的原因也就找到了。既然 `pre-line` 是 'like normal' 的，那么根据 `normal`的定义：
+`pre-line` 更接近 `normal`，在此基础上保留 `segment breaks` ，而 `pre-wrap` 和 `break-spaces` 更接近 `pre`，保留了 `wrapping`。
+
+于是可以发现，之前将属性修改为 `white-space: pre-line` 之后出现的 *空格消失* 的原因也就找到了。既然 `pre-line` 是 'like normal' 的，那么根据 `normal`的定义：
 
 > This value directs user agents to collapse sequences of white space into a single character (or in some cases, no character)
 
@@ -189,7 +191,7 @@ outline: deep
 
 ### 兼容 ios 的文本对齐实现
 
-对于简单需求（非富文本无交互纯展示）的实现方法，其实就是将空白和换行符替换为 html 标签，然后页面生成方式从渲染文本`textContent`变为渲染内容`innerHTML`。
+对于简单需求（非富文本无交互纯展示）的实现方法，其实就是将空白和换行符替换为 html 标签，然后页面生成方式从渲染文本 `textContent` 变为渲染内容 `innerHTML` 
 
 ```html
 <style>
@@ -228,7 +230,7 @@ outline: deep
 </script>
 ```
 
-对比最初的[问题代码](./#多行文本 ios 下的问题)，需要注意的有三个地方：
+对比最初的[问题代码](#多行文本-ios-下的问题)，需要注意的有三个地方：
 
 1. 将空格替换为 `<span>` 的时候，中间的字符 **必须** 是空格，并且需要给 span 补充 `white-space: pre-wrap` 属性。这样做是为了保证浏览器对于空格解释是正确的。如果我们替换为 `<span style="opacity: 0">1</span>` ，最终的空白区域与用户侧真正输入的空格是对不上的，因为浏览器对于长文本中空格的解释并非一个空格一个半角字符，而我们全都填充半角字符后，浏览器会展示为实际的文本，而非`white-space`。尤其如果涉及到空格换行等情况，可能会产生意想不到的问题。因此 `<span>` 内部仍保留空格，并且将`span` 本身设置 `white-space: pre-wrap` 以保留空格。
 2. 在 `style` 中补充了 `white-space: pre-line` 这条属性。事实上当我们开始用js替换空白符、换行符的时候，完全可以不设置这个属性，将换行符替换为 `<br />`，也可以实现相同的效果
