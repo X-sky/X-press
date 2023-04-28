@@ -1,6 +1,7 @@
 ---
 outline: deep
 ---
+
 # 关于文本内容两端对齐
 
 `text-align:justify` 这个 css 属性是用来将盒子内部的行内内容相对父元素两端对齐。一般情况下，直接使用即可达到效果。但有两点需要注意：
@@ -139,7 +140,7 @@ outline: deep
 }
 ```
 
-然后 *换行* 以及 *两侧对齐* 都可以实现。的确，在 web 端这样似乎确实解决了问题。既保证了两端对齐，又保证了文本内容格式正确（如下图）。
+然后 _换行_ 以及 _两侧对齐_ 都可以实现。的确，在 web 端这样似乎确实解决了问题。既保证了两端对齐，又保证了文本内容格式正确（如下图）。
 
 ![image-20230421175652747](./assets/image-20230421175652747.png)
 
@@ -155,7 +156,7 @@ outline: deep
 
 在 stackoverflow 上找到了一篇回答 [如何在火狐和 safari 上两端对齐文本](https://stackoverflow.com/questions/51664036/how-to-justify-text-in-firefox-and-safari-with-css)。回答中说是 `white-space:pre-wrap` 会跟 `text-align: justify` 冲突，导致无法文本两端对齐。
 
-那么这里就产生了一系列新的问题：为什么安卓没有问题，而 ios 下 `white-space:pre-wrap` 会跟 `text-align: justify` 冲突呢？如果 `text-align: justify` 和 `white-space: pre-wrap` 这个属性冲突，那么 `white-space` 下的其他属性是不是也会冲突呢？
+那么这里就产生了一系列新的问题：为什么安卓没有问题，而 ios 下 `white-space:pre-wrap` 会跟 `text-align: justify` 冲突呢？如果 `text-align: justify` 和 `white-space: pre-wrap` 这个属性冲突，那么 `white-space` 下的其他属性是不是也会冲突呢？为什么安卓没有问题这个问题是很容易想到答案。原因就是二者排版引擎不同。关于这个可以参考关于[宿主引擎](../engine/engine.md)。其余的问题我们可以通过比对试验得出答案。
 
 于是我选择了三种[近似的属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/white-space)进行对比测试(保留换行/保留空格)：
 
@@ -183,58 +184,62 @@ outline: deep
 
 `pre-line` 更接近 `normal`，在此基础上保留 `segment breaks` ，而 `pre-wrap` 和 `break-spaces` 更接近 `pre`，保留了 `wrapping`。
 
-于是可以发现，之前将属性修改为 `white-space: pre-line` 之后出现的 *空格消失* 的原因也就找到了。既然 `pre-line` 是 'like normal' 的，那么根据 `normal`的定义：
+于是可以发现，之前将属性修改为 `white-space: pre-line` 之后出现的 _空格消失_ 的原因也就找到了。既然 `pre-line` 是 'like normal' 的，那么根据 `normal`的定义：
 
 > This value directs user agents to collapse sequences of white space into a single character (or in some cases, no character)
 
-所以根据 w3c 的定义，`pre-line` 下空白消失是必然的表现。而要在 ios 上实现 `text-align: justify` ，只能将问题转换为 “如何在 `white-space: normal` 的情况下保留空白与换行”
+所以根据 w3c 的定义，`pre-line` 下空白消失是必然的表现。而要在 ios 上实现 `text-align: justify` ，有两种解决思路：
+1. 将问题转换为 “如何在 `white-space: normal` 的情况下保留空白与换行”，然后用 `text-align: justify` 实现两端对齐
+2. 保留 `white-space: pre-wrap` ，用js根据宽度计算长文本的行数，在每一行添加 `display:flex; justify-content: justify-between`，但最后一行保留 `justify-content:flex-start`
+
+这里我们仅实现第一种。第二种思路其实既没有必要，还容易出问题。因为js的计算无法保证所有浏览器下对 `空白符` 相同的解析效果。毕竟 `空白符` 是 "in some cases, no character" 的。由于用户端输入的文本是用普通的 `textarea` 接收的，粗暴的换算为半角字符容易导致用户输入与实际展示效果不一致。但是不进行空白符的换算，就无法将长文本分散为由“多个单行文本”组成的多行文本。因此在业务层面上不应该采取这个方法。
 
 ### 兼容 ios 的文本对齐实现
 
-对于简单需求（非富文本无交互纯展示）的实现方法，其实就是将空白和换行符替换为 html 标签，然后页面生成方式从渲染文本 `textContent` 变为渲染内容 `innerHTML` 
+对于简单需求（非富文本无交互纯展示）的实现方法，其实就是将空白和换行符替换为 html 标签，然后页面生成方式从渲染文本 `textContent` 变为渲染内容 `innerHTML`
 
 ```html
 <style>
-  .test {
-    margin: 10px;
-+   white-space: pre-line;
-    text-align: justify;
-    border: 1px solid #ccc;
-    width: 200px;
-    line-height: 1.5;
-    padding: 10px;
-  }
-+ .whitespace-pre-wrap {
-+   white-space: pre-wrap;
-+ }
+    .test {
+      margin: 10px;
+  +   white-space: pre-line;
+      text-align: justify;
+      border: 1px solid #ccc;
+      width: 200px;
+      line-height: 1.5;
+      padding: 10px;
+    }
+  + .whitespace-pre-wrap {
+  +   white-space: pre-wrap;
+  + }
 </style>
 <div class="test" id="test"></div>
 <script>
-  const serverData =
-    '      测试不止，一行的内。容测试*不止.一行测试不123止一行的内容测试不止一行测试不止一行的内容测试不止一行的内容\n    多行换行展示文本';
-  /**删除所有tag */
-+ const stripAllTags = (str) => {
-+   if (!str) return '';
-+   return str.replace(/<.*?>/g, '');
-+ };
-  /**将空格替换为带span标签的空格 */
-+ const placeWhiteSpaceSpan = (str) => {
-+   if (!str) return '';
-+   // 注意这里的span又带上了white-space: pre-wrap的属性
-+    return str.replace(/x20/g, '<span class="whitespace-pre-wrap"> </span>');
-+ };
--  document.getElementById('test').textContent = serverData;
-+  document.getElementById('test').innerHTML = placeWhiteSpaceSpan(
-    stripAllTags(serverData)
-  );
+    const serverData =
+      '      测试不止，一行的内。容测试*不止.一行测试不123止一行的内容测试不止一行测试不止一行的内容测试不止一行的内容\n    多行换行展示文本';
+    /**删除所有tag */
+  + const stripAllTags = (str) => {
+  +   if (!str) return '';
+  +   return str.replace(/<.*?>/g, '');
+  + };
+    /**将空格替换为带span标签的空格 */
+  + const placeWhiteSpaceSpan = (str) => {
+  +   if (!str) return '';
+  +   // 注意这里的span又带上了white-space: pre-wrap的属性
+  +    return str.replace(/x20/g, '<span class="whitespace-pre-wrap"> </span>');
+  + };
+  -  document.getElementById('test').textContent = serverData;
+  +  document.getElementById('test').innerHTML = placeWhiteSpaceSpan(
+      stripAllTags(serverData)
+    );
 </script>
 ```
 
 对比最初的[问题代码](#多行文本-ios-下的问题)，需要注意的有三个地方：
 
 1. 将空格替换为 `<span>` 的时候，中间的字符 **必须** 是空格，并且需要给 span 补充 `white-space: pre-wrap` 属性。这样做是为了保证浏览器对于空格解释是正确的。如果我们替换为 `<span style="opacity: 0">1</span>` ，最终的空白区域与用户侧真正输入的空格是对不上的，因为浏览器对于长文本中空格的解释并非一个空格一个半角字符，而我们全都填充半角字符后，浏览器会展示为实际的文本，而非`white-space`。尤其如果涉及到空格换行等情况，可能会产生意想不到的问题。因此 `<span>` 内部仍保留空格，并且将`span` 本身设置 `white-space: pre-wrap` 以保留空格。
-2. 在 `style` 中补充了 `white-space: pre-line` 这条属性。事实上当我们开始用js替换空白符、换行符的时候，完全可以不设置这个属性，将换行符替换为 `<br />`，也可以实现相同的效果
-3. 在 `placeWhiteSpaceSpan` 之前，调用了 `stripAllTags` 这个方法。因为直接使用用户输入的文本作为 `innerHTML` 是有很大的 xss 风险的，这里添加的函数可以把所有包含\<\>的文本都去掉，可以防止xss攻击。当然这个方法只是最简单粗暴的一种，在实际的业务情况下可能会“误伤”用户输入文本，但这里只是举个例子，xss 是另一个话题，这里暂不展开
+2. 在 `style` 中补充了 `white-space: pre-line` 这条属性。事实上当我们开始用 js 替换空白符、换行符的时候，完全可以不设置这个属性，将换行符替换为 `<br />`，也可以实现相同的效果
+3. 在 `placeWhiteSpaceSpan` 之前，调用了 `stripAllTags` 这个方法。因为直接使用用户输入的文本作为 `innerHTML` 是有很大的 xss 风险的，这里添加的函数可以把所有包含\<\>的文本都去掉，可以防止 xss 攻击。当然这个方法只是最简单粗暴的一种，在实际的业务情况下可能会“误伤”用户输入文本，但这里只是举个例子，xss 是另一个话题，这里暂不展开
 
 综上所述，如果是非常复杂的文本，涉及 `\n` `\r` `\t` `空格` 等多种符号，或者文本内容多语种夹杂，那么需要估计开发成本和回报，因为移动端的兼容是个复杂问题，如果按照上述我的 `span代替法` 进行处理，在空格过多的时候还可能影响渲染性能。因此如果非强需求，尽量*避免两端对齐*。但两端不对齐需要额外注意要在曲面屏上留够`padding`，避免出现文字超出边缘的情况。
 
