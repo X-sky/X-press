@@ -184,11 +184,15 @@ chrome.proxy.settings.set({ value: config, scope: 'regular' }, function () {});
 
 #### PAC
 
-如果说插件的核心是 `proxy` 的配置，那么这个配置的核心就是 `pacScript` 的生成。那么到底什么是 `PAC`？
+如果说插件的核心是 `proxy` 的配置，那么这个配置的核心就是 `pacScript` 的生成。那么到底什么是 `PAC`？ `PAC` 实际上是 `Proxy Auto Config` 的缩写，字面意义上理解，就是“代理自动配置”
 
 根据[mdn 的定义](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file)：
 
 > A Proxy Auto-Configuration (PAC) file is a JavaScript function that determines whether web browser requests (HTTP, HTTPS, and FTP) go directly to the destination or are forwarded to a web proxy server.
+
+而根据[wikipediea](https://en.wikipedia.org/wiki/Proxy_auto-config)的定义：
+
+> A proxy auto-config (PAC) file defines how web browsers and other user agents can automatically choose the appropriate proxy server (access method) for fetching a given URL
 
 ```javascript
 // PAC file 中的 function
@@ -210,6 +214,8 @@ PAC 文件中的 `FindProxyForURL` 函数可以返回一个字符串，该字符
 - HTTP: host:port
 - HTTPS: host:port
 - SOCKS4 host:port, SOCKS5 host:port
+
+其中 `PROXY` 为自适应协议头
 
 ##### 一个简单实现
 
@@ -286,17 +292,47 @@ isPlainHostName('www'); // true
 2. 使用 `pinia` + `vueuse` 对 `hosts` 进行实时更新和持久化
 3. 将 `hosts` 解析后，根据解析结果生成对应的 `FindProxyForURL` 函数，调用 `Chrome api`，更新代理
 
-按照结论来说， `FindProxyForURL` 函数中已经代理了 https，那么我们在输入任意地址，只要域名匹配，应该就能够成功代理。但是实际上输入 `https` 的时候，是无法正确代理的。
+按照结论来说， `FindProxyForURL` 函数中已经代理了 https，那么我们在输入任意地址，只要域名匹配，应该就能够成功代理。但是实际上输入 `https` 的时候，是无法正确代理的。 ![https_fail](./assets/eg_httpsfail.jpg)
 
-猜想原因有两个：
+原因在于 https 本身的性质和 [PAC](####PAC)的原理。
 
-1. 没有进入 proxy 代理
-2. 实际的 proxy 地址有误
+回顾 `PAC` 的定义，实际上是浏览器通过代理对地址进行转发
 
-预计的解决方案之一，是先将 `https` 请求转化为 `http` 请求，再走代理。
+假设我们配置的是本地代理
+
+```
+SOCK5 127.0.0.1:7890
+```
+
+那么对于任意请求，浏览器会将请求转发给 `127.0.0.1:7890`，随后 `7890` 服务器将请求进行二次转发，获取返回的结果
+
+那么对于如下 `host`
+
+```
+192.0.200.1 test.com
+```
+
+我们解析出来的 `PAC Rule` 将是 `PROXY 192.0.200.1` ，当请求 `http://test.com` 这个地址时，会根据规则代理到 `http://192.0.200.1`，而转发的服务器 `http://192.0.200.1` 直接对响应进行返回，没有进行二次转发，进而实现与`DNS`解析类似的效果。
+
+而 https 的设计从本质上就不允许代理。因为 `HTTP over TLS` 出现的动机就是防止 [中间人攻击(Man-in-the-middle_attack)](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)，实现对交换数据的完整性和隐私性的保护。
+
+这里可能有两个小问题：
+
+1. 为什么系统级别的 https 是可以通过 http 进行代理？比如一些魔法工具进行命令行代理时候的命令是 `set http_proxy=http://127.0.0.1:7890 & set https_proxy=http://127.0.0.1:7890`
+2. 为什么浏览器中通过 `SOCKS` 可以进行 `https` 的代理？这两个问题还有待研究
+
+现在根据分析结果发现，我们在浏览器中借助 `PAC Rules` 将 `https://test.com` 转发至 `http://192.0.200.1` 的行为本身就是一种“中间人”行为。因此将 `https` 转发到基于 `https` 或者 `http` 的服务器代理，必然无法成功
+
+这也是为什么系统级的 [SwitchHosts](https://github.com/oldj/SwitchHosts) 项目核心实现 [setSystemHosts.ts](https://github.com/oldj/SwitchHosts/blob/master/src/main/actions/hosts/setSystemHosts.ts) 直接写入系统级的 hosts 文件不会有这种问题
+
+SwitchHosts 这类系统级的软件直接修改了 `hosts` 文件，在**真正意义**上改变了系统对 DNS 的解析；而浏览器插件本质上是一种代理请求拦截，系统对于 DNS 并没有发生改变。
+
+##### 解决方案设想
+
+1. 先将 `https` 请求转化为 `http` 请求，再走代理。
 
 - v2 版本解决方案，通过 [webRequest api](https://developer.chrome.com/docs/extensions/reference/webRequest/) 用来进行阻塞请求，同步修改
-- v3 版本引入 [declarativeNetRequest](https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/) 用来以特定的声明式规则 _阻塞_ 以及 _修改_ 网络请求
+- v3 版本引入 [declarativeNetRequest](https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/) 用来以特定的声明式规则 _阻塞_ 以及 _修改_ 网络请求，注意如果需要进行 `host` 级别的重定向，在 `manifest.json` 中 `permission` 需要欸外申请 `declarativeNetRequestWithHostAccess`
 
 ```javascript
 chrome.webRequest.onBeforeRequest.addListener(
@@ -305,13 +341,41 @@ chrome.webRequest.onBeforeRequest.addListener(
   },
   {
     urls: domains.map(function (domain) {
-      var url = 'https://' + domain + base + '/*';
+      const url = 'https://' + domain + base + '/*';
       return url;
     })
   },
   ['blocking']
 );
+// or
+chrome.declarativeNetRequest.updateDynamicRules(
+  {
+    addRules: [
+      {
+        // change the scheme of the URLs which match the domains of hosts
+        id: 1,
+        priority: 1,
+        action: {
+          type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
+          redirect: {
+            transform: { scheme: 'http' }
+          }
+        },
+        condition: {
+          urlFilter: `||${domain}`
+        }
+      }
+    ],
+    removeRuleIds: lastRuleIds
+  },
+  () => {
+    lastRuleIds = newRules.map((info) => info.id);
+  }
+);
 ```
+这个方案可以解决绝大部分情况，但有一种特殊情况会产生错误。
+
+考虑一个页面 `https://www.test.com`，页面内部有一个iframe `https://a.test.com`，同样需要进行host切换，这时会报错无法打开iframe
 
 #### 成品
 
@@ -321,16 +385,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 其中 `host-switch-plus` 已经从 Chrome WebStore 下架了，虽然 `awesome-host-manager` 仍能使用，但上一次 feat 更新也已经是四年前了，并且 `manifest` 版本还停留在 2 的版本。
 
-而且这两个插件的共同问题也是，**无法代理 `https`**。于是 fork 下 `awesome-host-manager` 再进行改造。虽然说要避免重复造轮子，鉴于[awesome-host-manager](https://github.com/keelii/awesome-host-manager)这个库在本地已经无法正确运行，其实几乎等同于看代码重构了
-
-
-改造后项目如下 [awesome-host-manager-v3](https://github.com/X-sky/awesome-host-manager.git)
-
-进行了如下改造
-
-1. 升级架构到 v3
-2. 简化原有的逻辑
-3. 解决 https 无法代理的问题
+于是干脆重开了一个项目，[HostsWitch](https://github.com/X-sky/HostsWitch)，使用 react+mui+jotai 开发
 
 #### 开发痛点
 
