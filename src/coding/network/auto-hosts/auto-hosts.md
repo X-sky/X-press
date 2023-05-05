@@ -373,17 +373,35 @@ chrome.declarativeNetRequest.updateDynamicRules(
   }
 );
 ```
-这个方案可以解决绝大部分情况，但有一种特殊情况会产生错误。
 
-考虑一个页面 `https://www.test.com`，页面内部有一个iframe `https://a.test.com`，同样需要进行host切换，这时会报错无法打开iframe
+这个方案可以解决绝大部分情况，但是会有一些特殊情况无法解决
+
+- iframe 重定向报错
+
+  考虑一个页面 `https://www.test.com`，页面内部有一个 `iframe` `https://a.test.com`，对于这两个页面：
+
+  - 都配置了 `host`
+  - `https://www.test.com` 和 `https://a.test.com` 都依赖于 `test.com` 域名下的 `cookie`
+
+  这时候打开页面会发现， `iframe` 的请求会发生错误，如果 cookie 是用来权限认证的，页面则会直接显示权限认证失败之类的错误码。
+
+  原因：iframe 中重定向后没有正确携带 Cookie。本质上与 [HTTP Cookie 策略](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)和浏览器的[cookie 机制](https://chromestatus.com/feature/5088147346030592)有关，导致 iframe 的导航链接中的 set-cookie 会被浏览器阻止，因而使得当前 iframe 没有 cookie。如果请求中的 `SameSite=Strict` 或者 `SameSite=Lax`（如果没有设置，chrome 会默认为 `SameSite=Lax`），那么浏览器就会阻止非顶级的请求 set-cookie，导致请求没有携带 cookie。当然如果都是 https 请求是没有问题，但是在重定向为 http 之后，就会出现错误
+
+  > This Set-Cookie header didn't specify a 'SameSite" attribute and was defaulted to "SameSite=Lax," and was blocked becaus a cross-site response which was not the response to a top-level navigation. The Set-Cookie had to have been set with "Sam to enable cross-site usage.
+
+- 无限重定向
+
+  某些特定页面在设置了 `Upgrade-Insecure-Requests: 1` 的情况下可能会导致无限重定向的问题。当服务端返回 `Location` 的时候，`http` 请求会被重定向为 `https` 的 `Location`，而新的 `https` 地址会被 extension 重定向为 `http`，因而导致无限循环
+
+  注：这个问题在无痕模式下不会产生。观察请求头 `Upgrade-Insecure-Requests: 1`仍然是存在的，推测是浏览器内部表现
 
 #### 成品
 
-把流程和技术点理清后，可以直接上 github 搜了，这种插件必然已经存在，但是出乎意料的是，插件并不多，可能是场景不多？
+把流程和技术点理清后，可以直接上 github 搜了，这种插件必然已经存在，但是出乎意料的是，插件并不多
 
-举例来说，有两个比较有代表性(star 较多)的插件 [host-switch-plus](https://github.com/Riant/host-switch-plus) 和 [awesome-host-manager](https://github.com/keelii/awesome-host-manager)。
+举例来说，有两个比较有代表性(star 较多)的插件 [host-switch-plus](https://github.com/Riant/host-switch-plus) 和 [awesome-host-manager](https://github.com/keelii/awesome-host-manager)
 
-其中 `host-switch-plus` 已经从 Chrome WebStore 下架了，虽然 `awesome-host-manager` 仍能使用，但上一次 feat 更新也已经是四年前了，并且 `manifest` 版本还停留在 2 的版本。
+其中 `host-switch-plus` 已经从 Chrome WebStore 下架了，虽然 `awesome-host-manager` 仍能从商店安装使用，但上一次 feat 更新也已经是四年前了，并且这两个插件技术相对较为老旧，本地调试困难， `manifest` 版本也还停留在 2 的版本
 
 于是干脆重开了一个项目，[HostsWitch](https://github.com/X-sky/HostsWitch)，使用 react+mui+jotai 开发
 
