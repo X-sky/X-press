@@ -57,11 +57,15 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       items: [
         {
+          text: 'host插件开发思考',
+          link: '/coding/frontend/auto-hosts/auto-hosts.md'
+        },
+        {
           text: 'text-align实现两端对齐',
           link: '/coding/frontend/text-align_justify/text-align_justify'
         },
         { text: '竞态问题', link: '/coding/frontend/race-condition' }
       ]
-    }
+    },
   ];
 }
