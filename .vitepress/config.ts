@@ -53,19 +53,19 @@ function getNavList(): DefaultTheme.NavItem[] {
 function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
   return [
     {
-      text: '前端相关',
+      text: 'Frontend',
       collapsed: false,
       items: [
         {
-          text: 'host插件开发思考',
+          text: 'Host Extension',
           link: '/coding/frontend/auto-hosts/auto-hosts.md'
         },
         {
-          text: 'text-align实现两端对齐',
+          text: 'Something wrong with Text-align:justify!',
           link: '/coding/frontend/text-align_justify/text-align_justify'
         },
-        { text: '竞态问题', link: '/coding/frontend/race-condition' },
-        { text: '关于迭代器', link: '/coding/frontend/iterator/iterator' }
+        { text: 'Race condition', link: '/coding/frontend/race-condition' },
+        { text: 'Iterator & Generator', link: '/coding/frontend/iterator/iterator' }
       ]
     },
   ];
