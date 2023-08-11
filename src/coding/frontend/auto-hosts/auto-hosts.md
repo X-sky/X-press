@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Hosts 之殇
+# Hosts 插件开发从入门到放弃
 
 ## 什么是 hosts
 
