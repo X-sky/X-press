@@ -65,8 +65,12 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
           link: '/coding/frontend/text-align_justify/text-align_justify'
         },
         { text: 'Race condition', link: '/coding/frontend/race-condition' },
-        { text: 'Iterator & Generator', link: '/coding/frontend/iterator/iterator' }
+        { text: 'Iterator & Generator', link: '/coding/frontend/iterator/iterator' },
+        {
+          text: 'vue通用组件库开发',
+          link: '/coding/frontend/vue-uni-comp/index.md'
+        }
       ]
-    },
+    }
   ];
 }
