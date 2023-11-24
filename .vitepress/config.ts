@@ -44,6 +44,12 @@ function getNavList(): DefaultTheme.NavItem[] {
           link:
             (getCodeSidebarList()[0].items || [])[0].link ||
             '/coding/frontend/race-condition'
+        },
+        {
+          text: 'Others',
+          link:
+            (getCodeSidebarList()[1].items || [])[0].link ||
+            '/coding/others/shortcuts/shortcuts'
         }
       ]
     }
@@ -68,5 +74,13 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
         { text: 'Iterator & Generator', link: '/coding/frontend/iterator/iterator' }
       ]
     },
+    {
+      text: 'Others',
+      collapsed: true,
+      items: [
+        { text: 'Keyboard Shortcut', link: '/coding/others/shortcuts/shortcuts' }
+      ]
+    },
   ];
 }
+
