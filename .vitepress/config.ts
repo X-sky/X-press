@@ -1,12 +1,16 @@
 import path from 'path';
 import { defineConfig } from 'vitepress';
 import type { DefaultTheme } from 'vitepress';
+import UnoCSS from 'unocss/vite'
 
 export default defineConfig({
   title: 'X-press',
   description: 'X-press - A VitePress Site With Mass Messy',
   srcDir: 'src',
   vite: {
+    plugins: [
+      UnoCSS()
+    ],
     resolve: {
       alias: {
         '@src': path.resolve(__dirname, '../src'),

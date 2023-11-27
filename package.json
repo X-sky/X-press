@@ -1,11 +1,10 @@
 {
+  "type": "module",
   "devDependencies": {
-    "@types/node": "^18.15.11",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.22",
-    "tailwindcss": "^3.3.1",
-    "typescript": "^5.0.4",
-    "vitepress": "1.0.0-alpha.72"
+    "@types/node": "^18.18.13",
+    "typescript": "^5.3.2",
+    "unocss": "^0.57.7",
+    "vitepress": "1.0.0-rc.31"
   },
   "scripts": {
     "dev": "vitepress dev",
@@ -13,6 +12,6 @@
     "preview": "vitepress preview"
   },
   "dependencies": {
-    "vue": "^3.2.47"
+    "vue": "^3.3.9"
   }
 }
