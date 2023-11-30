@@ -94,7 +94,6 @@ outline: deep
 | `Alt + d`    | 从光标处删除至字尾                |
 | `Alt + f`    | 按单词前移（右向）                |
 | `Alt + b`    | 按单词后移（左向）                |
-| `Ctrl + y`   | 粘贴至光标后                      |
 | `Alt + u`    | 光标所在向后全部为大写(uppercase) |
 | `Alt + l`    | 光标所在向后全部为小写(lowercase) |
 
