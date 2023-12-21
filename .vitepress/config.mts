@@ -52,6 +52,12 @@ function getNavList(): DefaultTheme.NavItem[] {
             '/coding/frontend/race-condition'
         },
         {
+          text: 'Python',
+          link:
+            (getCodeSidebarList()[1].items || [])[0].link ||
+            '/coding/python/markdowns/pythonCrashCourse'
+        },
+        {
           text: 'Others',
           link:
             (getCodeSidebarList()[2].items || [])[0].link ||
@@ -80,6 +86,16 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
         {
           text: 'Iterator & Generator',
           link: '/coding/frontend/iterator/iterator'
+        }
+      ]
+    },
+    {
+      text: 'Python',
+      collapsed: true,
+      items: [
+        {
+          text: 'Python Crash Course',
+          link: '/coding/python/markdowns/pythonCrashCourse'
         }
       ]
     },
