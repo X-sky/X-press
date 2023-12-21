@@ -1,15 +1,20 @@
 {
-  "type": "module",
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^18.18.13",
+    "consola": "^3.2.3",
+    "fast-glob": "^3.3.2",
+    "fs-extra": "^11.2.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.2",
     "unocss": "^0.57.7",
     "vitepress": "1.0.0-rc.31"
   },
   "scripts": {
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "preview": "vitepress preview"
+    "dev": "pnpm prepare && vitepress dev",
+    "build": "pnpm prepare && vitepress build",
+    "preview": "vitepress preview",
+    "prepare": "tsx ./scripts/ipynb2md"
   },
   "dependencies": {
     "vue": "^3.3.9"

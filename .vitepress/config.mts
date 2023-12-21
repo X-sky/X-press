@@ -1,16 +1,18 @@
+/**
+ * @description if file extension was not 'mts', vitepress will treat .ts file as commonjs module if no project-level "type: modules" specified, while vite deprecating cjs syntax. To avoid this problem, just change the ext to mts to tell vitepress that this file should be treated as an ESmodule.
+ */
+
 import path from 'path';
 import { defineConfig } from 'vitepress';
 import type { DefaultTheme } from 'vitepress';
-import UnoCSS from 'unocss/vite'
+import UnoCSS from 'unocss/vite';
 
 export default defineConfig({
   title: 'X-press',
   description: 'X-press - A VitePress Site With Mass Messy',
   srcDir: 'src',
   vite: {
-    plugins: [
-      UnoCSS()
-    ],
+    plugins: [UnoCSS()],
     resolve: {
       alias: {
         '@src': path.resolve(__dirname, '../src'),
@@ -52,7 +54,7 @@ function getNavList(): DefaultTheme.NavItem[] {
         {
           text: 'Others',
           link:
-            (getCodeSidebarList()[1].items || [])[0].link ||
+            (getCodeSidebarList()[2].items || [])[0].link ||
             '/coding/others/shortcuts/shortcuts'
         }
       ]
@@ -75,16 +77,21 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
           link: '/coding/frontend/text-align_justify/text-align_justify'
         },
         { text: 'Race condition', link: '/coding/frontend/race-condition' },
-        { text: 'Iterator & Generator', link: '/coding/frontend/iterator/iterator' }
+        {
+          text: 'Iterator & Generator',
+          link: '/coding/frontend/iterator/iterator'
+        }
       ]
     },
     {
       text: 'Others',
       collapsed: true,
       items: [
-        { text: 'Keyboard Shortcut', link: '/coding/others/shortcuts/shortcuts' }
+        {
+          text: 'Keyboard Shortcut',
+          link: '/coding/others/shortcuts/shortcuts'
+        }
       ]
-    },
+    }
   ];
 }
-
