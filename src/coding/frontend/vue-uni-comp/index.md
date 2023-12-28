@@ -74,14 +74,15 @@ foo();
 
 #### 关于 vue-demi
 
-
 ### 方案决策
+
 [Adapter or Container？](https://juejin.cn/post/7243413934765916219#heading-6)
 
 #### 关于创建服务式组件
-vue2和vue3的render模式不同。`vue3` 每一个组件都有对应的appContext，可以通过 [customRender](https://vuejs.org/api/custom-renderer.html#createrenderer) 创建自定义渲染。`element-plus` 中的 [MessageBox](https://github.com/element-plus/element-plus/blob/dev/packages/components/message-box/src/messageBox.ts) 就是使用了对应的方式，利用 `render` 函数实现api调用时，挂载组件。(`render` 就是 `vue` 内部利用 `createRenderer`创建的函数)。
 
-但是 `vue2` 单实例的模式决定了 `vue2` 不会有所谓的 `appContext`，也不会有 `render` 这样的api。因此只能通过 `Vue.extend(comp)` 的方式创建新的实例。因此我们的 `util` 中的 `useComponentService` 函数就不得不使用 `vue-demi` 的 `isVue2` 字段进行判断，造成输出代码的冗余。
+vue2 和 vue3 的 render 模式不同。`vue3` 每一个组件都有对应的 appContext，可以通过 [customRender](https://vuejs.org/api/custom-renderer.html#createrenderer) 创建自定义渲染。`element-plus` 中的 [MessageBox](https://github.com/element-plus/element-plus/blob/dev/packages/components/message-box/src/messageBox.ts) 就是使用了对应的方式，利用 `render` 函数实现 api 调用时，挂载组件。(`render` 就是 `vue` 内部利用 `createRenderer`创建的函数)。
+
+但是 `vue2` 单实例的模式决定了 `vue2` 不会有所谓的 `appContext`，也不会有 `render` 这样的 api。因此只能通过 `Vue.extend(comp)` 的方式创建新的实例。因此我们的 `util` 中的 `useComponentService` 函数就不得不使用 `vue-demi` 的 `isVue2` 字段进行判断，造成输出代码的冗余。
 
 ### 仓库结构
 
@@ -116,6 +117,7 @@ export default {
   }
 };
 ```
+
 理论上这样我们就暂时实现了不同的容器隔离。
 
 但是实际上这里有一个潜在的问题，那就是 `vue-template-compiler` 的 `vue` 依赖是没有显性的规定在 `peerDependencies` 中的。因为 `vue` 的版本需要与 `vue-template-compiler` 的版本 **完全一致**，因此 `vue-template-compiler` 只是在其 `index.js` 的头部做了一次检测:

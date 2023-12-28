@@ -86,6 +86,10 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
         {
           text: 'Iterator & Generator',
           link: '/coding/frontend/iterator/iterator'
+        },
+        {
+          text: 'Test Automation',
+          link: '/coding/frontend/vue-uni-comp/test'
         }
       ]
     },
