@@ -24,6 +24,7 @@ export default defineConfig({
     outline: {
       label: '----目录----'
     },
+    logo: '/logo.svg',
     nav: getNavList(),
     sidebar: {
       '/coding/': getCodeSidebarList()

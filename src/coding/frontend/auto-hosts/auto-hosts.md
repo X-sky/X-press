@@ -278,6 +278,7 @@ function FindProxyForURL(url, host) {
 `FindProxyForURL` 方法中的 `shExpMatch(str, shexp)` 是一种 预定义函数 _predefined function_，用法可以参考[mdn](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file#shexpmatch)，用于判断一个 `str` 是否匹配给出的 `shexp` shell expression。
 
 借助预定义函数，我们可以实现更多配置选项，比如 `isPlainHostName(host)`，判断 `host` 是否为非域名型 hostname.
+
 ```javascript
 isPlainHostName('www.mozilla.org'); // false
 isPlainHostName('www'); // true
@@ -286,12 +287,11 @@ isPlainHostName('www'); // true
 再比如，在实际操作中，我们可以借用了预定义函数中的 `localHostOrDomainIs()` 来匹配所有 `sub domain` 的地址
 
 ```javascript
-localHostOrDomainIs("www.mozilla.org", "www.mozilla.org") // true (exact match)
-localHostOrDomainIs("www", "www.mozilla.org") // true (hostname match, domain not specified)
-localHostOrDomainIs("www.google.com", "www.mozilla.org") // false (domain name mismatch)
-localHostOrDomainIs("home.mozilla.org", "www.mozilla.org") // false (hostname mismatch)
+localHostOrDomainIs('www.mozilla.org', 'www.mozilla.org'); // true (exact match)
+localHostOrDomainIs('www', 'www.mozilla.org'); // true (hostname match, domain not specified)
+localHostOrDomainIs('www.google.com', 'www.mozilla.org'); // false (domain name mismatch)
+localHostOrDomainIs('home.mozilla.org', 'www.mozilla.org'); // false (hostname mismatch)
 ```
-
 
 #### https
 
@@ -341,7 +341,7 @@ SwitchHosts 这类系统级的软件直接修改了 `hosts` 文件，在**真正
 1. 先将 `https` 请求转化为 `http` 请求，再走代理。
 
 - v2 版本解决方案，通过 [webRequest api](https://developer.chrome.com/docs/extensions/reference/webRequest/) 用来进行阻塞请求，同步修改
-- v3 版本引入 [declarativeNetRequest](https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/) 用来以特定的声明式规则 _阻塞_ 以及 _修改_ 网络请求，注意如果需要进行 `host` 级别的重定向，在 `manifest.json` 中 `permission` 需要欸外申请 `declarativeNetRequestWithHostAccess`
+- v3 版本引入 [declarativeNetRequest](https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/) 用来以特定的声明式规则 _阻塞_ 以及 _修改_ 网络请求，注意如果需要进行 `host` 级别的重定向，在 `manifest.json` 中 `permission` 需要额外申请 `declarativeNetRequestWithHostAccess`
 
 ```javascript
 chrome.webRequest.onBeforeRequest.addListener(
