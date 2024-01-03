@@ -10,9 +10,11 @@ const concatLines = (lines: string[]) =>
   }, '');
 
 const generateCodeBlock = (str: string) => `
+::: details Code Example
 \`\`\`python
 ${str}
 \`\`\`
+:::
 `;
 
 /** part of fields of ipynb cell info */
