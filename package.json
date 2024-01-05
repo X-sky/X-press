@@ -14,7 +14,7 @@
     "dev": "pnpm prepare && vitepress dev",
     "build": "pnpm prepare && vitepress build",
     "preview": "vitepress preview",
-    "prepare": "tsx ./scripts/ipynb2md"
+    "prepare": "tsx ./scripts/python-prepare"
   },
   "dependencies": {
     "vue": "^3.3.9"
