@@ -56,7 +56,7 @@ function getNavList(): DefaultTheme.NavItem[] {
           text: 'Python',
           link:
             (getCodeSidebarList()[1].items || [])[0].link ||
-            '/coding/python/markdowns/pythonCrashCourse'
+            '/coding/python/markdowns/pythonCrashCourse/index'
         },
         {
           text: 'Others',
@@ -96,7 +96,13 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
       items: [
         {
           text: 'Python Crash Course',
-          link: '/coding/python/markdowns/pythonCrashCourse'
+          link: '/coding/python/markdowns/pythonCrashCourse/index',
+          items: [
+            {
+              text: 'Web App based on Django',
+              link: '/coding/python/markdowns/pythonCrashCourse/python-web-app'
+            }
+          ]
         }
       ]
     },
