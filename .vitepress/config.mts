@@ -100,7 +100,7 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
           items: [
             {
               text: 'Web App based on Django',
-              link: '/coding/python/markdowns/pythonCrashCourse/python-web-app'
+              link: '/coding/python/markdowns/pythonCrashCourse/web-app'
             }
           ]
         }
