@@ -11,6 +11,7 @@ export default defineConfig({
   title: 'X-press',
   description: 'X-press - A VitePress Site With Mass Messy',
   srcDir: 'src',
+  base: '/X-press/',
   vite: {
     plugins: [UnoCSS()],
     resolve: {
