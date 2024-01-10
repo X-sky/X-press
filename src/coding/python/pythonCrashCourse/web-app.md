@@ -342,9 +342,9 @@ def new_topic(request):
 
 ::: tip
 
-`Django` 中 `forms` 模块具体的`Field` 和 `常用方法` 可以参考[这里]([Form fields | Django documentation | Django (djangoproject.com)](https://docs.djangoproject.com/en/4.2/ref/forms/fields/))
+`Django` 中 `forms` 模块具体的`Field` 和 `常用方法` 可以参考[这里](http://docs.djangoproject.com/en/4.2/ref/forms/fields/)
 
-关于模板 API 可以参考[这里]([The Forms API | Django documentation | Django (djangoproject.com)](https://docs.djangoproject.com/en/4.2/ref/forms/api/))
+关于模板 API 可以参考[这里](https://docs.djangoproject.com/en/4.2/ref/forms/api/)
 
 :::
 
@@ -380,7 +380,7 @@ accounts/reset/done/ [name='password_reset_complete']
 
 :::
 
-更多关于权限系统的介绍可以查看[官方文档]([Using the Django authentication system | Django documentation | Django (djangoproject.com)](https://docs.djangoproject.com/en/4.2/topics/auth/default/))
+更多关于权限系统的介绍可以查看官方文档 [Using the Django authentication system](https://docs.djangoproject.com/en/4.2/topics/auth/default/)
 
 ### User System
 
