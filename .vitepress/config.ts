@@ -6,24 +6,31 @@ import path from 'path';
 import { defineConfig } from 'vitepress';
 import type { DefaultTheme } from 'vitepress';
 import UnoCSS from 'unocss/vite';
+import { pythonWatcherPlugin } from './plugins';
 
+const BASE_DIR = '/X-press';
 export default defineConfig({
   title: 'X-press',
   description: 'X-press - A VitePress Site With Mass Messy',
   srcDir: 'src',
-  base: '/X-press/',
+  base: `${BASE_DIR}/`,
   vite: {
-    plugins: [UnoCSS()],
+    plugins: [UnoCSS(), pythonWatcherPlugin()],
     resolve: {
       alias: {
         '@src': path.resolve(__dirname, '../src'),
-        '@theme/*': path.resolve(__dirname, './theme')
+        '@theme/*': path.resolve(__dirname, './theme'),
+        'fs-extra': path.resolve(
+          __dirname,
+          '../node_modules/fs-extra/lib/esm.mjs'
+        )
       }
     }
   },
+  head: [['link', { rel: 'icon', href: `${BASE_DIR}/logo.svg` }]],
   themeConfig: {
     outline: {
-      label: '----目录----'
+      label: '----In this page----'
     },
     logo: '/logo.svg',
     nav: getNavList(),
