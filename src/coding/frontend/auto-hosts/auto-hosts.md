@@ -293,6 +293,30 @@ localHostOrDomainIs('www.google.com', 'www.mozilla.org'); // false (domain name 
 localHostOrDomainIs('home.mozilla.org', 'www.mozilla.org'); // false (hostname mismatch)
 ```
 
+:::tip 自定义 url 处理函数
+
+尽管 `FindProxyForURL` 为我们提供了许多常用的 `内置函数 (predefined functions)`. 我们仍然可以通过自定义函数扩展 `PAC file` 的能力
+
+```javascript
+function isNumericIP(host) {
+  // A regular expression that matches a valid IP address in dotted-decimal notation
+  var ipRegex = new RegExp('^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$', 'g');
+  // Test the host against the regular expression and return the result
+  return ipRegex.test(host);
+}
+
+function FindProxyForURL(url, host) {
+  if (isNumericIP(host)) {
+    return 'DIRECT';
+  }
+  // --snip--
+}
+```
+
+可以通过 [PAC 在线测试工具](https://thorsen.pm/proxyforurl) 测试编写的 `PAC file` 是否可用
+
+:::
+
 #### https
 
 插件的初步开发到此基本就结束了。综合使用的技术回顾一下代理流程
