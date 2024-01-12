@@ -107,7 +107,11 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
           link: '/coding/python/markdowns/pythonCrashCourse/index',
           items: [
             {
-              text: 'Web App based on Django',
+              text: 'Visualize Data',
+              link: '/coding/python/markdowns/pythonCrashCourse/data-visualizing'
+            },
+            {
+              text: 'Build Web App',
               link: '/coding/python/markdowns/pythonCrashCourse/web-app'
             }
           ]
