@@ -65,10 +65,12 @@ export function transformJupyterBookFile(filePath: string): string {
   const content = fs.readJSONSync(filePath);
   if (Array.isArray(content?.cells)) {
     const cells: PartialIpynbCellInfo[] = content.cells || [];
-    const transformedContent = cells.reduce((acc, cur) => {
-      acc += `\n${processCell(cur)}`;
-      return acc;
-    }, '');
+    const transformedContent = cells
+      .reduce((acc, cur) => {
+        acc += `\n${processCell(cur)}`;
+        return acc;
+      }, '')
+      .slice(1);
     return transformedContent;
   }
   buildLog.fail(`transform failed: ${filePath} not a valid jupyter book file`);
