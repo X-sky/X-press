@@ -3,5 +3,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "vscode-edge-devtools.defaultUrl": "http://localhost:5173/X-press/"
 }
