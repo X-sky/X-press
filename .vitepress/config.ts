@@ -38,7 +38,19 @@ export default defineConfig({
       '/coding/': getCodeSidebarList()
     },
     editLink: {
-      pattern: 'https://github.com/X-sky/X-press/blob/main/src/:path',
+      pattern: ({ frontmatter, relativePath }) => {
+        const commonRootPrefix =
+          'https://github.com/X-sky/X-press/blob/main/src/';
+        if (frontmatter.ipynb) {
+          const ipynbPath = relativePath
+            .replace(/.md$/i, '.ipynb')
+            .replace(`markdowns/`, '');
+          // ipynb预转换的文件需要修改编辑链接
+          return `${commonRootPrefix}${ipynbPath}`;
+        } else {
+          return `${commonRootPrefix}${relativePath}`;
+        }
+      },
       text: 'Edit this page on GitHub'
     },
     socialLinks: [
@@ -112,7 +124,7 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
             },
             {
               text: 'Build Web App',
-              link: '/coding/python/markdowns/pythonCrashCourse/web-app'
+              link: '/coding/python/pythonCrashCourse/web-app'
             }
           ]
         }

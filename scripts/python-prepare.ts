@@ -8,7 +8,7 @@ import buildLog from '../utils/buildLog';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const PY_OUTPUT_DIR_NAME = 'markdowns';
+export const PY_OUTPUT_DIR_NAME = 'markdowns';
 const PY_ROOT_DIR = resolve(__dirname, '../src/coding/python');
 const PY_OUT_DIR = resolve(PY_ROOT_DIR, PY_OUTPUT_DIR_NAME);
 /** get target out directory according to srcPath */
@@ -82,18 +82,12 @@ export async function processFile(srcPath: string): Promise<void> {
     return;
   }
   // process files
-  const ext = extname(srcPath);
-  const filename = basename(srcPath, ext);
   const curOutDirPath = getTargetOutDirPath(srcPath);
   // make sure dir exists
   fs.ensureDirSync(curOutDirPath);
-  if (ext === '.ipynb') {
-    const transformedContent = transformJupyterBookFile(srcPath);
-    const outputFilePath = getOutputFilePath(srcPath);
-    return fs.writeFile(outputFilePath, transformedContent);
-  } else {
-    return fs.copy(srcPath, resolve(curOutDirPath, `${filename}${ext}`));
-  }
+  const transformedContent = transformJupyterBookFile(srcPath);
+  const outputFilePath = getOutputFilePath(srcPath);
+  return fs.writeFile(outputFilePath, transformedContent);
 }
 /**
  * traverse python directory
@@ -114,12 +108,18 @@ async function dirWalker(dir: string, taskList: Promise<void>[] = []) {
       // ignore this file or dir
       continue;
     }
+
     if (fs.statSync(curSourcePath).isDirectory()) {
       // recursively walk sub dirs
       await dirWalker(curSourcePath, taskList);
       continue;
+    } else {
+      const ext = extname(curSourcePath);
+      if (ext === '.ipynb') {
+        // 仅处理ipynb文件
+        taskList.push(processFile(curSourcePath));
+      }
     }
-    taskList.push(processFile(curSourcePath));
   }
   return taskList;
 }
