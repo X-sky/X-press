@@ -52,7 +52,7 @@ like immutable variables, _constants_ are not allowed to change. However, there 
 
 #### Shadowing
 
-> While variables are immutable by default, you can declare a new variable with the same name as a previous variable. It is normally called _shadowing_.
+> While variables are immutable by default, you can define a new variable with the same name as a previous variable. It is normally called _shadowing_.
 
 The key concept of shadowing is that it means overriding inside a scope instead of actually affecting the variables, which means:
 
@@ -83,6 +83,8 @@ Rust usually _infer_ what type we want to use based on the value and how we use 
 let guess = "42".parse().expect("Not a number!"); // error[E0282]: type annotations needed
 let guess: i8 = "42".parse().expect("Not a number!"); // it's ok.
 ```
+
+Some more complex types like `struct` will be introduced afterwards.
 
 #### Scalar Types
 
@@ -235,6 +237,179 @@ Similar to the number range panic, if you try to access an element of an array t
 
 This kind of runtime error may not occur in many other languages like C++, which may be confusing to get an invalid memory.
 
-However, if you declare an array with explicit numbers and also try to access with explicit number past the end of the array, Rust will fail to compile as usual.
+However, if you define an array with explicit numbers and also try to access with explicit number past the end of the array, Rust will fail to compile as usual.
 
 :::
+
+### Functions
+
+Rust code uses snake_case as the conventional style for function and variable names. Like `javascript`, Rust will elevate the functions to the top of the scope, which means you can call a function which was defined afterwards in the scope.
+
+```rust
+fn main() {
+  another_func();
+}
+
+fn another_func(x: i32) {
+  println!("The value of x is: {x}");
+}
+```
+
+In function signatures, you _must_ declare the type of each parameter.
+
+#### Statements and Expressions
+
+**Statements** are instructions that perform some action and do not return a value. `let x = 6` does not return value.
+
+**Expressions** evaluate to a resultant value.
+
+- calling a function `any_func()` is an expression.
+- Calling a macro `println!("1")` is an expression.
+- A new scope block `{}` is an expression.
+
+Rust is an expression-based language.
+
+#### Functions with Return Values
+
+In Rust, the return value of the function is synonymous with the value of the final expression in the block of the body of the function.
+
+You can explicitly return early using `return` keyword, or the last expression will be returned implicitly.
+
+The type of the return values should be declared after an arrow `->`. Exp: `fn five() -> i32 {}`. If omitted, Rust will treat the return type as `()`
+
+::: warning
+
+It's important to distinguish the differences between `statements` and `expressions`. Though Rust will return the last expression of the function, it has to be explicitly _expressed_. The code snippet below will occur an error for the there is no so-called last expression. Remove the semicolon, and it will be alright.
+
+```rust
+fn main() {
+  let x = plus_one(5);
+
+  println!("The value of x is: {x}");
+}
+
+fn plus_one(x: i32) -> i32 {
+  x + 1; [!code error]
+}
+```
+
+:::
+
+### Control Flow
+
+#### if Expressions
+
+Like all other languages like `python`, Rust has built-in `tuple` type declared by `()`, which may be the reason the condition controls in these languages don't need any parentheses. However, in Rust, they still need to be wrapped in brackets.
+
+```rust
+fn main() {
+  let num = 3;
+
+  if num < 5 {
+    println!("condition is true");
+  } else {
+    println!("condition is true");
+  }
+}
+```
+
+You can also using `if` in `let` statement like conditional operator in `javascript`.
+
+```rust
+fn main() {
+  let condition = true;
+  let number = if condition { 5 } else { 6 };
+  println!("The value of number is: {number}");
+}
+```
+
+If the types are mismatched, as in the following example, we’ll get an error:
+
+```rust
+fn main() {
+  let condition = true;
+  let number = if condition { 5 } else { "six" }; [!code error]
+  println!("The value of number is: {number}");
+}
+```
+
+#### Repetition with Loops
+
+Rust has 3 kinds of loops: `loop` `while` `for`
+
+##### Loop
+
+The `loop` keyword tells Rust to execute a block of code over and over again forever or until you explicitly tell it to stop.
+
+```rust
+fn main() {
+  let mut counter = 0;
+
+  let result = loop {
+    counter += 1;
+    if counter == 10 {
+      break counter * 2;
+    }
+  }
+
+  println!("The result is {result}"); // 20
+}
+```
+
+::: info
+
+`break` is very similar to `return`. So the `counter * 2` after `break` is technically optional. if omitted, the Rust compiler treats `break` and `return` expression as having the value unit `()`.
+
+:::
+
+If you have loops within loops, `break` and `continue` apply to the innermost loop at that point. You can optionally specify a `loop label` on a loop to specify the target.
+
+```rust
+fn main() {
+    let mut count = 0;
+    'counting_up: loop {
+        println!("count = {count}");
+        let mut remaining = 10;
+
+        loop {
+            println!("remaining = {remaining}");
+            if remaining == 9 {
+                break;
+            }
+            if count == 2 {
+                break 'counting_up;
+            }
+            remaining -= 1;
+        }
+
+        count += 1;
+    }
+    println!("End count = {count}");
+}
+```
+
+It's NOT recommended to break with values inside multiple loops. The `mismatched types` error will be a catastrophe.
+
+##### while and for
+
+In a word, `while` is a _conditional_ `loop` and `for` is a `loop` for _iterables_
+
+```rust
+fn main() {
+    // while
+    let mut number = 3;
+
+    while number != 0 {
+        println!("{number}!");
+
+        number -= 1;
+    }
+    println!("while LIFTOFF!!!");
+
+    let list = [1, 2, 3, 4];
+    for el in list {
+      println!("the value in list is: {el}");
+    }
+    println!("for LIFTOFF!!!");
+}
+```
