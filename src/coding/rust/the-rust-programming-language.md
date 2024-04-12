@@ -1,3 +1,7 @@
+---
+outline: deep
+---
+
 # The Rust Programming Language
 
 > reading notes of [The Rust Programming Language](https://rust-book.cs.brown.edu/ch03-00-common-programming-concepts.html) from the official site of Rust.
@@ -411,5 +415,145 @@ fn main() {
       println!("the value in list is: {el}");
     }
     println!("for LIFTOFF!!!");
+}
+```
+
+## Ownership
+
+> Ownership is Rust’s most unique feature and has deep implications for the rest of the language.
+
+Ownership is a discipline for ensuring the safety of Rust programs.
+
+### Understanding Safety in Rust
+
+A foundational goal of Rust is to ensure that your programs never have undefined behavior. And **ANY UNDEFINED BEHAVIOR** will be checked by Rust at compile-time. For example, the memory corruption.
+
+The compile-time checking has two motivations over run-time checking:
+
+1. Avoiding bugs in production will improve the reliability of your software.
+2. Fewer run-time checks will improve the performance.
+
+Conclusively, safety IS the absence of undefined behavior.
+
+### Ownership as a Discipline for Memory Safety
+
+Since ownership is about safety, the absence of undefined behavior, we need to understand ownership in terms of WHAT undefined behaviors it prevents.
+
+From a large list of ["Behavior considered undefined"](https://doc.rust-lang.org/reference/behavior-considered-undefined.html) The Rust Reference maintains, we will focus on one category: operations on memory.
+
+::: info about memory
+
+Memory is the space where data is stored during the execution of a program, some respected as `RAM`, some `malloc`, and others as other forms, but NONE of them is a useful way to think about how Rust works.
+
+:::
+
+### Variables Live in the Stack
+
+Variables live in **frames**. A frame is a mapping from variables to values within a single scope, such as a function.
+
+![Stack](./the-rust-programming-language/assets/stack.png)
+
+The diagram above shows the contents of memory during the program's execution at the three marked points `L1` `L2` and `L3`.
+
+Frames are organized into a stack of currently-called-functions:
+
+1. `fn main` is called, a variable stack (aka what we call frame) of `main` is allocated from memory. And this frame hold `n=5`
+2. `fn plus_one` is called, a frame B holds `x=5` is allocated.
+3. `fn plus_one` is finished, frame B will be _deallocated_(also known as freed or dripped) and the frame for main will hold another variable
+
+Note that this memory model does not fully describe how Rust actually works! Only a simpler case for understanding the safety in Rust.
+
+### Boxes Live in the Heap
+
+However，copying data can take up a lot of memory. For example, the `copy` behavior below causes the `main` frame to contain 2 million elements.
+
+```rust
+let a = [0; 1_000_000];
+let b = a;
+```
+
+To transfer access to data without copying it, Rust uses pointers. A pointer is a value that describes a location in memory. The value that a pointer points-to is called its pointee.
+
+One common way to make a pointer is to allocate memory in the heap. Head data is NOT tied to a specific stack frame.
+
+Rust provides a construct called `Box` for putting data on the heap like this.
+
+![Stack](./the-rust-programming-language/assets/heap.png)
+
+Note that `a` is now grayed because it has been moved because of the [Box Deallocation Principle](#box-deallocation-principle) we'll talk about later.
+
+### Collections Use Boxes
+
+Boxes are used by Rust data structures1 like Vec, String, and HashMap to hold a variable number of elements.
+
+These data structures don't use the literal Box type. For example, String is implemented with Vec, and Vec is implemented with RawVec rather than Box. But types like RawVec are still box-like: they own memory in the heap.
+
+```rust
+fn main() {
+    let first = String::from("Ferris");
+    let full = add_suffix(first);
+    println!("{full}");
+    println!("first"); //[!#code error] variables cannot be used after being moved
+}
+
+fn add_suffix(mut name: String) -> {
+    name.push_str(" Jr.");
+    name
+}
+```
+
+#### Box Deallocation Principle
+
+> (almost correct) If a variable is bound to a box, when Rust deallocate the variable's frame, then Rust deallocates the box's heap memory.
+
+The codes above has a boxed array bound to both `a` and `b`. However by the "almost correct" principle, Rust would try to free the heap memory _twice_ on behalf of both variables, which is undefined behavior too! To avoid this, we finally arrive ownership.
+
+> (fully correct): If a variable OWNS a box, when Rust deallocates the variable's frame, then Rust deallocates the box's heap memory.
+
+::: info heap and stack
+
+- Frames in the stack are associated with a specific function, and are deallocated when the function returns, which is automatically managed by Rust while data on the heap can live **INDEFINITELY**.
+- Both data can be MUTABLE and COPYABLE.
+- Both allowed to contain pointers
+
+:::
+
+#### Moved Heap Data Principle
+
+> if a variable `x` moves ownership of heap data to another variable `y`, then `x` cannot be used after the move.
+
+You may notice that there is an error line in the [example](#collections-use-boxes). That's because variables cannot be used after being moved due to memory safety.
+
+Reading `first` pointing to deallocated memory is a violation of memory safety. It is NOT the pointing itself but the USING/READING of the variable, an undefined behavior. See this example
+
+```rust
+fn main() {
+    let b = Box::new(0);
+    let b2 = b;
+    println!("{}", b);
+    move_a_box(b2);
+}
+fn move_a_box(b: Box<i32>) {
+  // This space intentionally left blank
+}
+```
+
+Just doing `let b2 = b;` and then print it is not an undefined behavior, though `b` is moved but its data is NOT deallocated until `move_a_box` is called.
+
+Therefore if we comment the `move_a_box(b2)`, the program is technically safe, although still rejected by Rust and won't compile.
+
+One way to avoid moving data is to `clone` it using `.clone()` method.
+
+```rust
+fn main() {
+    let first = String::from("Ferris");
+    let full = add_suffix(first.clone());
+    println!("{full}");
+    println!("first"); // it's alright!
+}
+
+fn add_suffix(mut name: String) -> {
+    name.push_str(" Jr.");
+    name
 }
 ```
