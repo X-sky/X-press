@@ -506,7 +506,7 @@ fn add_suffix(mut name: String) -> {
 
 > (almost correct) If a variable is bound to a box, when Rust deallocate the variable's frame, then Rust deallocates the box's heap memory.
 
-The codes above has a boxed array bound to both `a` and `b`. However by the "almost correct" principle, Rust would try to free the heap memory _twice_ on behalf of both variables, which is undefined behavior too! To avoid this, we finally arrive ownership.
+The [codes above](#boxes-live-in-the-heap) has a boxed array bound to both `a` and `b`. However by the "almost correct" principle, Rust would try to free the heap memory _twice_ on behalf of both variables, which is undefined behavior too! To avoid this, we finally arrive ownership.
 
 > (fully correct): If a variable OWNS a box, when Rust deallocates the variable's frame, then Rust deallocates the box's heap memory.
 
@@ -557,3 +557,91 @@ fn add_suffix(mut name: String) -> {
     name
 }
 ```
+
+### References and Borrowing
+
+So far, Rust provides boxes and moves for safely programming with the heap. However, move-only APIs can be inconvenient to use. Strings, for instance, are very common in programs to be used for more than once.
+
+An alternate solution is to `return` the ownership of the strings.
+
+```rust
+fn main() {
+    let s = String::from("Hello");
+    let s_again = greet(s);
+    println!("{s_again}")
+}
+fn greet(s: String) -> String {
+    println!("inside greet {s}");
+    s
+}
+```
+
+This style of program is quite verbose. Therefore Rust provides a concise style of reading and writing without moves. References.
+
+> References are non-owning pointers (again, a pointer is a value that describes a location in memory). The do not OWN the data they point to.
+
+References make it easier to write the program in a more convenient manner.
+
+```rust
+fn main() {
+    let m1 = String::from("Hello");
+    let m2 = String::from("world");
+    greet(&m1, &m2);
+    let s = format!("{m1}, {m2}");
+}
+fn greet(g1: &String, g2: &String) {
+    println!("inside greet {g1}, {g2}")
+}
+```
+
+### Dereference
+
+The previous example has not shown how Rust "follows" a pointer to data. The `println!` macro has mysteriously worked for both _owned strings_ and for _string references_. The underlying mechanism is the **dereference** operator.
+
+```rust
+fn main() {
+    let mut x: Box<i32> = Box::new(1);
+    let a: i32 = *x;         // *x reads the heap value, so a = 1
+    *x += 1;                 // *x on the left-side modifies the heap value,
+                            //     so x points to the value 2
+
+    let r1: &Box<i32> = &x;  // r1 points to x on the stack
+    let b: i32 = **r1;       // two dereferences get us to the heap value
+
+    let r2: &i32 = &*x;      // r2 points to the heap value directly
+    let c: i32 = *r2;    // so only one dereference is needed to read it
+}
+```
+
+`**` is pretty common in `C++`, as we call it `a pointer to the pointer`. Here is an example to help understanding.
+
+```rust
+fn main() {
+    let x = Box::new(0);
+    let y = Box::new(&x);
+    // need there dereference operators to get a copy of number 0 out of Box.
+    let copy_0 = ***y;
+}
+```
+
+### Rust Avoids Simultaneous Aliasing and Mutation
+
+Aliasing itself is harmless but combined with mutation is a recipe for disaster.
+
+- Once the aliased data deallocated, the variable would point to deallocated memory.
+- Once the aliased data mutated, another variable would have invalidating runtime properties.
+- Concurrently mutating the aliased data will cause a data race condition.
+
+To avoid these issues, Rust follows a basic principle: Pointer Safety Principle.
+
+#### Pointer Safety Principle
+
+> data should never be aliased and mutated at the same time.
+
+By design, references are meant to temporarily create aliases. Rust ensures the safety of references through the **borrow checker**.
+
+The core idea behind the borrow checker is that variables have three kinds of permissions on their data:
+
+- Read (R): data can be copied to another location.
+- Write (W): data can be mutated in-place.
+- Own (O): data can be moved or dropped.
