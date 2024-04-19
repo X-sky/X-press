@@ -316,3 +316,28 @@ describe('test UniTemplate', () => {
 ```
 
 这样我们就完成了一个最简单的带交互的组件测试。当然一个组件还会有插槽 (slot)、事件传递 (Event Emit) 等组件间交互事件，但基本不会离开所谓的测试三大件 `describe` `test` `expect`
+
+### 关于 vitest
+
+在示例的`monorepo`项目中，由于 `vue` 的版本不同，使用方式也不同，因此在引入 `vitest` 之后，出现了 `vue3` 可以正常通过，但是 `vue2` 没办法通过的问题。这个问题在另一个 `vue2` 和 `vue3` [通用的组件库模板](vue-uni-component) 中可以得到复现。该仓库使用 `resolve` 的方式，将 `vue` 和 `vue-demi` 引流至不同的 `container` 下面，解决了编译错误的问题。
+
+而对于单元测试，由于依赖模板编译，因此对于模板编译测试库 `@vue/test-utils` 也需要根据 `vue` 的版本将其引流至不同的 `container` 下面，避免冲突和编译错误
+
+理论上到此应该可以直接通过运行 `vitest` 实现一套代码对 `vue2` 和 `vue3` 版本的单元测试。但是实际上运行 `vitest run` 的时候会出现错误 `SyntaxError: The requested module 'vue' does not provide an export named 'default'`。这个错误在开发 `monorepo` 下多版本 `vue` 组件库的时候曾经频繁出现过。很明显是 `resolve` 依赖没有生效。在 `import Vue from 'vue'` 的时候，没有使用 `container` 下面对应的 `vue`。
+
+`vitest` 底层是依赖 `vite` 启动服务的，因此解析依赖理论上也应该遵从 `vite` 的逻辑。但是 `vite dev` 又是正常的。因此我们可以得出结论，`vitest` 与 `vite dev` 使用了不同的依赖解析方式。`vitest` 的 `node_modules` 中的依赖解析没有遵从 `vite` 的配置。
+
+查看 `vitest` 官网中关于 [外部依赖解析](https://vitest.dev/config/#server-deps-external) 的说明可以发现，`vitest` 底层运行逻辑不会解析外部依赖，而是直接传递给 `node` 进行解析。查看 [vitest 源码](https://github.com/vitest-dev/vitest/blob/413ec5e6fc0addb2216db6104228138f8027f392/packages/vitest/src/node/config.ts#L204) 也可以发现，`vitest` 在解析时，并不直接调用 `vite`，而是使用了 `vitenode`。而要解决这个表现不一致的问题，只需要在 `server.deps.inline` 中规定那些需要特殊传递给 `vite` 解析的依赖即可
+
+```typescript
+// vite.config.ts
+export default {
+  test: {
+    server: {
+      deps: {
+        inline: ['vue', 'vue-demi']
+      }
+    }
+  }
+};
+```
