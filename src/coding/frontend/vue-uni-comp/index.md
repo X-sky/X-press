@@ -8,15 +8,85 @@ outline: deep
 
 ## 组件库开发
 
-### 前置知识
+### vue 组件库原理
 
-#### vue 组件库原理
+在开发组件库之前，我们需要先搞清楚两个问题：
+
+1. 什么是组件
+2. 什么是组件库
+
+只有搞清楚这两个问题，我们才能知道自己要开发什么，自己在开发什么
+
+#### 什么是组件
+
+我们日常开发中最常接触的就是组件开发。但这里首先需要澄清一个概念：组件 ≠ SFC。根据 `vue` 官网的[定义](https://vuejs.org/guide/scaling-up/sfc.html)
+
+> SFC 是一种特殊的文件格式，允许我们 Vue 组件的把模板、逻辑和样式聚合在一个文件中。Vue SFC 是一种框架特定(framework-specific)类型文件，因此必须被 `@vue/compiler-sfc` 预编译成标准的 javascript 和 css。
+
+因此，SFC 只是 vue 组件的一种表现形式，jsx，h 函数无不如是。但 SFC 是一个帮助我们理解组件的很好的切口————它最终会被编译为标准的 javascript。一个编译后的 SFC 是标准的 ES 模块，`vue`官网也提供了 [SFC-playfround](https://play.vuejs.org/)，可以更直观的看到它们是如何被编译的。
+
+于是我们的第一个问题【什么是组件？】就得到了很好的回答：
+
+"Nothing magic, just javascript."
+
+#### app.use 的时候发生了什么
+
+当我们使用各种基于 `vue` 的插件/组件的时候，我们熟悉了这样的用法：
+
+```typescript
+// 摘自element-plus官网 https://element-plus.org/zh-CN/guide/quickstart.html
+// main.ts
+import { createApp } from 'vue';
+import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
+import App from './App.vue';
+
+const app = createApp(App);
+
+app.use(ElementPlus);
+app.mount('#app');
+```
+
+或者是 `vue2` 版本的
+
+```javascript
+// 摘自element-ui官网 https://element.eleme.cn/2.0/#/zh-CN/component/installation
+import Vue from 'vue';
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+import App from './App.vue';
+
+Vue.use(ElementUI);
+
+new Vue({
+  el: '#app',
+  render: (h) => h(App)
+});
+```
+
+那么 `.use()` 到底做了哪些事情？查阅 [vue2 版本的`.use`api](https://v2.vuejs.org/v2/api/#Vue-use) 以及 [vue3 版本的`.use`api](https://vuejs.org/api/application.html#app-use)，我们不难理解，神奇的 `.use` 归根到底只做了一件事：安装插件(Plugins)
+
+`.use` 接收一个为 带有 `install` 方法的 `Object`，或者是作为 `install` 方法本身的 `Function`。而 `install` 方法接收两个参数：应用实例`App` 和 插件选项`Options`。在 `vue2`中，第一个参数是全局 `Vue` 对象
+
+以 `vue3` 为例，我们可以在 [runtime-core 源码](https://github.com/vuejs/core/blob/638a79f64a7e184f2a2c65e21d764703f4bda561/packages/runtime-core/src/apiCreateApp.ts#L158) 中找到对应的类型定义
+
+```ts
+type PluginInstallFunction<Options = any[]> = Options extends unknown[]
+  ? (app: App, ...options: Options) => any
+  : (app: App, options: Options) => any;
+```
+
+所以当我们在说“`vue` 组件库开发”的时候，这种说法或许太过特化。更通用的说法应该是：vue 插件开发。
+
+至此，最开始提出的第一个问题我们已经得到了解答：**组件库是一种 `vue` 插件**
 
 #### 常用打包工具
 
 - webpack
 - rollup
-- esbuild 选择：
+- esbuild
+
+选择：
 
 -- 关于模块化
 
