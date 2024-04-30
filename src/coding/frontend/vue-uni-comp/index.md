@@ -4,6 +4,8 @@ outline: deep
 
 # vue 通用组件库开发
 
+代码开源地址 https://github.com/X-sky/vue-uni-component
+
 ## 开发背景
 
 ## 组件库开发
@@ -15,7 +17,7 @@ outline: deep
 1. 什么是组件
 2. 什么是组件库
 
-只有搞清楚这两个问题，我们才能知道自己要开发什么，自己在开发什么
+尽管我们在开发过程中更多的仍然是扮演“调包工程师”的身份，但只有搞清楚这两个问题，我们才能知道自己要开发什么，自己在开发什么
 
 #### 什么是组件
 
@@ -27,7 +29,7 @@ outline: deep
 
 于是我们的第一个问题【什么是组件？】就得到了很好的回答：
 
-"Nothing magic, just javascript."
+**Nothing magic, just javascript**
 
 #### app.use 的时候发生了什么
 
@@ -78,81 +80,63 @@ type PluginInstallFunction<Options = any[]> = Options extends unknown[]
 
 所以当我们在说“`vue` 组件库开发”的时候，这种说法或许太过特化。更通用的说法应该是：vue 插件开发。
 
-至此，最开始提出的第一个问题我们已经得到了解答：**组件库是一种 `vue` 插件**
+至此，最开始提出的第一个问题我们已经得到了解答：
 
-#### 常用打包工具
+**组件库是一种插件**
 
-- webpack
-- rollup
-- esbuild
+### 常用打包工具
 
-选择：
+目前前端社区流行的打包库主要有三种：[webpack](https://webpack.js.org/), [rollup](https://rollupjs.org/), [esbuild](https://esbuild.github.io/)。当然近期还有 [rspack](https://www.rspack.dev/) [rolldown](https://rolldown.rs/) 等基于 `Rust` 的打包库兴起。但由于生态和稳定性的原因，不适合用于企业生产。也正是由于这个原因，也应该放弃 `esbuild`。尽管它基于 `go` 开发，速度非常快，但生态并不完善，对于我们接下去要做的项目来说，灵活度也稍显不足
 
--- 关于模块化
+尽管说起稳定性我们应该优先选择 `webpack`，但 `webpack` 其实并不适合作为组件库打包的工具。或者说，使用 `webpack` 打包组件库会较为麻烦，因为 `webpack` 会默认将所有依赖项打包进产物当中，为了得到合适的分发结果，需要做出很多额外的配置
 
-```javascript
-// exportLib.js 导出
-const foo = () => {};
-export { foo };
-// 使用
-import { foo } from 'exportLib.js';
-foo();
-// 使用2
-import * as exportLib from 'exportLib.js';
-exportLib.foo();
-```
-
-```javascript
-// 导出
-const foo = () => {};
-export { foo };
-export default {
-  foo
-};
-// 使用
-import exportLib, { foo } from 'exportLib.js';
-exportLib.foo === foo; // true
-```
-
-tree-shaking 机制?
-
-如果是第一种方式，在 import 引入的时候会显得有些啰嗦；但如果是第二种导出方式，在进行 cdn 或者 umd 方式导出的时候，如果我们要使用整体对象，就必须使用 `.default` 的方式获取默认导出
-
-```html
-<script src="./exportLib.iife.js"></script>
-<script>
-  __GLOBAL_EXPORT_LIB__.default.foo();
-  __GLOBAL_EXPORT_LIB__.foo();
-</script>
-```
-
-因此我们在第一种导出方式的基础上进行优化
-
-```javascript
-// exportLib.js 导出
-const foo = () => {};
-const defaultExport = {
-  foo
-};
-export { defaultExport as default, foo };
-// 使用
-import exportLib, { foo } from 'exportLib.js';
-foo();
-```
-
-当然这样在 `import * as exportLib from ‘exportLib.js’` 的时候就会出现 default 了。没有全部兼顾的方法，只能根据使用场景具体优化
-
-#### 关于 vue-demi
+并且就 `vue` 的生态发展趋势而言，拥抱 `vite` 几乎是不可避免的。而 `vite` 天然基于 `rollup`。因此最终选定 `rollup` 作为打包工具
 
 ### 方案决策
 
-[Adapter or Container？](https://juejin.cn/post/7243413934765916219#heading-6)
+在选择方案的时候有两条路摆在我们面前：
 
-#### 关于创建服务式组件
+1. dispatch 模式
+2. adaptor 模式
 
-vue2 和 vue3 的 render 模式不同。`vue3` 每一个组件都有对应的 appContext，可以通过 [customRender](https://vuejs.org/api/custom-renderer.html#createrenderer) 创建自定义渲染。`element-plus` 中的 [MessageBox](https://github.com/element-plus/element-plus/blob/dev/packages/components/message-box/src/messageBox.ts) 就是使用了对应的方式，利用 `render` 函数实现 api 调用时，挂载组件。(`render` 就是 `vue` 内部利用 `createRenderer`创建的函数)。
+#### dispatch 模式
 
-但是 `vue2` 单实例的模式决定了 `vue2` 不会有所谓的 `appContext`，也不会有 `render` 这样的 api。因此只能通过 `Vue.extend(comp)` 的方式创建新的实例。因此我们的 `util` 中的 `useComponentService` 函数就不得不使用 `vue-demi` 的 `isVue2` 字段进行判断，造成输出代码的冗余。
+> 使用 Vue SFC 进行开发，在编译阶段通过 monorepo/container 中不同版本的 template compiler 进行编译。最终由各个容器输出不同版本的产物
+
+理论上来说，`vue2` 和 `vue3` 的模板语法差距其实并不大。`vue2.7` 不仅内置了 `setup` 支持，`vue2` 也可以通过 `@vue/composition-api` 结合 `unplugin-vue2-script-setup` 来进行语法层面的抹平。
+
+![image](./dispatch.png)
+
+这种模式的优点在于：
+
+1. 开发成本较低，不需要改变原有开发习惯。后续交付团队后，团队成员不需要了解实现细节即可开发
+2. 针对不同的版本进行编译。有一定优化机制
+3. 使用不同的 `container` 进行分发编译，方便进行定制化配置，
+4. 将不同版本 `vue` 的代码进行了隔离
+
+缺点：
+
+1. 舍弃了其他组件库的复用，所有组件都需要手撸
+2. 组件间引用的时候，需要放弃部分语法糖
+3. 后续如果出现破坏当前 SFC 模式的 `vue` 版本，或者出现了新特性，仓库将无法持续更新（比如 `defineOptions` 语法糖由于 `unplugin-vite-script-setup` 没有提供，我们只能选择放弃该语法糖，或者对该仓库进行 `PR`）
+
+:::tip
+
+相较于我的这个 [demo](https://github.com/X-sky/vue-uni-component) 示例，目前已经有相对更成熟的开源库使用了类似的思想，详见 [tiny-vue](https://github.com/opentiny/tiny-vue/blob/dev/README.md)
+
+:::
+
+#### adaptor 模式
+
+> 定义内置 adaptor-runtime 语法，使用自定义的模板语法 template syntax 进行开发，最终打包一套产物与不同版本的 runtime-adaptor，在应用中利用 adaptor 对不同版本的 vue 进行适配
+
+初步考虑是类似当时最开始做小程序转 ArkUI 的思路，使用类 `vue` 的模板语法进行开发，单独开发一层`adaptor-runtime`，最终根据用户侧的 `vue` 版本不同使用不同的 `runtime`。
+
+PS. 看到[这篇文章](https://juejin.cn/post/7243413934765916219#heading-0)的时候组件库已经使用 dispatch 模式基本搭建完毕，而且其使用的 jsx transform 模式，不仅需要对 vue 不同版本差距有所了解，而且需要对 tsx 流程和产物有所了解，一开始就不再选择范围内
+
+#### 选择
+
+考虑到组件库的使用场景，综合团队规模和后期维护的复杂度，最终选择了 `dispatch 模式` 进行开发
 
 ### 仓库结构
 
@@ -349,4 +333,62 @@ bumpp
 
 ### 发布
 
-## 组件库使用
+## 问题记录
+
+### 关于模块化
+
+```javascript
+// exportLib.js 导出
+const foo = () => {};
+export { foo };
+// 使用
+import { foo } from 'exportLib.js';
+foo();
+// 使用2
+import * as exportLib from 'exportLib.js';
+exportLib.foo();
+```
+
+```javascript
+// 导出
+const foo = () => {};
+export { foo };
+export default {
+  foo
+};
+// 使用
+import exportLib, { foo } from 'exportLib.js';
+exportLib.foo === foo; // true
+```
+
+如果是第一种方式，在 import 引入的时候会显得有些啰嗦；但如果是第二种导出方式，在进行 cdn 或者 umd 方式导出的时候，如果我们要使用整体对象，就必须使用 `.default` 的方式获取默认导出
+
+```html
+<script src="./exportLib.iife.js"></script>
+<script>
+  __GLOBAL_EXPORT_LIB__.default.foo();
+  __GLOBAL_EXPORT_LIB__.foo();
+</script>
+```
+
+因此我们在第一种导出方式的基础上进行优化
+
+```javascript
+// exportLib.js 导出
+const foo = () => {};
+const defaultExport = {
+  foo
+};
+export { defaultExport as default, foo };
+// 使用
+import exportLib, { foo } from 'exportLib.js';
+foo();
+```
+
+当然这样在 `import * as exportLib from ‘exportLib.js’` 的时候就会出现 default 了。没有全部兼顾的方法，只能根据使用场景具体优化
+
+### 关于创建服务式组件
+
+vue2 和 vue3 的 render 模式不同。`vue3` 每一个组件都有对应的 appContext，可以通过 [customRender](https://vuejs.org/api/custom-renderer.html#createrenderer) 创建自定义渲染。`element-plus` 中的 [MessageBox](https://github.com/element-plus/element-plus/blob/dev/packages/components/message-box/src/messageBox.ts) 就是使用了对应的方式，利用 `render` 函数实现 api 调用时，挂载组件。(`render` 就是 `vue` 内部利用 `createRenderer`创建的函数)。
+
+但是 `vue2` 单实例的模式决定了 `vue2` 不会有所谓的 `appContext`，也不会有 `render` 这样的 api。因此只能通过 `Vue.extend(comp)` 的方式创建新的实例。因此我们的 `util` 中的 `useComponentService` 函数就不得不使用 `vue-demi` 的 `isVue2` 字段进行判断，造成输出代码的冗余。
