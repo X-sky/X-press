@@ -8,6 +8,20 @@ outline: deep
 
 ## 开发背景
 
+在日常的 `2B` 业务开发中，我们不可避免的会遇到一个系统内部出现跨版本框架————甚至跨时代框架的使用。以我之前碰到的一个项目而言，项目横跨 `jquery+LayUI` ，`vue2`，`vue2.7`, `vue3`。但作为同一个项目，难免会有部分业务组件有所重合。
+
+以往的做法是，将原有的业务组件迁移至新项目中。但考虑以下场景，有一个通用组件 `反馈按钮 FeedbackDialog`，目前已经完成了迁移，在该项目所有版本的代码中都有应用。也就是说，一个相同逻辑的业务，出现在四种不同的框架中。现在产品需求要求优化反馈弹窗。那么可想而知这个开发和测试的成本都是巨大的，开发需要在四个框架中分别进行该组建的修改，而测试也需要熟悉不同的框架出现在系统的哪个部分，并针对性的进行测试
+
+![一个跨框架的巨石应用](./mono-app-exp.png)
+
+_一个跨框架的巨石应用_
+
+而如果这种时候，我们的 `FeedbackDialog` 组件可以避免在不同框架中重复开发，那么开发和测试都能够节约极大的工作量，如下图所示
+
+![一个跨框架的巨石应用](./mono-app-target-exp.png)
+
+_使用跨框架通用组件的跨框架巨石应用_
+
 ## 组件库开发
 
 ### vue 组件库原理
@@ -80,7 +94,7 @@ type PluginInstallFunction<Options = any[]> = Options extends unknown[]
 
 所以当我们在说“`vue` 组件库开发”的时候，这种说法或许太过特化。更通用的说法应该是：vue 插件开发。
 
-至此，最开始提出的第一个问题我们已经得到了解答：
+至此，最开始提出的第二个问题我们也已经得到了解答：
 
 **组件库是一种插件**
 
@@ -105,7 +119,7 @@ type PluginInstallFunction<Options = any[]> = Options extends unknown[]
 
 理论上来说，`vue2` 和 `vue3` 的模板语法差距其实并不大。`vue2.7` 不仅内置了 `setup` 支持，`vue2` 也可以通过 `@vue/composition-api` 结合 `unplugin-vue2-script-setup` 来进行语法层面的抹平。
 
-![image](./dispatch.png)
+![dispatch 模式原理](./dispatch.png)
 
 这种模式的优点在于：
 
@@ -122,7 +136,7 @@ type PluginInstallFunction<Options = any[]> = Options extends unknown[]
 
 :::tip
 
-相较于我的这个 [demo](https://github.com/X-sky/vue-uni-component) 示例，目前已经有相对更成熟的开源库使用了类似的思想，详见 [tiny-vue](https://github.com/opentiny/tiny-vue/blob/dev/README.md)
+相较于我的这个 [demo](https://github.com/X-sky/vue-uni-component) 示例，目前已经有相对更成熟的开源库使用了类似的思想，详见 [tiny-vue](https://github.com/opentiny/tiny-vue/blob/dev/README.md)。虽然不是使用 `monorepo` 进行分发，但也是使用了类似的思想，对不同版本的 `vue` 进行了编译层的分发转译
 
 :::
 
@@ -132,7 +146,20 @@ type PluginInstallFunction<Options = any[]> = Options extends unknown[]
 
 初步考虑是类似当时最开始做小程序转 ArkUI 的思路，使用类 `vue` 的模板语法进行开发，单独开发一层`adaptor-runtime`，最终根据用户侧的 `vue` 版本不同使用不同的 `runtime`。
 
-PS. 看到[这篇文章](https://juejin.cn/post/7243413934765916219#heading-0)的时候组件库已经使用 dispatch 模式基本搭建完毕，而且其使用的 jsx transform 模式，不仅需要对 vue 不同版本差距有所了解，而且需要对 tsx 流程和产物有所了解，一开始就不再选择范围内
+优点：
+
+1. 不需要多次编译，多版本 `vue` 使用相同的产物，进一步减小业务层代码差异
+2. 使用 `runtime-adaptor` 方式，**可扩展性极强**。理论上这种方式甚至可以通过对不同其他组件库如 `element-plus` 的适配，甚至其他框架如 `react`，实现一套代码，处处使用的结果
+3. 从编译层到运行时都由组件库内部控制，相较于 `dispatch` 模式委托 `vue/template-compiler` 和 `runtime/core` 更可控
+
+缺点：
+
+1. 开发成本**极高**。需要团队实现 `dsl`，如果使用标准 `tsx`，则需要团队成员开发时学习 `tsx`。同时还需要根据目标产物实现不同的 `adaptor-runtime`
+2. `runtime-adaptor` 的存在会导致运行时有性能损耗
+
+毫无疑问，作为独立开发而言，这个模式下的通用组件库开发无疑是地狱难度
+
+PS. 看到[这篇文章](https://juejin.cn/post/7243413934765916219#heading-0)的时候组件库已经使用 dispatch 模式基本搭建完毕，而且其使用的 jsx transform 模式，不仅需要对 `vue` 不同版本差距有所了解，而且需要对 `tsx` 流程和产物有所了解，一开始就不在选择范围内
 
 #### 选择
 
@@ -140,14 +167,16 @@ PS. 看到[这篇文章](https://juejin.cn/post/7243413934765916219#heading-0)�
 
 ### 仓库结构
 
-> 关于`monorepo`
+> 使用 `monorepo` 实现 `dispatch` 模式
 
 #### 多版本模板编译支持
 
-由于 `vue-demi` 只是对 `vue` 版本做了转发，因此如果是纯 js 库开发(例如 `@vueuse/core`)之类的库，不必关心模板解析器冲突的问题。而开发组件库则必须关注这个问题。因为不同版本的 `vue` 使用了不同版本的模板编译：
+提到多版本 `vue` 的支持，自然绕不开 `vue-demi`。`vue-demi` 是 Vue 核心团队成员 antfu 开发的一个小工具，能够支持对 `vue` 代码引用的转发。[Vueuse](https://vueuse.org/)内部就是用了 `vue-demi`，从而实现对多版本的 `vue` 的支持。
 
-- vue3.x: @vue/compiler-sfc
-- vue2.7.x: vue/compiler-sfc
+但由于 `vue-demi` 只是对 `vue` 版本做了转发，因此如果是纯 js 库开发(例如 `@vueuse/core`)之类的库，不必关心*模板解析器冲突*的问题。而开发组件库则必须关注这个问题。因为不同版本的 `vue` 使用了不同版本的模板编译：
+
+- vue3.x: vue/compiler-sfc
+- vue2.7.x: vue/compiler-sfc@2.7
 - vue2.x: vue-template-compiler
 
 可以预见的是，即使使用`render`函数，我们也无法绕开版本问题。因此不如将这个问题提前到编译阶段解决。借助 `pnpm` 的 `monorepo` 模式，我们可以分别创建三个不同的 `vue` 仓库，利用各自不同的 `package.json` `vite.config.ts` 配置，编译多个版本的 `vue` 组件产物。
@@ -260,15 +289,9 @@ if (vueVersion && vueVersion !== packageVersion) {
 1. 开发时通过 js 定义 css 变量，组件内部使用变量名开发
 2. 使用时，在 hook 初始化的时候进行 css 变量注册，同时暴露变量提供给诸如 `echarts` 等库使用。如果项目有 ts 支持，甚至可以提供变量名提示
 
-#### typescript 类型提示
+## 组件库调试
 
-#### 注意
-
-在进行代码结构划分的时候，理论上除了 `ui-component` 组件单独生成`package.json`以外，其余 repo 的`package.json`都应该与其 `repo` 内部的 `package.json` 保持一致。那么我们的 `package.json` 内部结构应该如这里所示
-
-### 调试
-
-#### 源码调试
+### 源码调试
 
 `pnpm dev:3` `pnpm dev:27` `pnpm dev:2` 三个脚本可以同时执行。在各自的 `container` 内部，`resolve` 会将依赖解析为正确的地址。
 
@@ -287,15 +310,23 @@ const updateVisible = (v) => {
 </template>
 ```
 
-如果每次都需要在 `container` 容器内部手写一个测试组件，那么加上 `cdn` 调试，我们会需要编写四次近似的组件。因此通过上述*通用写法*，我们可以考虑新增一个测试组件仓库 `@vue-uni-ui/components-test`。在仓库内编写测试组件，然后取消 `containers` 中每个容器对 `@vue-uni-ui/components` 的依赖，修改为对测试仓库的依赖，然后引用对应的测试组件即可。因此我们也需要补充脚本，在 `ui:create` 的时候，补充自动新增对应的测试组件模板，避免免手动创建的心智负担。
+如果每次都需要在 `container` 容器内部手写一个测试组件，那么加上 `cdn` 调试，我们会需要编写四次近似的组件。因此通过上述*通用写法*，我们可以考虑新增一个测试组件仓库 `@vue-uni-ui/components-test`。在仓库内编写测试组件，然后取消 `containers` 中每个容器对 `@vue-uni-ui/components` 的依赖，修改为对测试仓库的依赖，然后引用对应的测试组件即可。因此我们也需要补充脚本，在 `ui:create` 的时候，补充自动新增对应的测试组件模板，避免免手动创建的心智负担
 
-#### 产物调试
+::: detail 关于 `@vue-uni-ui/components-test`
 
-##### mjs
+尽管为了减小后续开发时候的心智负担，补充了 `ui:create` 命令进行自动化创建。但在实际开发中，会出现开发不按照开发文档进行开发的问题。因此过度依赖脚本命令，也是团队合作中一大难题。或许需要通过在提交时补充校验，或者简化开发流程的方式，避免不同开发经手过的项目结构完全不同的问题
 
-`link:local` 脚本。先在产物内部 link 对应的依赖，再全局 link 对应依赖。例如： `@vue-uni-ui/vue-2` 依赖于 `@vue-uni-ui/utils` 包，那么本地 `npm link` 调试的时候，
+:::
 
-##### cdn
+### 产物调试
+
+此调试仅需要在开发阶段进行。理论上框架搭建完成后，无需每次都进行所有产物的调试。只要编译成功，产物都将包含相同的业务逻辑
+
+#### mjs
+
+`link:local` 脚本。先在产物内部 link 对应的依赖，再全局 link 对应依赖。
+
+#### cdn
 
 cdn 形式的产物调试则相对来说简单很多。在 `pnpm build` 之后执行 `pnpm dev:cdn` 即可。`pnpm dev:cdn` 命令会自动执行复制 `iife.js` `style.css` 等文件至对应文件夹的命令，并执行 `vite` 调试。通过注释 `cdn-playground/index.html` 文件中不同版本的 `vue` 及其对应的内容。进行多版本产物的调试。
 
@@ -316,22 +347,6 @@ cdn 形式的产物调试则相对来说简单很多。在 `pnpm build` 之后�
 <!-- html会默认转化组件名，等效于 unitemplate。由于我们的注册名为 UniTemplate，因此 UniTemplate 或 uni-template 都是可行的。而unitemplate无法匹配到 -->
 <UniTemplate />
 ```
-
-### 打包
-
-本来是参考 `vue-demi` 进行打包。将三个版本的代码输出至同一个仓库进行发布，随后使用 `postinstall` 脚本进行切换。但是后来...
-
-增加 `publish.ts` 脚本手动控制
-
-### 自动版本更新
-
-release 统一版本
-
-bumpp
-
----- 关于版本管理
-
-### 发布
 
 ## 问题记录
 
