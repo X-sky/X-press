@@ -88,8 +88,6 @@ let guess = "42".parse().expect("Not a number!"); // error[E0282]: type annotati
 let guess: i8 = "42".parse().expect("Not a number!"); // it's ok.
 ```
 
-Some more complex types like `struct` will be introduced afterwards.
-
 #### Scalar Types
 
 > A scalar type represents a single value.
@@ -196,6 +194,23 @@ Rust's `char` literal is specified with single quotes, as opposed to string lite
 
 The `char` type is 4 bytes in size and represents Unicode Scalar Value and thus differs from `char` type in `C++` which is only 1 byte in size.
 
+#### Vectors
+
+Unlike arrays which have a fixed length, vectors have a variable length by storing their elements in the heap.
+
+```rust
+let mut v: Vec<i32> = vec![1, 2, 3];
+v.push(4);
+```
+
+The macro `vec!` creates a vector with the elements between the brackets.
+
+When we do `push`, the vector has to do the following steps:
+
+1. create a new allocation with larger capacity
+2. copy all the elements over
+3. deallocate the original heap array.
+
 #### Compound Types
 
 Compound types can group multiple values into one type. Rust has two primitive compound types:
@@ -217,7 +232,7 @@ fn main() {
 }
 ```
 
-A tuple can be destructured just like `python` or `javascript`. `let (x, y, z) = tup;`.
+A tuple can be destructured just like `python`. `let (x, y, z) = tup;`.
 
 A tuple without any values has a special name `unit`. Consider `()` as `void` in other languages. Expressions implicitly return the unit value if they don’t return any other value.
 
@@ -225,7 +240,7 @@ A tuple without any values has a special name `unit`. Consider `()` as `void` in
 
 Unlike tups, every element of an array must have the **SAME** type. `let x = ["string", 2]` cause a syntax error.
 
-And unlike arrays in some other language, arrays have a _fixed_ length. If you’re unsure whether the collection has a fixed number of elements, chances are you should use a vector, a similar collection type provided by the standard library that is allowed to grow or shrink in size.
+And unlike arrays in some other languages, arrays have a _fixed_ length. If you’re unsure whether the collection has a fixed number of elements, chances are you should use a vector, a similar collection type provided by the standard library that is allowed to grow or shrink in size.
 
 ```rust
 fn main() {
@@ -303,7 +318,7 @@ fn plus_one(x: i32) -> i32 {
 
 #### if Expressions
 
-Like all other languages like `python`, Rust has built-in `tuple` type declared by `()`, which may be the reason the condition controls in these languages don't need any parentheses. However, in Rust, they still need to be wrapped in brackets.
+Like all other languages like `python`, Rust has built-in `tuple` type declared by `()`, which may be the reason the condition controls in these languages don't need any parentheses. So the condition expressions don't need to be wrapped in `()`. However, in `Rust`, the condition body still need to be wrapped in curly braces`{}`.
 
 ```rust
 fn main() {
@@ -392,7 +407,11 @@ fn main() {
 }
 ```
 
+::: warning
+
 It's NOT recommended to break with values inside multiple loops. The `mismatched types` error will be a catastrophe.
+
+:::
 
 ##### while and for
 
@@ -433,7 +452,7 @@ The compile-time checking has two motivations over run-time checking:
 1. Avoiding bugs in production will improve the reliability of your software.
 2. Fewer run-time checks will improve the performance.
 
-Conclusively, safety IS the absence of undefined behavior.
+Conclusively, safety is _the absence of undefined behavior_.
 
 ### Ownership as a Discipline for Memory Safety
 
@@ -484,7 +503,7 @@ Note that `a` is now grayed because it has been moved because of the [Box Deallo
 
 ### Collections Use Boxes
 
-Boxes are used by Rust data structures1 like Vec, String, and HashMap to hold a variable number of elements.
+Boxes are used by Rust data structures like Vec, String, and HashMap to hold a variable number of elements.
 
 These data structures don't use the literal Box type. For example, String is implemented with Vec, and Vec is implemented with RawVec rather than Box. But types like RawVec are still box-like: they own memory in the heap.
 
@@ -540,7 +559,7 @@ fn move_a_box(b: Box<i32>) {
 
 Just doing `let b2 = b;` and then print it is not an undefined behavior, though `b` is moved but its data is NOT deallocated until `move_a_box` is called.
 
-Therefore if we comment the `move_a_box(b2)`, the program is technically safe, although still rejected by Rust and won't compile.
+Therefore if we comment the `move_a_box(b2)`, the program is _technically safe_, although still rejected by Rust and won't compile.
 
 One way to avoid moving data is to `clone` it using `.clone()` method.
 
@@ -624,7 +643,18 @@ fn main() {
 }
 ```
 
-### Rust Avoids Simultaneous Aliasing and Mutation
+::: tip
+
+Here's a quick tips for `references` and `dereferences`:
+
+1. `&` means `create`: create a pointer
+2. `*` means `read`. read the actual value
+
+:::
+
+### Pointer Safety Principle
+
+> data should never be aliased and mutated at the same time.
 
 Aliasing itself is harmless but combined with mutation is a recipe for disaster.
 
@@ -632,16 +662,90 @@ Aliasing itself is harmless but combined with mutation is a recipe for disaster.
 - Once the aliased data mutated, another variable would have invalidating runtime properties.
 - Concurrently mutating the aliased data will cause a data race condition.
 
+```rust
+fn main() {
+  let mut v: Vec<i32> = vec![1, 2, 3];
+  let num: &i32 = &v[2];
+  v.push(4);
+  println!("Third element is {}", *num); // undefined behavior, for v was reallocated after `push`, the pointee of num has been freed
+}
+```
+
 To avoid these issues, Rust follows a basic principle: Pointer Safety Principle.
 
-#### Pointer Safety Principle
-
-> data should never be aliased and mutated at the same time.
+#### borrow checker
 
 By design, references are meant to temporarily create aliases. Rust ensures the safety of references through the **borrow checker**.
 
 The core idea behind the borrow checker is that variables have three kinds of permissions on their data:
 
-- Read (R): data can be copied to another location.
-- Write (W): data can be mutated in-place.
-- Own (O): data can be moved or dropped.
+- Read (R): data can be copied to another location (by default).
+- Write (W): data can be mutated in-place (by default with `mut`).
+- Own (O): data can be moved or dropped (by default).
+
+Permissions are defined on **paths** and not just variables.
+
+```rust
+let x = 0; // x gained R and O
+let mut x_ref= &x; // x_ref gained R and W and O; *x_ref gained R
+```
+
+A path is anything you can put on the left-hand side of an assignment. Paths include:
+
+1. Variables like `a`
+2. Dereferences like `*a`
+3. Array accesses of paths like `a[0]`
+4. Fields of paths like `a.0`
+5. Any combination of the above
+
+Rust expects that path to have certain permissions depending on the operation.
+
+For the codes above, let's go through what will happen by borrow checker.
+
+```rust
+fn main() {
+  let mut v: Vec<i32> = vec![1, 2, 3];
+  let num: &i32 = &v[2]; // requires v to have permission R
+  // `num` borrows v. Temporarily remove permission W and O from v
+  // `num` gains R and O
+  // `*num` gains R
+  v.push(4); // requires v to have permission R and W and thus will cause an unsafe operation, an error occurs.
+  println!("Third element is {}", *num);
+}
+```
+
+#### Mutable References
+
+The references we have seen so far are **immutable references** (also called **shared references**) and immutable references permit aliasing but disallow mutation.
+
+However, `&mut` operator means a mutable reference is created. Mutable references will make the `pointee` loses all permissions including `R`.
+
+```rust
+fn main() {
+  let mut v: Vec<i32> = vec![1, 2, 3];
+  let num: &mut i32 = &mut v[2]; // requires v to have permission R and W
+  // `num` borrows v. Temporarily remove all permissions R, W and O from v
+  // `num` gains R and O
+  // `*num` gains R and W
+  *num += 1; // requires `*num` to have R and W
+  println!("Third element is {}", *num); // requires *num to have R
+  // v gains permission back
+  println!("Vector is now {:?}", v); // requires v to have R
+}
+```
+
+Mutable references can also be temporarily "downgraded" to read-only references
+
+```rust
+let mut v: Vec<i32> = vec![1, 2, 3];
+
+let num: &mut i32 = &mut v[2]; // requires v to have R and W
+// num borrows v, temporarily remove all permissions from v
+// num gains R and O
+// *num gains R and W
+let num2: &i32 = &*num; // require *num to have R
+// num2 borrows *num, temporarily remove W from *num
+// num2 gains R and O
+// *num2 gains R
+println!("{} {}", *num, *num2); // requires *num to have R and *num2 to have R
+```
