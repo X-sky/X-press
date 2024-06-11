@@ -1,7 +1,7 @@
-export class ListNode {
+export class LinkedNode {
   val: number;
-  next: ListNode | null;
-  constructor(val = 0, next?: ListNode) {
+  next: LinkedNode | null;
+  constructor(val = 0, next?: LinkedNode) {
     this.val = val;
     this.next = next ?? null;
   }
@@ -18,21 +18,21 @@ export class DoubleEndedLinkedNode {
 
 /** 单向链表 */
 export class OneWayLinkedList {
-  #head: ListNode | null;
+  #head: LinkedNode | null;
   #size = 0;
-  constructor(head?: ListNode) {
+  constructor(head?: LinkedNode) {
     this.#head = head ?? null;
   }
   size() {
     return this.#size;
   }
-  hasNode(node: ListNode): boolean {
+  hasNode(node: LinkedNode): boolean {
     if (!this.#head) {
       return false;
     }
     return Boolean(this.findParent(node));
   }
-  findParent(node: ListNode): ListNode | null {
+  findParent(node: LinkedNode): LinkedNode | null {
     if (!this.#head) {
       return null;
     } else {
@@ -46,7 +46,7 @@ export class OneWayLinkedList {
       return null;
     }
   }
-  append(node: ListNode) {
+  append(node: LinkedNode) {
     if (node.next) {
       // not a node in this linked list
       throw new Error('append failed: not a clean node');
@@ -62,19 +62,19 @@ export class OneWayLinkedList {
       lastNode.next = node;
     }
   }
-  prepend(node: ListNode) {
+  prepend(node: LinkedNode) {
     if (node.next) {
       throw new Error('append failed: not a clean node');
     }
     node.next = this.#head;
     this.#head = node;
   }
-  insert(node: ListNode, prev: ListNode) {
+  insert(node: LinkedNode, prev: LinkedNode) {
     const p = prev.next;
     prev.next = node;
     node.next = p;
   }
-  remove(node: ListNode) {
+  remove(node: LinkedNode) {
     const parent = this.findParent(node);
     if (!parent) {
       console.log('this node is not in this linked list');
@@ -88,9 +88,9 @@ export class OneWayLinkedList {
 /** 链表实现队列 */
 export class LinkedQueue {
   // 头节点
-  #front: ListNode | null = null;
+  #front: LinkedNode | null = null;
   // 尾节点
-  #rear: ListNode | null = null;
+  #rear: LinkedNode | null = null;
   // 队列长度
   #size = 0;
 
@@ -104,7 +104,7 @@ export class LinkedQueue {
 
   /** 新元素插入队尾 */
   enqueue(num: number) {
-    const node = new ListNode(num);
+    const node = new LinkedNode(num);
     if (!this.#front) {
       // 队列为空，头尾指向同一节点
       this.#front = node;
