@@ -267,6 +267,25 @@ function removeNodeBST(root: IBinaryTreeNode, val: number) {
     isLeft ? (parent.left = replaceNode) : (parent.right = replaceNode);
   }
 }
+function buildBSTFromSortedArray(
+  arr: number[],
+  start = 0,
+  end = arr.length - 1
+) {
+  if (start > end) {
+    return null;
+  }
+  const mid = Math.floor((start + end) / 2);
+  const root = new BinaryTreeNode(arr[mid]);
+  root.left = buildBSTFromSortedArray(arr, start, mid - 1);
+  root.right = buildBSTFromSortedArray(arr, mid + 1, end);
+  return root;
+}
+
+function buildBSTFromArray(arr: number[]) {
+  const sortedArr = arr.slice().sort((a, b) => a - b);
+  return buildBSTFromSortedArray(sortedArr);
+}
 /**
  * construct test tree
  * @description every node has its index
