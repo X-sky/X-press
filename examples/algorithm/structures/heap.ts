@@ -5,7 +5,7 @@ const getLeftChildIdx = (i: number): number => 2 * i + 1;
 
 const getRightChildIdx = (i: number): number => getLeftChildIdx(i) + 1;
 
-const getParentIdx = (i: number): number => Math.floor(i - 1 / 2);
+const getParentIdx = (i: number): number => Math.floor((i - 1) / 2);
 
 type HeapType = 'max' | 'min';
 
@@ -46,6 +46,7 @@ class Heap {
     initialData?: number[];
     type?: HeapType;
   }) {
+    this.#data = [];
     initialData.forEach((n) => this.push(n));
     this.#type = type;
   }
@@ -103,3 +104,31 @@ class Heap {
     }
   }
 }
+
+// <----------------- top-k problem ----------------->
+
+// top-k problem is a common problem in algorithm, which is to find the kth largest element in an array
+function getTopK({ k, src }: { k: number; src: unknown[] }) {
+  const list = src.filter((n) => typeof n === 'number') as number[];
+  const maxHeap = new Heap({
+    initialData: list.slice(0, k),
+    type: 'max'
+  });
+  const restData = list.slice(k);
+  restData.forEach((n) => maxHeap.push(n));
+  const ret: number[] = [];
+  for (let i = 1; i <= k; i++) {
+    const top = maxHeap.pop();
+    if (typeof top === 'number') {
+      ret.push(top);
+    }
+  }
+  return ret;
+}
+
+function heapTest() {
+  const test = [25, 24, 3, 2, 45, 7, 123, 5474, 123];
+  console.log(getTopK({ k: 3, src: test }));
+}
+
+heapTest();
