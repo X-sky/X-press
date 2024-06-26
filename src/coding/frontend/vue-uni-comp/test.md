@@ -341,3 +341,5 @@ export default {
   }
 };
 ```
+
+相关代码示例可参考 [vue-uni-ui](https://github.com/X-sky/vue-uni-component/tree/unit-test)

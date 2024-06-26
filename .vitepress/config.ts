@@ -102,24 +102,24 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
         },
         {
           text: 'Vue Uni Component Lib',
-          link: '/coding/frontend/vue-uni-comp/index'
+          link: '/coding/frontend/vue-uni-comp/index.md'
         },
         {
           text: 'Test Automation',
-          link: '/coding/frontend/vue-uni-comp/test'
+          link: '/coding/frontend/vue-uni-comp/test.md'
         },
         {
           text: 'Data Analytics',
-          link: '/coding/frontend/data-analytics/index'
+          link: '/coding/frontend/data-analytics/index.md'
         },
         {
           text: 'Something wrong with Text-align:justify!',
-          link: '/coding/frontend/text-align_justify/text-align_justify'
+          link: '/coding/frontend/text-align_justify/text-align_justify.md'
         },
-        { text: 'Race condition', link: '/coding/frontend/race-condition' },
+        { text: 'Race condition', link: '/coding/frontend/race-condition.md' },
         {
           text: 'Iterator & Generator',
-          link: '/coding/frontend/iterator/iterator'
+          link: '/coding/frontend/iterator/iterator.md'
         }
       ]
     },
@@ -129,15 +129,15 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
       items: [
         {
           text: 'Python Crash Course',
-          link: '/coding/python/markdowns/pythonCrashCourse/index',
+          link: '/coding/python/markdowns/pythonCrashCourse/index.md',
           items: [
             {
               text: 'Visualize Data',
-              link: '/coding/python/markdowns/pythonCrashCourse/data-visualizing'
+              link: '/coding/python/markdowns/pythonCrashCourse/data-visualizing.md'
             },
             {
               text: 'Build Web App',
-              link: '/coding/python/pythonCrashCourse/web-app'
+              link: '/coding/python/pythonCrashCourse/web-app.md'
             }
           ]
         }
@@ -149,7 +149,7 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
       items: [
         {
           text: 'Keyboard Shortcut',
-          link: '/coding/others/shortcuts/shortcuts'
+          link: '/coding/others/shortcuts/shortcuts.md'
         }
       ]
     }
