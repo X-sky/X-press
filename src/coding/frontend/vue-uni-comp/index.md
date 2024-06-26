@@ -4,7 +4,7 @@ outline: deep
 
 # vue 通用组件库开发
 
-代码开源地址 https://github.com/X-sky/vue-uni-component
+代码开源地址 <https://github.com/X-sky/vue-uni-component>
 
 ## 开发背景
 
@@ -173,7 +173,7 @@ PS. 看到[这篇文章](https://juejin.cn/post/7243413934765916219#heading-0)�
 
 提到多版本 `vue` 的支持，自然绕不开 `vue-demi`。`vue-demi` 是 Vue 核心团队成员 antfu 开发的一个小工具，能够支持对 `vue` 代码引用的转发。[Vueuse](https://vueuse.org/)内部就是用了 `vue-demi`，从而实现对多版本的 `vue` 的支持。
 
-但由于 `vue-demi` 只是对 `vue` 版本做了转发，因此如果是纯 js 库开发(例如 `@vueuse/core`)之类的库，不必关心*模板解析器冲突*的问题。而开发组件库则必须关注这个问题。因为不同版本的 `vue` 使用了不同版本的模板编译：
+但由于 `vue-demi` 只是对 `vue` 版本做了转发，因此如果是纯 js 库开发(例如 `@vueuse/core`)之类的库，不必关心_模板解析器冲突_的问题。而开发组件库则必须关注这个问题。因为不同版本的 `vue` 使用了不同版本的模板编译：
 
 - vue3.x: vue/compiler-sfc
 - vue2.7.x: vue/compiler-sfc@2.7
@@ -310,11 +310,13 @@ const updateVisible = (v) => {
 </template>
 ```
 
-如果每次都需要在 `container` 容器内部手写一个测试组件，那么加上 `cdn` 调试，我们会需要编写四次近似的组件。因此通过上述*通用写法*，我们可以考虑新增一个测试组件仓库 `@vue-uni-ui/components-test`。在仓库内编写测试组件，然后取消 `containers` 中每个容器对 `@vue-uni-ui/components` 的依赖，修改为对测试仓库的依赖，然后引用对应的测试组件即可。因此我们也需要补充脚本，在 `ui:create` 的时候，补充自动新增对应的测试组件模板，避免免手动创建的心智负担
+如果每次都需要在 `container` 容器内部手写一个测试组件，那么加上 `cdn` 调试，我们会需要编写四次近似的组件。因此通过上述 _通用写法_ ，我们可以考虑新增一个测试组件仓库 `@vue-uni-ui/components-test`。在仓库内编写测试组件，然后取消 `containers` 中每个容器对 `@vue-uni-ui/components` 的依赖，修改为对测试仓库的依赖，然后引用对应的测试组件即可。因此我们也需要补充脚本，在 `ui:create` 的时候，补充自动新增对应的测试组件模板，避免免手动创建的心智负担
 
-::: detail 关于 `@vue-uni-ui/components-test`
+::: details 关于 `@vue-uni-ui/components-test`
 
-尽管为了减小后续开发时候的心智负担，补充了 `ui:create` 命令进行自动化创建。但在实际开发中，会出现开发不按照开发文档进行开发的问题。因此过度依赖脚本命令，也是团队合作中一大难题。或许需要通过在提交时补充校验，或者简化开发流程的方式，避免不同开发经手过的项目结构完全不同的问题
+尽管为了减小后续开发时候的心智负担，补充了 `ui:create` 命令进行自动化创建。但在实际开发中，会出现开发不按照开发文档进行开发的问题。过度依赖脚本命令，也是团队协作中的一个错误实践。或许需要通过在提交时补充校验，或者简化开发流程的方式，避免不同开发经手过的项目结构完全不同的问题
+
+在后续集成了 `unit-test` 以及 `e2e test` 后，`components-test` 包将从代码中移除
 
 :::
 

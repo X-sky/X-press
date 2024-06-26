@@ -100,6 +100,18 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
           link: '/coding/frontend/auto-hosts/auto-hosts.md'
         },
         {
+          text: 'Vue Uni Component Lib',
+          link: '/coding/frontend/vue-uni-comp/index'
+        },
+        {
+          text: 'Test Automation',
+          link: '/coding/frontend/vue-uni-comp/test'
+        },
+        {
+          text: 'Data Analytics',
+          link: '/coding/frontend/data-analytics/index'
+        },
+        {
           text: 'Something wrong with Text-align:justify!',
           link: '/coding/frontend/text-align_justify/text-align_justify'
         },
@@ -107,10 +119,6 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
         {
           text: 'Iterator & Generator',
           link: '/coding/frontend/iterator/iterator'
-        },
-        {
-          text: 'Test Automation',
-          link: '/coding/frontend/vue-uni-comp/test'
         }
       ]
     },
