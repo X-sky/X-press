@@ -27,6 +27,7 @@ export default defineConfig({
       }
     }
   },
+  ignoreDeadLinks: [/'coding\/python\/markdowns'/],
   head: [['link', { rel: 'icon', href: `${BASE_DIR}/logo.svg` }]],
   themeConfig: {
     outline: {

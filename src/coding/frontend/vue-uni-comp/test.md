@@ -183,7 +183,7 @@ describe('my beverage', () => {
 
 1. [Cypress (Star 45.4k)](https://docs.cypress.io/guides/overview/why-cypress)
 2. [NightWatch (Star 11.5k)](https://nightwatchjs.org/)
-3. [Puppeteer (Star 85.4k)](Puppeteer)
+3. [Puppeteer (Star 85.4k)](https://pptr.dev/)
 
 ![E2E npm trending](./e2e-npm-trend.png)
 
@@ -319,7 +319,7 @@ describe('test UniTemplate', () => {
 
 ### 关于 vitest
 
-在示例的`monorepo`项目中，由于 `vue` 的版本不同，使用方式也不同，因此在引入 `vitest` 之后，出现了 `vue3` 可以正常通过，但是 `vue2` 没办法通过的问题。这个问题在另一个 `vue2` 和 `vue3` [通用的组件库模板](vue-uni-component) 中可以得到复现。该仓库使用 `resolve` 的方式，将 `vue` 和 `vue-demi` 引流至不同的 `container` 下面，解决了编译错误的问题。
+在示例的`monorepo`项目中，由于 `vue` 的版本不同，使用方式也不同，因此在引入 `vitest` 之后，出现了 `vue3` 可以正常通过，但是 `vue2` 没办法通过的问题。这个问题在另一个 `vue2` 和 `vue3` [通用的组件库模板](https://github.com/X-sky/vue-uni-component) 中可以得到复现。该仓库使用 `resolve` 的方式，将 `vue` 和 `vue-demi` 引流至不同的 `container` 下面，解决了编译错误的问题。
 
 而对于单元测试，由于依赖模板编译，因此对于模板编译测试库 `@vue/test-utils` 也需要根据 `vue` 的版本将其引流至不同的 `container` 下面，避免冲突和编译错误
 
