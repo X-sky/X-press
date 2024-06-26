@@ -3,15 +3,21 @@
 layout: home
 
 hero:
-  name: "X-press"
-  tagline: X-press - A VitePress Site With Mass Messy
+  name: 'X-press'
+  tagline: Keep Looking, Don't Settle
+  actions:
+    - theme: alt
+      text: View on GitHub
+      link: https://github.com/X-sky/X-press
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Frontend
+    link: /coding/frontend/auto-hosts/auto-hosts
+    details: life with INFINITE confusing issues
+  - title: Python
+    link: /coding/python/markdowns/pythonCrashCourse/index
+    details: LEARN or OUT
+  - title: Others
+    link: /coding/others/shortcuts/shortcuts
+    details: Boundary BREAKING
 ---
-

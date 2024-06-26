@@ -1,4 +1,6 @@
 {
+  "packageManager": "pnpm@8.3.1",
+  "type": "module",
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^18.18.13",
@@ -14,7 +16,7 @@
     "dev": "pnpm prepare && vitepress dev",
     "build": "pnpm prepare && vitepress build",
     "preview": "vitepress preview",
-    "prepare": "tsx ./scripts/ipynb2md"
+    "prepare": "tsx ./scripts/python-prepare"
   },
   "dependencies": {
     "vue": "^3.3.9"

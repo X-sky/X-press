@@ -6,30 +6,51 @@ import path from 'path';
 import { defineConfig } from 'vitepress';
 import type { DefaultTheme } from 'vitepress';
 import UnoCSS from 'unocss/vite';
+import { pythonWatcherPlugin } from './plugins';
 
+const BASE_DIR = '/X-press';
 export default defineConfig({
   title: 'X-press',
   description: 'X-press - A VitePress Site With Mass Messy',
   srcDir: 'src',
+  base: `${BASE_DIR}/`,
   vite: {
-    plugins: [UnoCSS()],
+    plugins: [UnoCSS(), pythonWatcherPlugin()],
     resolve: {
       alias: {
         '@src': path.resolve(__dirname, '../src'),
-        '@theme/*': path.resolve(__dirname, './theme')
+        '@theme/*': path.resolve(__dirname, './theme'),
+        'fs-extra': path.resolve(
+          __dirname,
+          '../node_modules/fs-extra/lib/esm.mjs'
+        )
       }
     }
   },
+  head: [['link', { rel: 'icon', href: `${BASE_DIR}/logo.svg` }]],
   themeConfig: {
     outline: {
-      label: '----目录----'
+      label: '----In this page----'
     },
+    logo: '/logo.svg',
     nav: getNavList(),
     sidebar: {
       '/coding/': getCodeSidebarList()
     },
     editLink: {
-      pattern: 'https://github.com/X-sky/X-press/blob/main/src/:path',
+      pattern: ({ frontmatter, relativePath }) => {
+        const commonRootPrefix =
+          'https://github.com/X-sky/X-press/blob/main/src/';
+        if (frontmatter.ipynb) {
+          const ipynbPath = relativePath
+            .replace(/.md$/i, '.ipynb')
+            .replace(`markdowns/`, '');
+          // ipynb预转换的文件需要修改编辑链接
+          return `${commonRootPrefix}${ipynbPath}`;
+        } else {
+          return `${commonRootPrefix}${relativePath}`;
+        }
+      },
       text: 'Edit this page on GitHub'
     },
     socialLinks: [
@@ -55,7 +76,7 @@ function getNavList(): DefaultTheme.NavItem[] {
           text: 'Python',
           link:
             (getCodeSidebarList()[1].items || [])[0].link ||
-            '/coding/python/markdowns/pythonCrashCourse'
+            '/coding/python/markdowns/pythonCrashCourse/index'
         },
         {
           text: 'Others',
@@ -99,7 +120,17 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
       items: [
         {
           text: 'Python Crash Course',
-          link: '/coding/python/markdowns/pythonCrashCourse'
+          link: '/coding/python/markdowns/pythonCrashCourse/index',
+          items: [
+            {
+              text: 'Visualize Data',
+              link: '/coding/python/markdowns/pythonCrashCourse/data-visualizing'
+            },
+            {
+              text: 'Build Web App',
+              link: '/coding/python/pythonCrashCourse/web-app'
+            }
+          ]
         }
       ]
     },
