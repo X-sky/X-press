@@ -36,7 +36,7 @@ Memory is the space where data is stored during the execution of a program, some
 
 Variables live in **frames**. A frame is a mapping from variables to values within a single scope, such as a function.
 
-![Stack](./the-rust-programming-language/assets/stack.png)
+![Stack](./assets/stack.png)
 
 The diagram above shows the contents of memory during the program's execution at the three marked points `L1` `L2` and `L3`.
 
@@ -63,7 +63,7 @@ One common way to make a pointer is to allocate memory in the heap. Head data is
 
 Rust provides a construct called `Box` for putting data on the heap like this.
 
-![Stack](./the-rust-programming-language/assets/heap.png)
+![Stack](./assets/heap.png)
 
 Note that `a` is now grayed because it has been moved because of the [Box Deallocation Principle]#box-deallocation-principle) we'll talk about later.
 
