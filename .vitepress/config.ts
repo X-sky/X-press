@@ -113,6 +113,10 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
           link: '/coding/frontend/data-analytics/index.md'
         },
         {
+          text: 'Web Performance',
+          link: '/coding/frontend/performance/index.md'
+        },
+        {
           text: 'Something wrong with Text-align:justify!',
           link: '/coding/frontend/text-align_justify/text-align_justify.md'
         },
