@@ -114,7 +114,17 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
         },
         {
           text: 'Web Performance',
-          link: '/coding/frontend/performance/index.md'
+          link: '/coding/frontend/performance/index.md',
+          items: [
+            {
+              text: 'Core Web Vitals',
+              link: '/coding/frontend/performance/core-web-vitals/index.md'
+            },
+            {
+              text: 'Specifications',
+              link: '/coding/frontend/performance/specifications/index.md'
+            }
+          ]
         },
         {
           text: 'Something wrong with Text-align:justify!',
