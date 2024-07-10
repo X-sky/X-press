@@ -123,14 +123,7 @@ outline: deep
 
 #### 降低 TTFB
 
-良好的 `TTFB` 应该保持在 800ms 以内
-
-![vitals-threshold-ttfb](./assets/vitals-threshold-ttfb.svg)，优化 `TTFB` 通常有以下 [几种方式](https://web.dev/articles/optimize-ttfb#ways_to_optimize_ttfb)
-
-1. 使用 CDN
-2. 减少页面重定向次数
-3. 尽可能使用缓存内容，合理设置 Cache-Policy
-4. 使用 Service Worker
+参考 [其他指标-TTFB](#ttfb)
 
 ### CLS
 
@@ -259,3 +252,75 @@ function loopResize(){
   /* styles */
 }
 ```
+
+## 其他常见指标
+
+### FCP
+
+FCP 曾经是衡量 web 性能的核心指标之一，后来被更语义化的 FMP 取代，直到后来 LCP 成为主流。现在也仍然是衡量网页性能的重要指标
+
+良好的 FCP 应该保持在 1.8s 内
+
+![vitals-threshold-fcp](./assets/vitals-threshold-fcp.svg)
+
+总的来说，优化 FCP 有以下几种思路
+
+1. 消除渲染阻塞型资源
+2. 压缩 CSS
+3. 移除无用的 CSS
+4. 移除无用的 JS
+5. 待请求域名预链接
+6. 缩短 TTFB 时间
+7. 控制请求数和请求体积
+
+可以通过如下代码测量 measure fcp 指标
+
+```typescript
+new PerformanceObserver((entryList) => {
+  for (const entry of entryList.getEntriesByName('first-contentful-paint')) {
+    console.log('FCP candidate:', entry.startTime, entry);
+  }
+}).observe({type: 'paint', buffered: true});
+```
+
+### TTFB
+
+良好的 `TTFB` 应该保持在 800ms 以内
+
+![vitals-threshold-ttfb](./assets/vitals-threshold-ttfb.svg)
+
+优化 `TTFB` 通常有以下 [几种方式](https://web.dev/articles/optimize-ttfb#ways_to_optimize_ttfb)
+
+1. 使用 CDN
+2. 减少页面重定向次数
+3. 尽可能使用缓存内容，合理设置 Cache-Policy
+4. 使用 Service Worker
+
+可以通过如下代码测量 measure ttfb 指标
+
+```typescript
+new PerformanceObserver((entryList) => {
+  const [pageNav] = entryList.getEntriesByType('navigation');
+
+  console.log(`TTFB: ${pageNav.responseStart}`);
+}).observe({
+  type: 'navigation',
+  buffered: true
+});
+```
+
+### TBT
+
+TBT 可以用来量化也个页面在可交互前的不可交互时间。一个较低的 TBT 可以确保页面的可用性 usable
+
+> 页面的可用性: 用户是否能够与页面交互，或者页面是否忙碌 Can users interact with the page, or is it busy
+
+考虑到移动设备的平均硬件条件，一个良好的 TBT 应该低于 200ms
+
+优化TBT的思路大体上与 INP 类似，单笔 INP 更简单，主要也是聚焦于 长任务 long task 的优化 和无用代码的缩减
+
+::: info 参考阅读
+
+[Google web dev - User-Centric Metrics](https://web.dev/articles/user-centric-performance-metrics)
+
+:::
