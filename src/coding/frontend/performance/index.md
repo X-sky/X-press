@@ -112,3 +112,25 @@ lighthouse 统计的指标并非一成不变的，在不同版本的 lighthouse 
 [google lighthouse](https://developer.chrome.com/docs/lighthouse/performance/performance-scoring)
 
 :::
+
+#### Performance
+
+Lighthouse 是 Chromium-based 浏览器的特有功能，假设问题场景出现在 firefox 等浏览器上，我们似乎只能考虑使用 PSI 或者内置的 web-vitals，事实上，当性能问题出现的时候，更常用的选择是各大浏览器 devtools 内置的 **performance**
+
+如 [Firefox](https://profiler.firefox.com/docs/#/) 和 [Chrome](https://developer.chrome.com/docs/devtools/performance#get-started)
+
+![firefox-lcp](./assets/performance/firefox-lcp-metrics.png)
+*Firefox performance - LCP*
+
+![edge-lcp-metrics](./assets/performance/edge-lcp-metrics.png)
+*Microsoft Edge performance - LCP*
+
+Firefox 中的 performance 是作为插件存在，需要手动开启。而 Chromium-based 的浏览器 (Chrome / Edge) 只需要打开控制台，基本都内置了 performance
+
+相对而言，Firefox的 performance 比 Chrome 要更加细致，但聚合度就会因此稍差一些
+
+对于上图中的 performance 结果，针对不同的性能问题，Firefox 与 Chrome 是有着不痛的工作流的。以 LCP 为例：
+
+1. Chrome 中标注了 LCP 的开始和结束时间，展开 main thread 就可以知道当前主线程被那些任务占用，而 Firefox 则需要根据 Marker Chart 定位 LCP 位置，再从时间轴上确定当前浏览器执行了哪些任务
+
+2. Chrome 仅标注了当前网页线程及其相关线程池，而 Firefox 会标注浏览器整体的性能概况 (参考 [浏览器原理](../engine/engine.md))
