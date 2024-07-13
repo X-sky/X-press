@@ -163,7 +163,7 @@ CLS 关注的是 **shift** 而不是 **change**
 
 会影响 CLS 的严格来讲不是 `reflow`，而是 `re-layout`。两者概念有细微区别。
 
-`re-layout` 更宽泛，而 `reflow` 一般情况下专指 [浏览器渲染](../engine/engine.md) 中的 **回流**
+`re-layout` 更宽泛，而 `reflow` 一般情况下专指 [浏览器渲染](../../engine/engine.md) 中的 **回流**
 
 回流不一定会影响 CLS。例如改变某个已有元素的子元素的 `width` 属性，会触发浏览器的 `reflow`，但不会影响到 CLS 评分，因为该元素有对应的 reserved space，因而没有发生 layout shift
 
