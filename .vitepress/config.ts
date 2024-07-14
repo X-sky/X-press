@@ -98,7 +98,7 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
       items: [
         {
           text: 'Host Extension',
-          link: '/coding/frontend/auto-hosts/auto-hosts.md'
+          link: '/coding/frontend/auto-hosts/index.md'
         },
         {
           text: 'Vue Uni Component Lib',
@@ -132,11 +132,11 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
         },
         {
           text: 'Something wrong with Text-align:justify!',
-          link: '/coding/frontend/text-align_justify/text-align_justify.md'
+          link: '/coding/frontend/text-align-justify/index.md'
         },
         {
           text: 'Iterator & Generator',
-          link: '/coding/frontend/iterator/iterator.md'
+          link: '/coding/frontend/iterator/index.md'
         }
       ]
     },
