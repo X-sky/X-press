@@ -71,7 +71,7 @@ function getNavList(): DefaultTheme.NavItem[] {
           text: 'Frontend',
           link:
             (getCodeSidebarList()[0].items || [])[0].link ||
-            '/coding/frontend/race-condition'
+            '/coding/frontend/race-condition/index.md'
         },
         {
           text: 'Python',
@@ -127,10 +127,13 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
           ]
         },
         {
+          text: 'Race condition',
+          link: '/coding/frontend/race-condition/index.md'
+        },
+        {
           text: 'Something wrong with Text-align:justify!',
           link: '/coding/frontend/text-align_justify/text-align_justify.md'
         },
-        { text: 'Race condition', link: '/coding/frontend/race-condition.md' },
         {
           text: 'Iterator & Generator',
           link: '/coding/frontend/iterator/iterator.md'
