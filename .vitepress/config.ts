@@ -113,6 +113,10 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
           link: '/coding/frontend/data-analytics/index.md'
         },
         {
+          text: 'Web Browsers',
+          link: '/coding/frontend/browser/index.md'
+        },
+        {
           text: 'Web Performance',
           link: '/coding/frontend/performance/index.md',
           items: [
