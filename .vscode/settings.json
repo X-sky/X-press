@@ -4,5 +4,9 @@
     "source.fixAll": "explicit"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
-  "vscode-edge-devtools.defaultUrl": "http://localhost:5173/X-press/"
+  "vscode-edge-devtools.defaultUrl": "http://localhost:5173/X-press/",
+  "markdownlint.config": {
+    "default": true,
+    "MD024": { "siblings_only": true }
+  }
 }
