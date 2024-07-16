@@ -12,12 +12,12 @@ hero:
 
 features:
   - title: Frontend
-    link: /coding/frontend/auto-hosts/auto-hosts
+    link: /coding/frontend/auto-hosts/
     details: life with INFINITE confusing issues
   - title: Python
     link: /coding/python/markdowns/pythonCrashCourse/index
     details: LEARN or OUT
   - title: Others
-    link: /coding/others/shortcuts/shortcuts
+    link: /coding/others/shortcuts/
     details: Boundary BREAKING
 ---

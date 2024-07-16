@@ -77,13 +77,13 @@ function getNavList(): DefaultTheme.NavItem[] {
           text: 'Python',
           link:
             (getCodeSidebarList()[1].items || [])[0].link ||
-            '/coding/python/markdowns/pythonCrashCourse/index'
+            '/coding/python/markdowns/pythonCrashCourse'
         },
         {
           text: 'Others',
           link:
             (getCodeSidebarList()[2].items || [])[0].link ||
-            '/coding/others/shortcuts/shortcuts'
+            '/coding/others/shortcuts'
         }
       ]
     }
@@ -166,7 +166,7 @@ function getCodeSidebarList(): DefaultTheme.SidebarItem[] {
       items: [
         {
           text: 'Keyboard Shortcut',
-          link: '/coding/others/shortcuts/shortcuts.md'
+          link: '/coding/others/shortcuts/index.md'
         }
       ]
     }
