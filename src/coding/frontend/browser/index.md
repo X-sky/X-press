@@ -46,5 +46,8 @@ outline: deep
 - 2013 年，IE 11.0 发布。这是最后一个 IE 版本，其市场份额降到 11.8%。尽管仍在 win10 被集成，但 win10 的默认浏览器已经换成了 [Edge(Legacy)](https://en.wikipedia.org/wiki/Microsoft_Edge#Edge_Legacy_(2014%E2%80%932019))
 - 同年，Opera 放弃了 Presto，转向 Chromium
 - 2015 年，微软推出基于 EdgeHTML 和 Chakra 的 Edge(legacy) 浏览器
-- 2019 年，微软推出基于 Chromium 的 New Edge 替代 Edge(Legacy) 作为 windows 的默认浏览器。New Edge 的出现，标志着第二次浏览器战争的落幕
-- 2021 年，win11 发布。尽管 Trident 仍然处于兼容的考虑作为系统的一部分存在，但 IE 的全球用户率已经低于 1%，退出了历史舞台
+- 2019 年，微软推出基于 Chromium 的 New Edge 替代 Edge(Legacy) 作为 windows 的默认浏览器
+
+New Edge 的出现，标志着第二次浏览器战争的落幕
+
+![image](./assets/images/Timeline_of_web_browsers.svg)
