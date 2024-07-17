@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import Chip from '../../../components/Chip/index.vue';
-import StoryCard from '../../../components/StoryCard/StoryCard.vue';
+import StoryCard from '../../../components/StoryCard/index.vue';
 interface TimelineItem {
   date: string;
   title: string;
