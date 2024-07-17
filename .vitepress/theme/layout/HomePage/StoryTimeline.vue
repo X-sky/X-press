@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import Chip from '../../../components/Chip/index.vue';
 import StoryCard from '../../../components/StoryCard/StoryCard.vue';
 interface TimelineItem {
   date: string;
@@ -12,10 +13,9 @@ defineProps<{
 <template>
   <ul class="flex">
     <li class="md:w-96 w-72 first:pl-3 pr-3 pb-2 overflow-hidden" v-for="item in list">
-      <div
-        class="-ms-1 p-1 inline-flex items-center text-xs rounded-lg border border-transparent text-gray-500 hover:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700">
+      <Chip class="ml-1">
         {{ item.date }}
-      </div>
+      </Chip>
       <div class="relative w-full h-4 mb-2">
         <div class="absolute -z-10 left-0 top-0 w-[110%] h-full flex items-center">
           <!-- split-line -->
