@@ -11,7 +11,7 @@ defineProps<{
 </script>
 <template>
   <ul class="flex">
-    <li class="md:w-96 w-72 px-3 pb-2 overflow-hidden" v-for="item in list">
+    <li class="md:w-96 w-72 first:pl-3 pr-3 pb-2 overflow-hidden" v-for="item in list">
       <div
         class="-ms-1 p-1 inline-flex items-center text-xs rounded-lg border border-transparent text-gray-500 hover:bg-gray-100 dark:text-neutral-400 dark:hover:bg-neutral-700">
         {{ item.date }}
@@ -24,7 +24,7 @@ defineProps<{
         </div>
         <div class="w-4 h-4 bg-gray-100 text-gray-800 rounded-full dark:bg-neutral-700 dark:text-white"></div>
       </div>
-      <div class="w-full">
+      <div class="w-full px-2">
         <StoryCard v-bind="item" hover-tilt />
       </div>
     </li>
