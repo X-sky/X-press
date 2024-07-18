@@ -11,8 +11,8 @@ defineProps<{
 }>();
 </script>
 <template>
-  <ul class="flex">
-    <li class="md:w-96 w-72 first:pl-3 pr-3 pb-2 overflow-hidden" v-for="item in list">
+  <ul class="flex overflow-auto">
+    <li class="md:w-96 w-72 first:pl-3 pr-3 pb-2 overflow-hidden flex-shrink-0" v-for="item in list">
       <Chip class="ml-1">
         {{ item.date }}
       </Chip>

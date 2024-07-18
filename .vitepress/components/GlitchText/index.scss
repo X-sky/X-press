@@ -5,10 +5,10 @@ $bg-color: var(--vp-c-bg);
 $txt-color: var(--vp-c-text-1);
 $color-c1: red;
 $color-c2: blue;
-$offset-c1: 3px;
-$offset-c2: 2px;
-$lay-c1: 2px;
-$lay-c2: 2px;
+$offset-c1: 0.02em;
+$offset-c2: 0.015em;
+$lay-c1: 0.015em;
+$lay-c2: 0.015em;
 
 
 .screen {
@@ -27,7 +27,7 @@ $lay-c2: 2px;
 
   .content {
     position: relative;
-    font-size: 128px;
+    font-size: inherit;
     line-height: 1;
     text-align: center;
 

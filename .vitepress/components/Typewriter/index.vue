@@ -3,9 +3,14 @@
 import { onMounted, ref } from 'vue';
 import Typed from 'typed.js';
 
-const props = defineProps<{
-  textList: string[]
-}>();
+const props = withDefaults(defineProps<{
+  textList: string[],
+  speed?: number,
+  loop?: boolean,
+}>(), {
+  speed: 50,
+  loop: true
+});
 
 const textRef = ref<HTMLParagraphElement>();
 
@@ -13,8 +18,8 @@ onMounted(() => {
   if (textRef.value) {
     new Typed(textRef.value, {
       strings: props.textList,
-      typeSpeed: 50,
-      loop: true
+      typeSpeed: props.speed,
+      loop: props.loop
     });
   }
 })

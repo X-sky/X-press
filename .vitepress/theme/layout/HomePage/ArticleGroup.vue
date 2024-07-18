@@ -13,13 +13,13 @@ const list = [{
 
 </script>
 <template>
-  <section>
-    <h2 class="mb-3">
-      <div class="tracking-tight inline font-semibold text-4xl lg:text-6xl">Issues can be</div>
+  <section class="article-group">
+    <h2 class="mb-3 text-2xl md:text-4xl">
+      <div class="tracking-tight inline font-semibold">Issues can be</div>
       <div>
         <!-- <div class="tracking-tight inline font-semibold text-4xl lg:text-6xl">be&nbsp;</div> -->
         <div
-          class="tracking-tight inline font-semibold from-[#FF705B] to-[#FFB457] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b">
+          class="tracking-tight inline font-semibold from-[#FF705B] to-[#FFB457]  bg-clip-text text-transparent bg-gradient-to-b">
           weapons
         </div>
       </div>
@@ -29,3 +29,9 @@ const list = [{
     </div>
   </section>
 </template>
+<style lang="scss" scoped>
+.article-group {
+  max-width: calc(var(--vp-layout-max-width) - 64px);
+  margin: 0 auto;
+}
+</style>
