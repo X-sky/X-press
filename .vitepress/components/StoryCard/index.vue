@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { useTilt } from './useTilt';
+import { useRouter } from 'vitepress';
 
 const props = defineProps<{
   title: string;
@@ -9,6 +10,7 @@ const props = defineProps<{
   link?: string;
 }>();
 
+const router = useRouter();
 const elRef = ref<HTMLDivElement>();
 
 const syncedStyle = computed(() => {
@@ -46,7 +48,7 @@ const mouseMoveHandler = (e: MouseEvent) => {
 }
 const jumpTo = () => {
   if (props.link) {
-    window.location.href = props.link;
+    router.go(props.link);
   }
 }
 </script>
