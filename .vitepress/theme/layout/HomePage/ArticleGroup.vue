@@ -1,17 +1,8 @@
 <script lang="ts" setup>
+import { ILineTextPart, ITimelineCardInfo } from './articleGroups';
 import StoryTimeline from './StoryTimeline.vue';
 
-interface ILineTextPart {
-  text: string;
-  /** emphasis color type */
-  emColorType?: string
-}
-interface ITimelineCardInfo {
-  date: string;
-  title: string;
-  desc: string;
-  link: string;
-}
+
 const props = defineProps<{
   titleLines: ILineTextPart[][];
   list: ITimelineCardInfo[]
