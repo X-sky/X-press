@@ -96,8 +96,8 @@ pnpm-global
 dist/
 
 # vitepress build output
-**/.vitepress/dist
-**/.vitepress/cache
+.vitepress/dist
+.vitepress/cache
 
 # Serverless directories
 .serverless/
@@ -114,7 +114,3 @@ draft.md
 **/python/markdowns
 **/__pycache__
 **/.temp
-
-# next.js
-**/.next/
-**/out/
