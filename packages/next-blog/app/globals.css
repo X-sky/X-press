@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+a {
+  @apply ml-2 text-blue-400 hover:underline
+}
+
+img {
+  @apply max-w-full block
+}
