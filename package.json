@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm -F ./packages/nuxt-blog dev",
-    "build:blog": "pnpm -F ./packages/nuxt-blog build"
+    "dev": "pnpm -F ./packages/next-blog dev",
+    "build:blog": "pnpm -F ./packages/next-blog build"
   },
   "devDependencies": {
     "@types/node": "^20",

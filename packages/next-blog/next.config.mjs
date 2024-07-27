@@ -1,12 +1,14 @@
-import withMDX from '@next/mdx';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configure `pageExtensions` to include MDX files
-  pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
-  // Optionally, add any other Next.js config below
-};
+    reactStrictMode: true,
+    trailingSlash: false,
+    compiler: {
+        removeConsole: process.env.NODE_ENV === 'production',
+    },
+    images: {
+        domains: ['avatars.githubusercontent.com','static.wixstatic.com','assets-global.website-files.com'],
+        
+    },
+}
 
-export default withMDX({
-  extension: /\.mdx?$/,
-})(nextConfig);
+export default nextConfig
