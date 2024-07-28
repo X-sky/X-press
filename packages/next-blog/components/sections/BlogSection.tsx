@@ -3,14 +3,10 @@
 import { useEffect, useRef } from "react"
 import useOnScreen from "@/hooks/useOnScreen"
 import useScrollActive from "@/hooks/useScrollActive"
-import ComingSoon1 from "@/public/assets/blog/coming-soon-1.jpg"
-import ComingSoon2 from "@/public/assets/blog/coming-soon-2.jpg"
-import SpaceCat from "@/public/assets/blog/space-cat.webp"
 import { useSectionStore } from "@/store/section"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger"
 import { ArrowRight } from "iconsax-react"
-import { StaticImageData } from "next/image"
 import Link from "next/link"
 import { RoughNotation } from "react-rough-notation"
 import BlogCard from "../BlogCard"
@@ -89,14 +85,14 @@ export default function BlogSection() {
         </div>
 
         <Link
-          href={"https://medium.com/@shinthantequi"}
+          href={"https://x-sky.github.io/X-press/coding/frontend/auto-hosts/"}
           target="_blank"
-          aria-label="Follow up on my medium account"
+          aria-label="Read more"
           rel="noopener noreferrer"
           className="flex items-center gap-2"
         >
           <div className="text-accentColor navlink text-sm italic">
-            Follow up on my medium
+            Read more
           </div>
           <ArrowRight color="white" size={15} />
         </Link>
@@ -109,7 +105,6 @@ export interface Blog {
   id: number
   title: string
   description: string
-  image: StaticImageData
   publishAt: string
   link: string
 }
@@ -117,29 +112,34 @@ export interface Blog {
 const blogs: Blog[] = [
   {
     id: 1,
-    title: "The Mystery of React Children Re-rendering",
+    title: "Aspects of web performance",
     description:
-      "Component rendering is important for the overall performance of the app. So, although it seems simple, I want to share the complex children render logic.",
-    image: SpaceCat,
-    publishAt: "2024, March 10",
-    link: "https://medium.com/@shinthantequi/the-mystery-of-react-children-re-rendering-3544a68944f4",
+      "Web performance is a crucial aspect of web development. There are huge amounts of articles focusing on optimizing techniques, merely diving into the inside. However, we should know: optimizing is compromising.",
+    publishAt: "2024, July 2",
+    link: "https://x-sky.github.io/X-press/coding/frontend/data-analytics/",
   },
   {
     id: 2,
-    title: "Testing 1",
+    title: "Practice data analytics in frontend",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae similique sequi ex quisquam ullam corrupti neque dolores ad provident magnam?",
-    image: ComingSoon1,
-    publishAt: "2022, March 10",
-    link: "",
+      "Data analytics is a vital procedure for decision-making. It normally just means an interface to a frontend developer. However, when it comes to designing a data analytics system, it's a whole different story.",
+    publishAt: "2024, June 9",
+    link: "https://x-sky.github.io/X-press/coding/frontend/data-analytics/",
   },
   {
     id: 3,
-    title: "Testing 2",
+    title: "Why do we need auto-testing",
     description:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae similique sequi ex quisquam ullam corrupti neque dolores ad provident magnam?",
-    image: ComingSoon2,
-    publishAt: "2024, January 15",
-    link: "",
+      "Test automation is a must-have for a project, but somehow not being taken seriously. In this article, I will explain why we need auto-testing and how to implement it in a project.",
+    publishAt: "2024, March 30",
+    link: "https://x-sky.github.io/X-press/coding/frontend/vue-uni-comp/test.html",
+  },
+  {
+    id: 4,
+    title: "A tutorial for Chrome extension development",
+    description:
+      "Developing a Chrome extension is not only necessary for upgrading devloping skills, but also a sharp knife for some certain problems. In this article, I will guide you through the process of how I created a simple Chrome extension -- HostsWitch.",
+    publishAt: "2023, May 10",
+    link: "https://x-sky.github.io/X-press/coding/frontend/auto-hosts/",
   },
 ]

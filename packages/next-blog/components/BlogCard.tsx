@@ -48,16 +48,18 @@ export default function BlogCard({ item }: Props) {
         className="w-full group flex justify-between items-center hover:bg-gray-500 rounded-md hover:bg-opacity-5 transition-colors p-1 pr-0 md:pr-4"
       >
         <div className="w-full flex flex-col md:flex-row items-center gap-5">
-          <Image
+          {/* <Image
             priority
             width={140}
             height={120}
             className="h-full md:h-full bg-contain w-full md:w-[200px] transition-all group-hover:contrast-125 rounded-md"
             src={item.image}
             alt={item.title}
-          />
+          /> */}
           <div className="flex w-full md:w-3/5 flex-col items-start gap-2">
-            <div className="dark:text-gray-300">{item.title}</div>
+            <div className="text-lg font-bold dark:text-gray-300">
+              {item.title}
+            </div>
             <div className="flex items-center gap-2">
               <Edit size={16} color="gray" />
               <div className="text-accentColor text-sm">{item.publishAt}</div>

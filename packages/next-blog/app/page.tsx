@@ -11,8 +11,8 @@ export default function Home() {
       <MouseSection />
       <HeroSection />
       <AboutSection />
-      <ProjectSection />
       <BlogSection />
+      <ProjectSection />
       <ContactSection />
     </main>
   )

@@ -4,12 +4,12 @@ const navLinks = [
     href: "#about",
   },
   {
-    title: "Project",
-    href: "#project",
-  },
-  {
     title: "Blog",
     href: "#blog",
+  },
+  {
+    title: "Project",
+    href: "#project",
   },
   {
     title: "Contact",

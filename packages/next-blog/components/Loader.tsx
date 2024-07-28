@@ -6,7 +6,7 @@ import { gsap } from "gsap"
 const Loader = () => {
   const loadingRef = useRef(null)
 
-  const [isAnimationFinished, setIsAnimationFinished] = useState<boolean>(false)
+  const [isAnimationFinished, setIsAnimationFinished] = useState(false)
 
   useEffect(() => {
     const tl = gsap.timeline({
@@ -46,7 +46,7 @@ const Loader = () => {
     <div ref={loadingRef} aria-hidden="true">
       {!isAnimationFinished && (
         <>
-          <div className="absolute counter w-screen h-screen z-[10000] left-0 top-0 bg-black p-10 flex justify-end items-end text-[7rem] font-bold text-accentColor">
+          <div className="fixed counter w-screen h-screen z-[10000] left-0 top-0 bg-black p-10 flex justify-end items-end text-[7rem] font-bold text-accentColor box-border">
             {count}
           </div>
           <div className="fixed w-screen h-screen z-[9999] flex">

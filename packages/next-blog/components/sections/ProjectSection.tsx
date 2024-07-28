@@ -5,7 +5,7 @@ import useOnScreen from "@/hooks/useOnScreen"
 import useScrollActive from "@/hooks/useScrollActive"
 import HostsWitchImage from "@/public/assets/projects/HostsWitch.png"
 import XPressImage from "@/public/assets/projects/X-press.png"
-import Ecommerce from "@/public/assets/projects/ecommerce.png"
+import VueDemiImage from "@/public/assets/projects/vue-demi.png"
 import { useSectionStore } from "@/store/section"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger"
@@ -73,8 +73,9 @@ export default function ProjectSection() {
           </RoughNotation>
           <div ref={elementRef} className="overflow-hidden ">
             <div className="qoutes-animation  md:w-full text-center font-medium flex flex-col items-center">
-              <div>Good design is obvious. Great design is transparent.</div>
-              <div>Design is not for philosophy, it&apos;s for life.</div>
+              <div>
+                OpenSource is not about community, it&apos;s about attitude.
+              </div>
             </div>
           </div>
         </div>
@@ -127,7 +128,7 @@ const projects: Project[] = [
     title: "Vue uni ui",
     description: "A Universal component lib for Vue 2 & 3!",
     techStacks: ["Vue", "typescript", "vite"],
-    image: Ecommerce,
+    image: VueDemiImage,
     githubURL: "https://github.com/X-sky/vue-uni-component",
     githubApi: "https://api.github.com/repos/X-sky/vue-uni-component",
   },

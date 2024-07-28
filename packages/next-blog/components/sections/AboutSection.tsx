@@ -185,8 +185,9 @@ export default function AboutSection() {
                 </div>
                 <div className="overflow-hidden">
                   <div className="dark:text-white text-animation">
-                    Currently undergraduate at Tongji University, majoring in
-                    Artificial Intelligence
+                    Graduated from Zhejiang Sci-Tech University. Currently under
+                    postgraduate at Tongji University, majoring in Artificial
+                    Intelligence
                   </div>
                 </div>
               </div>
@@ -302,6 +303,20 @@ const TechStack = () => {
             width="28"
             height="28"
             viewBox="0 0 24 24"
+            strokeWidth="0.5"
+            className="stroke-black dark:stroke-white translate-y-1"
+            fill="none"
+          >
+            <path d="M7.5 13.5L7.06811 13.7519C7.15772 13.9055 7.32217 14 7.5 14C7.67783 14 7.84228 13.9055 7.93189 13.7519L7.5 13.5ZM11.5 1.5L11.9341 1.74807C12.0226 1.59332 12.0219 1.40319 11.9325 1.24904C11.843 1.09488 11.6782 1 11.5 1V1.5ZM7.5 8.5L7.06588 8.74807C7.1549 8.90386 7.32057 9 7.5 9C7.67943 9 7.8451 8.90386 7.93412 8.74807L7.5 8.5ZM3.5 1.5V1C3.32176 1 3.15701 1.09488 3.06754 1.24904C2.97808 1.40319 2.97745 1.59332 3.06588 1.74807L3.5 1.5ZM6.5 1.5L6.94721 1.27639L6.80902 1H6.5V1.5ZM7.5 3.5L7.05279 3.72361C7.13748 3.893 7.31061 4 7.5 4C7.68939 4 7.86252 3.893 7.94721 3.72361L7.5 3.5ZM8.5 1.5V1H8.19098L8.05279 1.27639L8.5 1.5ZM0.0681106 1.75194L7.06811 13.7519L7.93189 13.2481L0.931889 1.24806L0.0681106 1.75194ZM7.93189 13.7519L14.9319 1.75194L14.0681 1.24806L7.06811 13.2481L7.93189 13.7519ZM11.0659 1.25193L7.06588 8.25193L7.93412 8.74807L11.9341 1.74807L11.0659 1.25193ZM7.93412 8.25193L3.93412 1.25193L3.06588 1.74807L7.06588 8.74807L7.93412 8.25193ZM3.5 2H6.5V1H3.5V2ZM6.05279 1.72361L7.05279 3.72361L7.94721 3.27639L6.94721 1.27639L6.05279 1.72361ZM7.94721 3.72361L8.94721 1.72361L8.05279 1.27639L7.05279 3.27639L7.94721 3.72361ZM8.5 2H11.5V1H8.5V2Z" />
+          </svg>
+          <div className="dark:text-white text-lg font-medium">Vue</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
             strokeWidth="1.5"
             className="stroke-black dark:stroke-white"
             fill="none"
@@ -380,53 +395,16 @@ const TechStack = () => {
         <div className="flex items-center gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
+            width="30"
+            height="30"
             viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            className="stroke-black dark:stroke-white"
+            strokeWidth="1"
+            className="stroke-black dark:stroke-white translate-y-1"
             fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
           >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M5.308 7.265l5.385 -3.029" />
-            <path d="M13.308 4.235l5.384 3.03" />
-            <path d="M20 9.5v5" />
-            <path d="M18.693 16.736l-5.385 3.029" />
-            <path d="M10.692 19.765l-5.384 -3.03" />
-            <path d="M4 14.5v-5" />
-            <path d="M12.772 4.786l6.121 10.202" />
-            <path d="M18.5 16h-13" />
-            <path d="M5.107 14.988l6.122 -10.201" />
-            <path d="M12 3.5m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M12 20.5m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M4 8m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M4 16m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M20 16m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M20 8m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
+            <path d="M6 2.5H7M4.5 4V1.5C4.5 0.947715 4.94772 0.5 5.5 0.5H9.5C10.0523 0.5 10.5 0.947715 10.5 1.5V6.5C10.5 7.05228 10.0523 7.5 9.5 7.5H5.5C4.94772 7.5 4.5 7.94772 4.5 8.5V13.5C4.5 14.0523 4.94772 14.5 5.5 14.5H9.5C10.0523 14.5 10.5 14.0523 10.5 13.5V11M8 4.5H1.5C0.947715 4.5 0.5 4.94772 0.5 5.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H4.5M7 10.5H13.5C14.0523 10.5 14.5 10.0523 14.5 9.5V4.5C14.5 3.94772 14.0523 3.5 13.5 3.5H10.5M8 12.5H9" />
           </svg>
-          <div className="dark:text-white text-lg font-medium">GraphQL</div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            className="stroke-black dark:stroke-white"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M4.53 17.05l6.15 -11.72h-.02c.38 -.74 1.28 -1.02 2.01 -.63c.26 .14 .48 .36 .62 .62l1.06 2.01" />
-            <path d="M15.47 6.45c.58 -.59 1.53 -.59 2.11 -.01c.22 .22 .36 .5 .41 .81l1.5 9.11c.1 .62 -.2 1.24 -.76 1.54l-6.07 2.9c-.46 .25 -1.01 .26 -1.46 0l-6.02 -2.92c-.55 -.31 -.85 -.92 -.75 -1.54l1.96 -12.04c.12 -.82 .89 -1.38 1.7 -1.25c.46 .07 .87 .36 1.09 .77l1.24 1.76" />
-            <path d="M4.57 17.18l10.93 -10.68" />
-          </svg>
-          <div className="dark:text-white text-lg font-medium">Firebase</div>
+          <div className="dark:text-white text-lg font-medium">Python</div>
         </div>
       </div>
 
@@ -452,7 +430,21 @@ const TechStack = () => {
             <path d="M11 12v6" />
             <path d="M21 19v-14a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2 -2z" />
           </svg>
-          j<div className="dark:text-white text-lg font-medium">TypeScript</div>
+          <div className="dark:text-white text-lg font-medium">TypeScript</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            strokeWidth="0.5"
+            className="stroke-black dark:stroke-white translate-y-1"
+            fill="none"
+          >
+            <path d="M7.5 13.5L7.06811 13.7519C7.15772 13.9055 7.32217 14 7.5 14C7.67783 14 7.84228 13.9055 7.93189 13.7519L7.5 13.5ZM11.5 1.5L11.9341 1.74807C12.0226 1.59332 12.0219 1.40319 11.9325 1.24904C11.843 1.09488 11.6782 1 11.5 1V1.5ZM7.5 8.5L7.06588 8.74807C7.1549 8.90386 7.32057 9 7.5 9C7.67943 9 7.8451 8.90386 7.93412 8.74807L7.5 8.5ZM3.5 1.5V1C3.32176 1 3.15701 1.09488 3.06754 1.24904C2.97808 1.40319 2.97745 1.59332 3.06588 1.74807L3.5 1.5ZM6.5 1.5L6.94721 1.27639L6.80902 1H6.5V1.5ZM7.5 3.5L7.05279 3.72361C7.13748 3.893 7.31061 4 7.5 4C7.68939 4 7.86252 3.893 7.94721 3.72361L7.5 3.5ZM8.5 1.5V1H8.19098L8.05279 1.27639L8.5 1.5ZM0.0681106 1.75194L7.06811 13.7519L7.93189 13.2481L0.931889 1.24806L0.0681106 1.75194ZM7.93189 13.7519L14.9319 1.75194L14.0681 1.24806L7.06811 13.2481L7.93189 13.7519ZM11.0659 1.25193L7.06588 8.25193L7.93412 8.74807L11.9341 1.74807L11.0659 1.25193ZM7.93412 8.25193L3.93412 1.25193L3.06588 1.74807L7.06588 8.74807L7.93412 8.25193ZM3.5 2H6.5V1H3.5V2ZM6.05279 1.72361L7.05279 3.72361L7.94721 3.27639L6.94721 1.27639L6.05279 1.72361ZM7.94721 3.72361L8.94721 1.72361L8.05279 1.27639L7.05279 3.27639L7.94721 3.72361ZM8.5 2H11.5V1H8.5V2Z" />
+          </svg>
+          <div className="dark:text-white text-lg font-medium">Vue</div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -539,53 +531,16 @@ const TechStack = () => {
         <div className="flex items-center gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
+            width="30"
+            height="30"
             viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            className="stroke-black dark:stroke-white"
+            strokeWidth="1"
+            className="stroke-black dark:stroke-white translate-y-1"
             fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
           >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M5.308 7.265l5.385 -3.029" />
-            <path d="M13.308 4.235l5.384 3.03" />
-            <path d="M20 9.5v5" />
-            <path d="M18.693 16.736l-5.385 3.029" />
-            <path d="M10.692 19.765l-5.384 -3.03" />
-            <path d="M4 14.5v-5" />
-            <path d="M12.772 4.786l6.121 10.202" />
-            <path d="M18.5 16h-13" />
-            <path d="M5.107 14.988l6.122 -10.201" />
-            <path d="M12 3.5m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M12 20.5m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M4 8m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M4 16m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M20 16m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
-            <path d="M20 8m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
+            <path d="M6 2.5H7M4.5 4V1.5C4.5 0.947715 4.94772 0.5 5.5 0.5H9.5C10.0523 0.5 10.5 0.947715 10.5 1.5V6.5C10.5 7.05228 10.0523 7.5 9.5 7.5H5.5C4.94772 7.5 4.5 7.94772 4.5 8.5V13.5C4.5 14.0523 4.94772 14.5 5.5 14.5H9.5C10.0523 14.5 10.5 14.0523 10.5 13.5V11M8 4.5H1.5C0.947715 4.5 0.5 4.94772 0.5 5.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H4.5M7 10.5H13.5C14.0523 10.5 14.5 10.0523 14.5 9.5V4.5C14.5 3.94772 14.0523 3.5 13.5 3.5H10.5M8 12.5H9" />
           </svg>
-          <div className="dark:text-white text-lg font-medium">GrapQL</div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            className="stroke-black dark:stroke-white"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M4.53 17.05l6.15 -11.72h-.02c.38 -.74 1.28 -1.02 2.01 -.63c.26 .14 .48 .36 .62 .62l1.06 2.01" />
-            <path d="M15.47 6.45c.58 -.59 1.53 -.59 2.11 -.01c.22 .22 .36 .5 .41 .81l1.5 9.11c.1 .62 -.2 1.24 -.76 1.54l-6.07 2.9c-.46 .25 -1.01 .26 -1.46 0l-6.02 -2.92c-.55 -.31 -.85 -.92 -.75 -1.54l1.96 -12.04c.12 -.82 .89 -1.38 1.7 -1.25c.46 .07 .87 .36 1.09 .77l1.24 1.76" />
-            <path d="M4.57 17.18l10.93 -10.68" />
-          </svg>
-          <div className="dark:text-white text-lg font-medium">Firebase</div>
+          <div className="dark:text-white text-lg font-medium">Python</div>
         </div>
       </div>
     </div>

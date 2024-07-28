@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { Analytics } from "@vercel/analytics/react"
 import { Jost } from "next/font/google"
 import { ThemeProvider } from "@/providers/ThemeProvider"
 import Loader from "@/components/Loader"
@@ -30,7 +29,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Analytics />
       <body className={jost.className}>
         <Loader />
 

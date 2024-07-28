@@ -25,7 +25,7 @@ export default function SocialLinks() {
 
       <div className="fixed bottom-0 group flex flex-col gap-2 items-center left-4">
         <Link
-          href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}
+          href={`mailto:ttse0103@outlook.com`}
           style={{
             writingMode: "vertical-lr",
           }}

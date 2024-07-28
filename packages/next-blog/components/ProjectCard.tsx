@@ -12,7 +12,7 @@ interface Props {
 
 export default function ProjectCard({ item }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const [starCount, setStarCount] = useState<number>(0)
+  // const [starCount, setStarCount] = useState<number>(0)
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
@@ -36,32 +36,14 @@ export default function ProjectCard({ item }: Props) {
     )
   }, [])
 
-  useEffect(() => {
-    let ignore = false
-    if (!item.githubApi) return
-    async function fetchData() {
-      const response = await fetch(item.githubApi)
-      const data = await response.json()
-      const stargazersCount = data.stargazers_count
-      const stargazersUrl = data.stargazers_url
-
-      if (stargazersCount && stargazersUrl && !ignore) {
-        setStarCount(stargazersCount)
-      }
-    }
-
-    fetchData()
-    return () => {
-      ignore = true
-    }
-  }, [item.githubApi])
-
   return (
     <div
       ref={cardRef}
       className="relative overflow-hidden col-span-1 w-full flex flex-col shadow-sm border rounded-[0.75rem] h-[380px]"
     >
-      <Image priority alt={item.title} src={item.image} />
+      <div className="flex items-center h-[187px] overflow-hidden">
+        <Image priority alt={item.title} src={item.image} />
+      </div>
 
       <div className="flex-1  group relative after:content-[''] after:rounded-full after:absolute after:content after:z-[10] after:w-[32px] after:h-[32px] after:bg-accentColor after:scale-[1] after:bottom-[-24px] after:right-[-24px] after:origin-center after:transition-transform after:duration-500 after:ease-out hover:after:scale-[25] overflow-hidden p-4 flex flex-col items-start justify-between">
         <div className="w-full px-4 absolute left-[50%] -translate-x-1/2 z-20 flex flex-col gap-2 items-start ">
@@ -69,7 +51,7 @@ export default function ProjectCard({ item }: Props) {
             <div className="text-accentColor group-hover:text-white font-medium">
               {item.title}
             </div>
-            <div className="flex items-center group">
+            {/* <div className="flex items-center group">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="scale-[0.7] group-hover:-rotate-12"
@@ -86,7 +68,7 @@ export default function ProjectCard({ item }: Props) {
                 <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
               </svg>
               <div className="font-medium text-sm">{starCount}</div>
-            </div>
+            </div> */}
           </div>
           <div className="text-black text-sm group-hover:text-white">
             {item.description}
