@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react"
 import Code from "@/public/assets/hero/code.png"
-import HeroSpinner from "@/public/assets/hero/hero-spinner.webp"
 import Source from "@/public/assets/hero/source.png"
 import heroLottieData from "@/public/assets/lottie/hero-lottie.json"
 import { gsap } from "gsap"
