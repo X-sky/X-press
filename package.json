@@ -13,12 +13,12 @@
     "vitepress": "1.0.0-rc.31"
   },
   "scripts": {
-    "dev": "pnpm prepare && vitepress dev",
-    "build": "pnpm prepare && vitepress build",
-    "preview": "vitepress preview",
-    "prepare": "tsx ./scripts/python-prepare"
+    "dev": "pnpm python-prepare && vitepress dev",
+    "build": "pnpm python-prepare && vitepress build",
+    "python-prepare": "tsx ./scripts/python-prepare"
   },
   "dependencies": {
+    "viewerjs": "^1.11.6",
     "vue": "^3.3.9"
   }
 }
