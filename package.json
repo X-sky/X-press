@@ -4,13 +4,14 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^18.18.13",
+    "@unocss/preset-wind3": "^66.5.1",
     "consola": "^3.2.3",
     "fast-glob": "^3.3.2",
     "fs-extra": "^11.2.0",
     "tsx": "^4.7.0",
     "typescript": "^5.3.2",
-    "unocss": "^0.57.7",
-    "vitepress": "1.0.0-rc.31"
+    "unocss": "^66.5.1",
+    "vitepress": "1.6.3"
   },
   "scripts": {
     "dev": "pnpm prepare && vitepress dev",
@@ -19,6 +20,9 @@
     "prepare": "tsx ./scripts/python-prepare"
   },
   "dependencies": {
-    "vue": "^3.3.9"
+    "gsap": "^3.12.7",
+    "lottie-web": "^5.12.2",
+    "split-type": "^0.3.4",
+    "vue": "^3.5.13"
   }
 }

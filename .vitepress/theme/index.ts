@@ -1,10 +1,11 @@
 import type { Theme } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 import './custom.css';
+import './portfolio.css';
 import 'virtual:uno.css';
-import CustomLayout from './layout/CustomLayout.vue';
+import AppLayout from './layout/AppLayout.vue';
 
 export default {
   extends: DefaultTheme,
-  Layout: CustomLayout
+  Layout: AppLayout
 } satisfies Theme;

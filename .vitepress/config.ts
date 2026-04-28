@@ -14,6 +14,7 @@ export default defineConfig({
   description: 'X-press - A VitePress Site With Mass Messy',
   srcDir: 'src',
   base: `${BASE_DIR}/`,
+  appearance: 'dark',
   vite: {
     plugins: [UnoCSS(), pythonWatcherPlugin()],
     resolve: {
@@ -25,10 +26,23 @@ export default defineConfig({
           '../node_modules/fs-extra/lib/esm.mjs'
         )
       }
+    },
+    ssr: {
+      noExternal: ['gsap']
     }
   },
-  ignoreDeadLinks: [/'coding\/python\/markdowns'/],
-  head: [['link', { rel: 'icon', href: `${BASE_DIR}/logo.svg` }]],
+  ignoreDeadLinks: [/'coding\/python\/markdowns'/, /pythonCrashCourse\/web-app/],
+  head: [
+    ['link', { rel: 'icon', href: `${BASE_DIR}/logo.svg` }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
+    ['link', { href: 'https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap', rel: 'stylesheet' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:title', content: 'X-press' }],
+    ['meta', { property: 'og:description', content: 'A Frontend Developer Portfolio & Blog' }],
+    ['meta', { property: 'og:image', content: 'https://x-sky.github.io/X-press/logo.svg' }],
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+  ],
   themeConfig: {
     outline: {
       label: '----In this page----'
