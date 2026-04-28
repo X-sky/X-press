@@ -17,6 +17,7 @@
  * Uses useGsapAnimation composable with ScrollTrigger.
  */
 import { ref } from 'vue'
+import { withBase } from 'vitepress'
 import { useGsapAnimation } from '../../composables/useGsapAnimation'
 
 const sectionRef = ref<HTMLElement | null>(null)
@@ -70,7 +71,7 @@ useGsapAnimation(sectionRef, {
           <img
             alt="wechat qrcode"
             title="scan to contact me with wechat"
-            src="/assets/images/wechat_qrcode.jpg"
+            :src="withBase('/assets/images/wechat_qrcode.jpg')"
             class="w-full h-full object-cover"
           />
         </div>

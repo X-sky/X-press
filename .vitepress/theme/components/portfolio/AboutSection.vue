@@ -14,6 +14,7 @@
  * ScrollTrigger is already registered inside useGsapAnimation.
  */
 import { ref } from 'vue'
+import { withBase } from 'vitepress'
 import { useGsapAnimation } from '../../composables/useGsapAnimation'
 import TechStack from './TechStack.vue'
 import SplitType from 'split-type'
@@ -118,7 +119,7 @@ useGsapAnimation(sectionRef, {
         <div class="absolute -right-[10px] top-2">
           <img
             class="w-14 pointer-events-none select-none"
-            src="/assets/about/signs.svg"
+            :src="withBase('/assets/about/signs.svg')"
             alt="signs"
           />
         </div>
@@ -222,7 +223,7 @@ useGsapAnimation(sectionRef, {
               width="300"
               height="262"
               alt="selfie"
-              src="/assets/images/selfie.jpg"
+              :src="withBase('/assets/images/selfie.jpg')"
             />
 
             <!-- Decorative: triangle -->
@@ -232,7 +233,7 @@ useGsapAnimation(sectionRef, {
                 width="26"
                 height="26"
                 alt="triangle background"
-                src="/assets/about/triangle.svg"
+                :src="withBase('/assets/about/triangle.svg')"
               />
             </div>
 
@@ -243,7 +244,7 @@ useGsapAnimation(sectionRef, {
                 width="22"
                 height="22"
                 alt="circle background"
-                src="/assets/about/circle.svg"
+                :src="withBase('/assets/about/circle.svg')"
               />
             </div>
 
@@ -254,7 +255,7 @@ useGsapAnimation(sectionRef, {
                 width="34"
                 height="34"
                 alt="star background"
-                src="/assets/about/star.svg"
+                :src="withBase('/assets/about/star.svg')"
               />
             </div>
           </div>

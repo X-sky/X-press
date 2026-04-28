@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted, shallowRef } from 'vue'
+import { withBase } from 'vitepress'
 import LottiePlayer from '../shared/LottiePlayer.vue'
 import { useGsapAnimation } from '../../composables/useGsapAnimation'
 
@@ -9,7 +10,7 @@ const heroLottieData = shallowRef<object | null>(null)
 // Load Lottie JSON on client side only
 onMounted(async () => {
   try {
-    const res = await fetch('/assets/lottie/hero-lottie.json')
+    const res = await fetch(withBase('/assets/lottie/hero-lottie.json'))
     heroLottieData.value = await res.json()
   } catch (e) {
     console.warn('[HeroTool] Failed to load hero lottie data:', e)
@@ -59,7 +60,7 @@ useGsapAnimation(containerRef, {
       >
         <img
           class="w-4 md:w-6"
-          src="/assets/hero/source.png"
+          :src="withBase('/assets/hero/source.png')"
           alt="Source icon"
         />
       </div>
@@ -75,7 +76,7 @@ useGsapAnimation(containerRef, {
       >
         <img
           class="w-4 md:w-6"
-          src="/assets/hero/code.png"
+          :src="withBase('/assets/hero/code.png')"
           alt="Code icon"
         />
       </div>
