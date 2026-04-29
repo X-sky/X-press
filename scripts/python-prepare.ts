@@ -10,17 +10,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export const PY_OUTPUT_DIR_NAME = 'markdowns';
 const PY_ROOT_DIR = resolve(__dirname, '../src/coding/python');
+const PY_ZH_ROOT_DIR = resolve(__dirname, '../src/zh/coding/python');
 const PY_OUT_DIR = resolve(PY_ROOT_DIR, PY_OUTPUT_DIR_NAME);
-/** get target out directory according to srcPath */
-export function getTargetOutDirPath(srcPath: string) {
+const PY_ZH_OUT_DIR = resolve(PY_ZH_ROOT_DIR, PY_OUTPUT_DIR_NAME);
+/** get target out directory according to srcPath and its root */
+export function getTargetOutDirPath(srcPath: string, rootDir: string = PY_ROOT_DIR) {
   // concat sub dirs
-  const curRelativeDirPath = relative(PY_ROOT_DIR, dirname(srcPath));
-  return resolve(PY_ROOT_DIR, PY_OUTPUT_DIR_NAME, curRelativeDirPath);
+  const curRelativeDirPath = relative(rootDir, dirname(srcPath));
+  return resolve(rootDir, PY_OUTPUT_DIR_NAME, curRelativeDirPath);
 }
 /** get output file path */
-export function getOutputFilePath(srcPath: string) {
+export function getOutputFilePath(srcPath: string, rootDir: string = PY_ROOT_DIR) {
   const fileName = basename(srcPath, '.ipynb');
-  const outDir = getTargetOutDirPath(srcPath);
+  const outDir = getTargetOutDirPath(srcPath, rootDir);
   return resolve(outDir, `${fileName}.md`);
 }
 /** ignore this file or directory */
@@ -77,22 +79,22 @@ export function transformJupyterBookFile(filePath: string): string {
   return '';
 }
 
-export async function processFile(srcPath: string): Promise<void> {
+export async function processFile(srcPath: string, rootDir: string = PY_ROOT_DIR): Promise<void> {
   if (isOmitPath(srcPath)) {
     return;
   }
   // process files
-  const curOutDirPath = getTargetOutDirPath(srcPath);
+  const curOutDirPath = getTargetOutDirPath(srcPath, rootDir);
   // make sure dir exists
   fs.ensureDirSync(curOutDirPath);
   const transformedContent = transformJupyterBookFile(srcPath);
-  const outputFilePath = getOutputFilePath(srcPath);
+  const outputFilePath = getOutputFilePath(srcPath, rootDir);
   return fs.writeFile(outputFilePath, transformedContent);
 }
 /**
  * traverse python directory
  */
-async function dirWalker(dir: string, taskList: Promise<void>[] = []) {
+async function dirWalker(dir: string, rootDir: string, taskList: Promise<void>[] = []) {
   const paths = await FastGlob('*', {
     cwd: dir,
     absolute: true,
@@ -111,13 +113,12 @@ async function dirWalker(dir: string, taskList: Promise<void>[] = []) {
 
     if (fs.statSync(curSourcePath).isDirectory()) {
       // recursively walk sub dirs
-      await dirWalker(curSourcePath, taskList);
+      await dirWalker(curSourcePath, rootDir, taskList);
       continue;
     } else {
       const ext = extname(curSourcePath);
       if (ext === '.ipynb') {
-        // 仅处理ipynb文件
-        taskList.push(processFile(curSourcePath));
+        taskList.push(processFile(curSourcePath, rootDir));
       }
     }
   }
@@ -125,15 +126,17 @@ async function dirWalker(dir: string, taskList: Promise<void>[] = []) {
 }
 
 async function main() {
-  // remove cache
+  // remove cache for both locales
   fs.removeSync(PY_OUT_DIR);
+  fs.removeSync(PY_ZH_OUT_DIR);
 
   try {
-    const taskList = await dirWalker(PY_ROOT_DIR);
-    await Promise.all(taskList);
+    const enTasks = await dirWalker(PY_ROOT_DIR, PY_ROOT_DIR);
+    const zhTasks = await dirWalker(PY_ZH_ROOT_DIR, PY_ZH_ROOT_DIR);
+    await Promise.all([...enTasks, ...zhTasks]);
     buildLog.success('all python-prepare works done!');
   } catch (err) {
-    buildLog.fail('python-prepare filed');
+    buildLog.fail('python-prepare failed');
   }
 }
 const executedFromScript = () => {
