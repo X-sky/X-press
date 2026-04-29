@@ -14,13 +14,13 @@ description: "基于 Vue 的跨版本通用组件库开发实践，包括 dispat
 
 以往的做法是，将原有的业务组件迁移至新项目中。但考虑以下场景，有一个通用组件 `反馈按钮 FeedbackDialog`，目前已经完成了迁移，在该项目所有版本的代码中都有应用。也就是说，一个相同逻辑的业务，出现在四种不同的框架中。现在产品需求要求优化反馈弹窗。那么可想而知这个开发和测试的成本都是巨大的，开发需要在四个框架中分别进行该组建的修改，而测试也需要熟悉不同的框架出现在系统的哪个部分，并针对性的进行测试
 
-![一个跨框架的巨石应用](./mono-app-exp.png)
+![一个跨框架的巨石应用](/coding/frontend/vue-uni-comp/mono-app-exp.png)
 
 _一个跨框架的巨石应用_
 
 而如果这种时候，我们的 `FeedbackDialog` 组件可以避免在不同框架中重复开发，那么开发和测试都能够节约极大的工作量，如下图所示
 
-![一个跨框架的巨石应用](./mono-app-target-exp.png)
+![一个跨框架的巨石应用](/coding/frontend/vue-uni-comp/mono-app-target-exp.png)
 
 _使用跨框架通用组件的跨框架巨石应用_
 
@@ -121,7 +121,7 @@ type PluginInstallFunction<Options = any[]> = Options extends unknown[]
 
 理论上来说，`vue2` 和 `vue3` 的模板语法差距其实并不大。`vue2.7` 不仅内置了 `setup` 支持，`vue2` 也可以通过 `@vue/composition-api` 结合 `unplugin-vue2-script-setup` 来进行语法层面的抹平。
 
-![dispatch 模式原理](./dispatch.png)
+![dispatch 模式原理](/coding/frontend/vue-uni-comp/dispatch.png)
 
 这种模式的优点在于：
 

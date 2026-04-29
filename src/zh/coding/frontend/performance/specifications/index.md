@@ -55,7 +55,7 @@ description: "Web 性能规范详解，包括 Navigation Timing 和 Navigation T
 
 在不同的阶段中，用户代理 (User agents 多数情况下为 browsers)会将对应的时间点写入 `window.performance.timing` 和 `window.performance.navigation` 对象中，方便后续使用
 
-![Navigation Timing 标准处理模型](./assets/process-model-navigation-timing.png)
+![Navigation Timing 标准处理模型](/coding/frontend/performance/specifications/assets/process-model-navigation-timing.png)
 
 *图片来源 <https://www.w3.org/TR/navigation-timing/#processing-model>*
 
@@ -168,7 +168,7 @@ observer.observe({ entryTypes: ["measure", "mark"] });
 
 ### Level 2 处理模型
 
-![Navigation Timing Level2 处理模型](./assets/process-model-navigation-timing-2.svg)
+![Navigation Timing Level2 处理模型](/coding/frontend/performance/specifications/assets/process-model-navigation-timing-2.svg)
 
 1. 导航开始：记录 `startTime` 和 `navigationStart` 时间点
 2. `Service Worker` ：如果存在 `Service Worker`，记录 `workerStart` 时间点

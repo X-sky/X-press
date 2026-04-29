@@ -62,7 +62,7 @@ description: "前端自动化测试实践，包括单元测试、组件测试和
 2. [vitest (Star 10.9k)](https://vitest.dev/)
 3. [Mocha (Star 22.3k)](https://mochajs.org/)
 
-![npm trending](./npm-trend.png)
+![npm trending](/coding/frontend/vue-uni-comp/npm-trend.png)
 
 test runner 提供了运行环境与运行时特性，依赖断言 api `assertions` 进行断言测试
 
@@ -187,7 +187,7 @@ describe('my beverage', () => {
 2. [NightWatch (Star 11.5k)](https://nightwatchjs.org/)
 3. [Puppeteer (Star 85.4k)](https://pptr.dev/)
 
-![E2E npm trending](./e2e-npm-trend.png)
+![E2E npm trending](/coding/frontend/vue-uni-comp/e2e-npm-trend.png)
 
 ## 组件库测试流程
 

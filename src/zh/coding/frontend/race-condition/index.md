@@ -256,7 +256,7 @@ function fetchVideo() {
 
 实际上，当我们在不稳定请求的情况下，**频繁**连续切换按钮，很可能会造成展示内容的错乱。
 
-<script setup>import RaceConditionDemo from './demo/RaceConditionDemo.vue'</script>
+<script setup>import RaceConditionDemo from '../../../../coding/frontend/race-condition/demo/RaceConditionDemo.vue'</script>
 <RaceConditionDemo />
 
 示例中也展示了对应的解决方案。其中`signal`解决法需要借助`fetch`或者`axios`的相关特性，详细的示例可以参考[完整 demo](https://github.com/X-sky/X-press/blob/main/examples/race-condition/README.md)

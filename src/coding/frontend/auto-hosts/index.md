@@ -71,11 +71,11 @@ As the name suggests, `content scripts` are scripts injected into pages. They ca
 
 An extension can include many HTML pages, such as popup windows and options pages. Using the Immersive Translate extension as an example, left-clicking opens the popup window:
 
-![popup](./assets/eg_popup.jpg)
+![popup](/coding/frontend/auto-hosts/assets/eg_popup.jpg)
 
 Right-clicking opens the entry to the additionally configured options page:
 
-![other](./assets/eg_other.jpg)
+![other](/coding/frontend/auto-hosts/assets/eg_other.jpg)
 
 Based on the above requirements, the extension we need to develop is actually quite simple, with two main features:
 
@@ -330,7 +330,7 @@ The initial development of the extension is basically complete at this point. Le
 2. Use `pinia` + `vueuse` for real-time updates and persistence of `hosts`
 3. After parsing `hosts`, generate the corresponding `FindProxyForURL` function and call the `Chrome API` to update the proxy
 
-In theory, since `FindProxyForURL` already proxies https, entering any address with a matching domain should successfully proxy. However, in practice, `https` cannot be correctly proxied. ![https_fail](./assets/eg_httpsfail.jpg)
+In theory, since `FindProxyForURL` already proxies https, entering any address with a matching domain should successfully proxy. However, in practice, `https` cannot be correctly proxied. ![https_fail](/coding/frontend/auto-hosts/assets/eg_httpsfail.jpg)
 
 The reason lies in the nature of https itself and the principles of [PAC](####PAC).
 

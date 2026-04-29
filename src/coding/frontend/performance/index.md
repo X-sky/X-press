@@ -78,7 +78,7 @@ Analyzing page performance with Lighthouse involves the following steps:
 1. In a Chromium-based browser (e.g., Microsoft Edge, Chrome), open DevTools
 2. Select the mode, device, and categories to audit
 3. Click page analyze
-![lighthouse-page-analyze](./assets/lighthouse/init.png)
+![lighthouse-page-analyze](/coding/frontend/performance/assets/lighthouse/init.png)
 
 4. Keep the page in the foreground. The Lighthouse tool will automatically refresh the page and begin analyzing page data, ultimately displaying the analysis results.
 
@@ -92,7 +92,7 @@ Performance overall score: Shows the overall score for the audit content selecte
 
 The overall score should not be the sole metric for measuring web performance. On one hand, this score may fluctuate due to network, device, and other factors. On the other hand, [user-centric performance metrics](./core-web-vitals/index.md#性能指标) should be multidimensional, not unidimensional.
 
-![lighthouse-result-overall](./assets/lighthouse/result-overall.png)
+![lighthouse-result-overall](/coding/frontend/performance/assets/lighthouse/result-overall.png)
 
 - **Metrics**
 
@@ -101,17 +101,17 @@ The Metrics panel shows specific scores for each metric along with links to the 
 :::warning
 
 Lighthouse metrics are not static. Different versions of Lighthouse track different metrics in the Performance panel. Google updates these metrics based on CrUX statistics. For example, TTI was removed in v10, and FMP was removed in v6.
-![lighthouse-versions](./assets/lighthouse/metrics-versions.png)
+![lighthouse-versions](/coding/frontend/performance/assets/lighthouse/metrics-versions.png)
 
 :::
 
-![lighthouse-result-metrics](./assets/lighthouse/result-metrics.png)
+![lighthouse-result-metrics](/coding/frontend/performance/assets/lighthouse/result-metrics.png)
 
 - **Diagnostics**
 
 In fact, if you use the Lighthouse tool, optimization is relatively straightforward even without strong analytical skills, because the DIAGNOSTICS panel lists optimizable items and which metrics they're associated with. Developers can also perform targeted optimization based on the metrics their site actually cares about.
 
-![lighthouse-result-diagnostics](./assets/lighthouse/result-diagnostics.png)
+![lighthouse-result-diagnostics](/coding/frontend/performance/assets/lighthouse/result-diagnostics.png)
 
 ::: info Further Reading
 
@@ -125,10 +125,10 @@ Lighthouse is a Chromium-based browser-specific feature. If the problem scenario
 
 Such as [Firefox](https://profiler.firefox.com/docs/#/) and [Chrome](https://developer.chrome.com/docs/devtools/performance#get-started)
 
-![firefox-lcp](./assets/performance/firefox-lcp-metrics.png)
+![firefox-lcp](/coding/frontend/performance/assets/performance/firefox-lcp-metrics.png)
 *Firefox performance - LCP*
 
-![edge-lcp-metrics](./assets/performance/edge-lcp-metrics.png)
+![edge-lcp-metrics](/coding/frontend/performance/assets/performance/edge-lcp-metrics.png)
 *Microsoft Edge performance - LCP*
 
 Firefox's performance exists as a plugin that needs to be manually enabled. Chromium-based browsers (Chrome / Edge) have performance built into DevTools by default.
@@ -159,7 +159,7 @@ Due to differences between browsers, the following data is not from real product
 
 Suppose we have the following performance data analyzing a page from navigation to quiet window:
 
-![edge-performance-issue-example](./assets/issue/performance.png)
+![edge-performance-issue-example](/coding/frontend/performance/assets/issue/performance.png)
 
 Scrolling through the network panel and clicking on long task content, combined with the information in the figure:
 
@@ -175,12 +175,12 @@ Therefore, for this page, the main performance bottleneck sources are:
 
 Checking Lighthouse reveals that the CLS metric is in excellent condition, while FCP, LCP, SI, and other metrics urgently need optimization — consistent with our earlier analysis.
 
-![edge-performance-issue-example](./assets/issue/lighthouse.png)
+![edge-performance-issue-example](/coding/frontend/performance/assets/issue/lighthouse.png)
 *Note: This panel was captured in a VM container with test network — for reference only, not real data*
 
 Returning to the performance panel, based on our understanding of the project and modern development patterns, we can easily categorize long tasks into the following phases:
 
-![performance-waterfall-analytics](./assets/issue/performance-waterfall-analytics.png)
+![performance-waterfall-analytics](/coding/frontend/performance/assets/issue/performance-waterfall-analytics.png)
 
 1. External repository loading
 2. Business code loading
@@ -198,7 +198,7 @@ Observing the above performance, long tasks before DCL show **Evaluate Module** 
 
 What's the difference between these two?
 
-![performance-evaluate](./assets/issue/performance-evaluate.png)
+![performance-evaluate](/coding/frontend/performance/assets/issue/performance-evaluate.png)
 
 Since JavaScript is an interpreted language ([compiled just-in-time](https://en.wikipedia.org/wiki/Just-in-time_compilation)), script evaluation is a necessary part of browser JavaScript execution.
 

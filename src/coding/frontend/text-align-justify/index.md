@@ -19,7 +19,7 @@ When text content is only one line, `text-align` does not process the last line 
 
 In this case, you can add `text-align-last: justify` to force the last line to also be justified.
 
-![Single-line text justify alignment](./assets/image-20230421172249429.png)
+![Single-line text justify alignment](/coding/frontend/text-align-justify/assets/image-20230421172249429.png)
 
 **Drawback**: `text-align-last: justify` is [**not supported**](https://developer.mozilla.org/en-US/docs/Web/CSS/text-align-last#browser_compatibility) in Safari versions below 16 (Released 2022-09-12).
 
@@ -49,11 +49,11 @@ To achieve an effect similar to `text-align-last: justify`, you can also add a p
 
 **Drawback**: This causes the container to have an extra line height (as shown below), requiring additional handling.
 
-![image-20230421173439687](./assets/image-20230421173439687.png)
+![image-20230421173439687](/coding/frontend/text-align-justify/assets/image-20230421173439687.png)
 
 So in practice, this approach has limited use — it's basically only needed when form label content needs to be justified. For multi-line text display, forcibly stretching all text doesn't look good visually (as shown below):
 
-![image-20230421173917817](./assets/image-20230421173917817.png)
+![image-20230421173917817](/coding/frontend/text-align-justify/assets/image-20230421173917817.png)
 
 ### JavaScript Implementation
 
@@ -129,7 +129,7 @@ In real business, there's a common scenario where users upload long text in a ba
 
 As you can see, the text is indeed justified, but line breaks and spaces are not displayed correctly.
 
-![image-20230421174757636](./assets/image-20230421174757636.png)
+![image-20230421174757636](/coding/frontend/text-align-justify/assets/image-20230421174757636.png)
 
 The natural thought is to use the `white-space: pre-wrap` property:
 
@@ -144,11 +144,11 @@ The natural thought is to use the `white-space: pre-wrap` property:
 
 Then both _line breaks_ and _justify alignment_ can be achieved. Indeed, on the web this seems to solve the problem — ensuring both justify alignment and correct text formatting (as shown below):
 
-![image-20230421175652747](./assets/image-20230421175652747.png)
+![image-20230421175652747](/coding/frontend/text-align-justify/assets/image-20230421175652747.png)
 
 **However, this approach does not achieve justify alignment on iOS** (as shown below):
 
-![image-20230421175103784](./assets/image-20230421175103784.png)
+![image-20230421175103784](/coding/frontend/text-align-justify/assets/image-20230421175103784.png)
 
 Most online answers describe the first scenario's problem. Neither adding pseudo-elements nor `text-align-last` can achieve the ideal case of "justify alignment with the last line not stretched" on iOS.
 
@@ -173,7 +173,7 @@ The reasons for not testing other properties are:
 3. `normal` as the default value was already working when we hadn't added `white-space: pre-wrap`
 
 From the test results, `text-align: justify` only works correctly when `white-space: pre-line` is used. Of course, this introduces a new problem: the spaces in the original data are not displayed correctly (as shown below):
-![image-20230421175600792](./assets/image-20230421175600792.png)
+![image-20230421175600792](/coding/frontend/text-align-justify/assets/image-20230421175600792.png)
 
 Let's set aside the space issue for now. First, we need to consider why among all `white-space` options, only `pre-line` works. Referring to the [W3C Draft](https://w3c.github.io/csswg-drafts/css-text/#white-space-property):
 

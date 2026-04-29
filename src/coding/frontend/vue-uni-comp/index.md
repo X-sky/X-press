@@ -14,13 +14,13 @@ In daily `2B` business development, it's inevitable to encounter cross-version f
 
 The traditional approach is to migrate existing business components to the new project. But consider this scenario: there's a universal component `FeedbackDialog` that has already been migrated and is used across all framework versions in the project. That means identical business logic exists in four different frameworks. Now when the product team requests an optimization of the feedback dialog, the development and testing costs are enormous — developers need to modify the component in four frameworks, and testers need to understand which parts of the system use which framework and test accordingly.
 
-![A cross-framework monolith application](./mono-app-exp.png)
+![A cross-framework monolith application](/coding/frontend/vue-uni-comp/mono-app-exp.png)
 
 _A cross-framework monolith application_
 
 If our `FeedbackDialog` component could avoid redundant development across different frameworks, both development and testing could save tremendous effort, as shown below:
 
-![A cross-framework monolith application](./mono-app-target-exp.png)
+![A cross-framework monolith application](/coding/frontend/vue-uni-comp/mono-app-target-exp.png)
 
 _A cross-framework monolith application using universal components_
 
@@ -121,7 +121,7 @@ Two paths lay before us when choosing an approach:
 
 Theoretically, the template syntax differences between `Vue 2` and `Vue 3` aren't that large. `Vue 2.7` has built-in `setup` support, and `Vue 2` can also achieve syntax-level alignment through `@vue/composition-api` combined with `unplugin-vue2-script-setup`.
 
-![Dispatch mode principle](./dispatch.png)
+![Dispatch mode principle](/coding/frontend/vue-uni-comp/dispatch.png)
 
 Advantages of this mode:
 

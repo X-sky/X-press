@@ -28,7 +28,7 @@ Overall, Google has defined several important [metrics](https://web.dev/articles
 
 In a nutshell: The end time of the **last long task** between `FCP` and a **quiet window** lasting more than 5 seconds. If no long task is found, `TTI` equals `FCP`.
 
-![find-tti](./assets/locate-tti.svg)
+![find-tti](/coding/frontend/performance/core-web-vitals/assets/locate-tti.svg)
 
 Two key concepts:
 
@@ -59,7 +59,7 @@ A page with good user experience should at least ensure core metrics reach the "
 
 :::
 
-![vitals-threshold-lcp](./assets/vitals-threshold-lcp.svg)
+![vitals-threshold-lcp](/coding/frontend/performance/core-web-vitals/assets/vitals-threshold-lcp.svg)
 
 `LCP` primarily measures the following content:
 
@@ -89,7 +89,7 @@ Therefore, `LCP` has four sub-steps that can be optimized during loading:
 
 There's a good entry point for optimizing this: ideally, the `LCP` resource should start loading immediately after the first resource is parsed.
 
-![Optimizing LCP resource load delay](./assets/optimize-lcp-resouce-load-delay.png)
+![Optimizing LCP resource load delay](/coding/frontend/performance/core-web-vitals/assets/optimize-lcp-resouce-load-delay.png)
 
 The idle time between when the `Stylesheet` starts parsing and when the `LCP` resource begins loading is the optimizable space.
 
@@ -133,7 +133,7 @@ See [Other Metrics - TTFB](#ttfb)
 
 > Page delightfulness: Are the interactions smooth and natural, free of lag?
 
-![vitals-threshold-cls](./assets/vitals-threshold-cls.svg)
+![vitals-threshold-cls](/coding/frontend/performance/core-web-vitals/assets/vitals-threshold-cls.svg)
 
 Unexpected page changes typically occur when resources load asynchronously or DOM elements are dynamically added.
 
@@ -175,7 +175,7 @@ Reflow doesn't necessarily affect CLS. For example, changing the `width` propert
 
 INP observes the latency of all user interactions with the page and reports a value that all (or nearly all) interactions are below. A lower INP means the page can generally respond quickly and consistently to all — or most — user interactions.
 
-![vitals-threshold-inp](./assets/vitals-threshold-inp.svg)
+![vitals-threshold-inp](/coding/frontend/performance/core-web-vitals/assets/vitals-threshold-inp.svg)
 
 Unlike CLS and LCP, INP is typically not a one-time measurement but spans the entire page lifecycle. INP cannot be monitored through [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver), nor does it need to be. Most INP measurements occur when the page experiences significant delays.
 
@@ -263,7 +263,7 @@ FCP was once a core metric for measuring web performance, later replaced by the 
 
 A good FCP should be within 1.8s.
 
-![vitals-threshold-fcp](./assets/vitals-threshold-fcp.svg)
+![vitals-threshold-fcp](/coding/frontend/performance/core-web-vitals/assets/vitals-threshold-fcp.svg)
 
 Overall, there are several approaches to optimizing FCP:
 
@@ -289,7 +289,7 @@ new PerformanceObserver((entryList) => {
 
 A good `TTFB` should be within 800ms.
 
-![vitals-threshold-ttfb](./assets/vitals-threshold-ttfb.svg)
+![vitals-threshold-ttfb](/coding/frontend/performance/core-web-vitals/assets/vitals-threshold-ttfb.svg)
 
 Optimizing `TTFB` typically involves the following [approaches](https://web.dev/articles/optimize-ttfb#ways_to_optimize_ttfb):
 

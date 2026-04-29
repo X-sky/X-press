@@ -59,7 +59,7 @@ As shown in the diagram below, the entire lifecycle goes through the following p
 
 During different phases, user agents (mostly browsers) write the corresponding time points to the `window.performance.timing` and `window.performance.navigation` objects for subsequent use.
 
-![Navigation Timing standard processing model](./assets/process-model-navigation-timing.png)
+![Navigation Timing standard processing model](/coding/frontend/performance/specifications/assets/process-model-navigation-timing.png)
 
 *Image source: <https://www.w3.org/TR/navigation-timing/#processing-model>*
 
@@ -172,7 +172,7 @@ observer.observe({ entryTypes: ["measure", "mark"] });
 
 ### Level 2 Processing Model
 
-![Navigation Timing Level 2 processing model](./assets/process-model-navigation-timing-2.svg)
+![Navigation Timing Level 2 processing model](/coding/frontend/performance/specifications/assets/process-model-navigation-timing-2.svg)
 
 1. Navigation start: Records `startTime` and `navigationStart` time points
 2. `Service Worker`: If a Service Worker exists, records the `workerStart` time point

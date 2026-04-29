@@ -62,7 +62,7 @@ Common test runners:
 2. [vitest (Star 10.9k)](https://vitest.dev/)
 3. [Mocha (Star 22.3k)](https://mochajs.org/)
 
-![npm trending](./npm-trend.png)
+![npm trending](/coding/frontend/vue-uni-comp/npm-trend.png)
 
 Test runners provide the execution environment and runtime features, relying on assertion APIs (`assertions`) for assertion testing.
 
@@ -187,7 +187,7 @@ Common tools:
 2. [NightWatch (Star 11.5k)](https://nightwatchjs.org/)
 3. [Puppeteer (Star 85.4k)](https://pptr.dev/)
 
-![E2E npm trending](./e2e-npm-trend.png)
+![E2E npm trending](/coding/frontend/vue-uni-comp/e2e-npm-trend.png)
 
 ## Component Library Testing Workflow
 
