@@ -1,5 +1,7 @@
 ---
 outline: deep
+title: "Web App"
+description: "Python Crash Course web application development practice, including Django project creation and user authentication system"
 ---
 
 # Web App
@@ -10,39 +12,39 @@ A practice of Chapters 18-20 of _Python Crash Course_.
 
 ## Virtual Environments and Packages
 
-> [虚拟环境](https://docs.python.org/3/tutorial/venv.html#)是系统的一个位置，可在其中安装包，并将之与其他 Python 包隔离。
+> A [virtual environment](https://docs.python.org/3/tutorial/venv.html#) is a location in the system where you can install packages and isolate them from other Python packages.
 
-通过执行命令行 `python -m venv <env_name>` 初始化虚拟环境
+Initialize a virtual environment by running `python -m venv <env_name>`.
 
-::: tip 关于 python command options
+::: tip About python command options
 
-可用的 `python` 命令行操作可以参考[官方文档](https://docs.python.org/3/using/cmdline.html)。`-m` 指的是将某个模块作为脚本运行
+Available `python` command-line options can be found in the [official documentation](https://docs.python.org/3/using/cmdline.html). `-m` means running a module as a script.
 
 :::
 
-激活虚拟环境根据 `终端Terminal` 不同而发生变化。如果是类 `bash` 的终端（包括 `windows` 下的 `git bash`），执行`source ./<env_name>/Scripts|bin/activate` 即可。如果是 `cmd` `powershell` 等 `windows命令行终端`，则需要执行 `<env_name>/Scripts/activate` 激活
+Activating the virtual environment varies depending on the `terminal`. For `bash`-like terminals (including `git bash` on `Windows`), run `source ./<env_name>/Scripts|bin/activate`. For `cmd`, `powershell`, or other `Windows command-line terminals`, run `<env_name>/Scripts/activate`.
 
-停止使用虚拟环境，在激活状态下直接执行 `deactivate` 即可
+To stop using the virtual environment, simply run `deactivate` while it's activated.
 
 ## Create Project
 
-首先，使用 [`pip`](https://pip.pypa.io/en/stable/getting-started/) 安装 `python` 包和模块。`pip` 是安装和管理 `Python` 包和模块的一个工具。
+First, install Python packages and modules using [`pip`](https://pip.pypa.io/en/stable/getting-started/). `pip` is a tool for installing and managing Python packages and modules.
 
-::: tip pip 如何管理依赖？
+::: tip How does pip manage dependencies?
 
-与一般的项目不同，没有使用 `package.json`，或者`cargo.toml` 等格式化文件记录依赖。一般通过 `pip freeze > requirements.txt` 记录当前项目的依赖
+Unlike typical projects, it doesn't use `package.json` or `cargo.toml` or other formatted files to record dependencies. Dependencies are generally recorded via `pip freeze > requirements.txt`.
 
-当使用 `git` 管理项目的时候，_不要_ 提交 `虚拟环境` 相关的代码
+When managing a project with `git`, _do not_ commit `virtual environment` related code.
 
 :::
 
-`pip` 的常用命令有：`pip install <package>`; `pip list`。这里使用 `pip install django` 来安装 `Django` 模块
+Common `pip` commands include: `pip install <package>`; `pip list`. Here we use `pip install django` to install the `Django` module.
 
-然后，使用 [`django-admin`](https://docs.djangoproject.com/en/4.2/ref/django-admin/#top) 命令初始化项目
+Then, initialize the project using the [`django-admin`](https://docs.djangoproject.com/en/4.2/ref/django-admin/#top) command.
 
-以`learning_log` 项目为例：`django-admin startproject learning_log .`
+Using `learning_log` as an example: `django-admin startproject learning_log .`
 
-::: details 关于`django-admin`
+::: details About `django-admin`
 
 1. django-admin is Django's command-line utility for administrative tasks
 2. django-admin startproject name [directory] Creates a Django project directory structure for the given project name in the current directory or the given destination
@@ -50,7 +52,7 @@ A practice of Chapters 18-20 of _Python Crash Course_.
 
 :::
 
-命令执行完毕后在当前文件夹下目录如下所示：
+After the command executes, the directory structure looks like this:
 
 ```
 manage.py
@@ -62,35 +64,35 @@ learning_log/
     urls.py
 ```
 
-- `settings.py` 指定 `Django` 如何与系统交互以及如何管理项目
-- `urls.py` 告诉 `Django`，应创建哪些页面来响应浏览器请求
-- `wsgi.py` 帮助 `Django` 提供它创建的文件，这个文件名是 Web 服务器网关接口（Web server gateway interface）的首字母缩写
+- `settings.py` specifies how `Django` interacts with the system and manages the project
+- `urls.py` tells `Django` which pages to create in response to browser requests
+- `wsgi.py` helps `Django` serve the files it creates. The filename is an acronym for Web Server Gateway Interface
 
-接着可以执行 `python manage.py migrate` 迁移数据库
+Then run `python manage.py migrate` to migrate the database.
 
-还可以通过 `python manage.py runserver` 用来核实 `Django` 正确创建了项目
+You can also run `python manage.py runserver` to verify that `Django` correctly created the project.
 
 ## Create App
 
-Django 项目由一系列应用程序组成，它们协同工作让项目成为一个整体。简单来说，一个 `项目project` 包含了若干个 `应用application`
+A Django project consists of a series of applications that work together to form a whole. Simply put, a `project` contains several `applications`.
 
-通过执行 `python manage.py startapp <app_name>` 创建一个应用
+Create an application by running `python manage.py startapp <app_name>`.
 
 ### Define Models
 
-> 根据[官方定义](https://docs.djangoproject.com/en/5.0/topics/db/)，`模型Model` 就是能够描述 `数据data` 的 **唯一(single)准确(definitive)** 的信息源。它包括了存储数据的关键字段和行为。
+> According to the [official definition](https://docs.djangoproject.com/en/5.0/topics/db/), a `Model` is the **single, definitive** source of information about your `data`. It contains the essential fields and behaviors of the data you're storing.
 
 ::: info
 
-一般来说，每个模型都映射了一张数据库的表。在代码层面，模型就是一个类
+Generally, each model maps to a single database table. At the code level, a model is a class.
 
 :::
 
-对于 `模型Model` 来讲，最重要的部分————也是唯一要求必须存在的部分就是 `字段Fields`。每个 `field` 都应该是对应 [`Field`](https://docs.djangoproject.com/en/4.2/ref/models/fields/#django.db.models.Field) 的一个实例。 所有可用的 `Field types` 可以参考 [`model-filed-types`](https://docs.djangoproject.com/en/4.2/ref/models/fields/#model-field-types)
+For a `Model`, the most important part — and the only required part — is `Fields`. Each `field` should be an instance of the corresponding [`Field`](https://docs.djangoproject.com/en/4.2/ref/models/fields/#django.db.models.Field) class. All available `Field types` can be found at [`model-field-types`](https://docs.djangoproject.com/en/4.2/ref/models/fields/#model-field-types).
 
 ```python
 class Topic(models.Model):
-    """用户学习的主题"""
+    """A topic the user is learning about"""
 
     # CharField  - https://docs.djangoproject.com/en/4.2/ref/models/fields/#charfield
     text = models.CharField(max_length=200)
@@ -98,44 +100,44 @@ class Topic(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        """返回模型的字符串表示"""
+        """Return a string representation of the model"""
         return self.text
 ```
 
 ### Activate Models
 
-使用模型需要让 `Django` 将 **应用程序(App)** 包含到 **项目(Project)** 中。为此，打开 **项目(Project)** 中的 `settings.py`，修改如下字段
+To use models, you need to include the **App** in the **Project**. Open the project's `settings.py` and modify the following field:
 
 ```
 --snip--
 INSTALLED_APPS = [
-    # 我的应用程序
+    # My applications
     'learning_logs',
 
-    # 默认添加的应用程序
+    # Default applications
      'django.contrib.admin',
     --snip--
 ]
 --snip--
 ```
 
-与此同时需要修改数据库，使其能够存储与 `Model Topic` 相关的信息。
+You also need to modify the database so it can store information related to `Model Topic`.
 
-1. 执行 `python manage.py makemigrations learning_logs`。该命令在 `learning_logs/migrations` 文件夹下面创建了一个名为 `0001_initial.py` 的迁移文件，这个文件将在数据库中为 `Model Topic` 创建一个表
-2. 随后应用修改 `python manage.py migrate`
+1. Run `python manage.py makemigrations learning_logs`. This command creates a migration file named `0001_initial.py` in the `learning_logs/migrations` folder, which will create a table for `Model Topic` in the database.
+2. Then apply the changes: `python manage.py migrate`
 
 ::: tip
 
-每当修改 `Models` 的时候，都需要进行如上两个步骤
+These two steps are needed every time you modify `Models`.
 
 :::
 
 ### Admin Site
 
-`Django` 提供了 **管理网站(admin site)** 可以轻松处理模型。
+`Django` provides an **admin site** for easily managing models.
 
-1. 通过执行命令 `python manage.py createsuperuser` 创建超级用户
-2. 通过在 `learning_logs/admin.py` 中注册模型，实现管理网站的模型注册
+1. Create a superuser by running `python manage.py createsuperuser`
+2. Register models in `learning_logs/admin.py` to enable model management on the admin site
 
 ```python
 # admin.py
@@ -145,31 +147,31 @@ from .models import Topic
 admin.site.register(Topic)
 ```
 
-在完成超级用户的创建以及管理网站的注册后，既可以通过访问 `runserver` 启动的服务拼接 `/admin` 进入并登录管理网站。如 `localhost:8080/admin`
+After creating the superuser and registering the admin site, you can access the admin site by appending `/admin` to the `runserver` URL, e.g., `localhost:8080/admin`.
 
 ### Define Model Entry
 
-当我们想要在模型之间构建关联关系的时候，可以通过设置 `ForeignKey` 来关联，并通过在模型中定义 `Meta` 类设置模型相关信息
+When you want to build relationships between models, you can use `ForeignKey` for association and define a `Meta` class within the model to set model-related information.
 
-::: info 关于 Class Meta
+::: info About Class Meta
 
-Model metadata is “anything that’s not a field”, such as ordering options ([`ordering`](https://docs.djangoproject.com/en/4.2/ref/models/options/#django.db.models.Options.ordering)), database table name ([`db_table`](https://docs.djangoproject.com/en/4.2/ref/models/options/#django.db.models.Options.db_table)), or human-readable singular and plural names ([`verbose_name`](https://docs.djangoproject.com/en/4.2/ref/models/options/#django.db.models.Options.verbose_name) and [`verbose_name_plural`](https://docs.djangoproject.com/en/4.2/ref/models/options/#django.db.models.Options.verbose_name_plural)). None are required, and adding `class Meta` to a model is completely optional.
-
-:::
-
-::: details 关于外键 foreign key
-
-外键（foreign key）是一个数据库术语，它指向数据库中的另一条记录，这里是将每个条目关联到特定主题。创建每个主题时，都分配了一个键（ID）。需要在两项数据之间建立联系时，Django 使用与每项信息相关联的键。
-
-实参 on_delete=models.CASCADE 让 Django 在删除主题的同时删除所有与之相关联的条目，这称为级联删除（cascading delete）。
+Model metadata is "anything that's not a field", such as ordering options ([`ordering`](https://docs.djangoproject.com/en/4.2/ref/models/options/#django.db.models.Options.ordering)), database table name ([`db_table`](https://docs.djangoproject.com/en/4.2/ref/models/options/#django.db.models.Options.db_table)), or human-readable singular and plural names ([`verbose_name`](https://docs.djangoproject.com/en/4.2/ref/models/options/#django.db.models.Options.verbose_name) and [`verbose_name_plural`](https://docs.djangoproject.com/en/4.2/ref/models/options/#django.db.models.Options.verbose_name_plural)). None are required, and adding `class Meta` to a model is completely optional.
 
 :::
 
-比如我们想要构建上文提到的 `Topic` 主题相关的模型 `Entry`，定义如下
+::: details About Foreign Keys
+
+A foreign key is a database term that points to another record in the database — here it associates each entry with a specific topic. When each topic is created, it's assigned a key (ID). When a relationship needs to be established between two pieces of data, Django uses the key associated with each piece of information.
+
+The argument on_delete=models.CASCADE tells Django to delete all associated entries when a topic is deleted. This is called cascading delete.
+
+:::
+
+For example, if we want to build a model `Entry` related to the `Topic` mentioned above:
 
 ```python
 class Entry(models.Model):
-    """学到的具体知识"""
+    """Specific knowledge learned"""
     # https://docs.djangoproject.com/en/4.2/ref/models/fields/#foreignkey
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     text = models.TextField()
@@ -184,17 +186,17 @@ class Entry(models.Model):
 
 ### Create Pages
 
-对于网页应用来说，分为数据层和视图层两个维度。因此当我们想要构建一个网页应用的时候需要考虑到：数据、视图、交互三个层面。也就是 WEB 开发中常说的 `MV*` 开发模式。
+For web applications, there are two dimensions: the data layer and the view layer. When building a web application, we need to consider three aspects: data, views, and interactions — the `MV*` development pattern commonly discussed in web development.
 
-而使用 `Django` 创建页面的过程分为三个部分：
+Creating pages with `Django` involves three parts:
 
-- 构建 url 映射
-- 编写视图 (models / views)
-- 编写模板 (template)
+- Building URL mappings
+- Writing views (models / views)
+- Writing templates
 
-::: tip 关于 url 映射
+::: tip About URL Mappings
 
-可以直接在项目中的 `/project/urls.py`文件内定义，也可以在对应 app 的 `/app/urls.py` 中定义后，在`/project/urls.py` 中通过 `include` 函数等引用其他 `app`中的 `urls`，如下所示：
+You can define them directly in the project's `/project/urls.py` file, or define them in the corresponding app's `/app/urls.py` and then reference them in `/project/urls.py` using the `include` function:
 
 ```python
 urlpatterns = [
@@ -205,9 +207,9 @@ urlpatterns = [
 
 :::
 
-虽然其顺序无关紧要，但个人推荐的顺序是 视图 -> 模板 -> url。视图可能会涉及 `model` 以及 `context` 注入，因此这个顺序可能造成的依赖影响较小。
+Although the order doesn't matter, the recommended sequence is: views -> templates -> URLs. Views may involve `model` and `context` injection, so this order minimizes dependency impact.
 
-在定义 views 的时候可以通过 `class` 或 `function` 的方式进行定义，总体上来说没有显著区别。
+Views can be defined using either `class` or `function` approaches, with no significant difference overall.
 
 ```python
 # function render
@@ -223,40 +225,40 @@ class HomepageView(TemplateView):
 
 ```
 
-可以通过引入模型的方式，将模型通过 `context` 的方式注入到视图内
+You can inject models into views through `context`:
 
 ```python
 from .models import Topic
 def topics(request):
-    """显示所有主题"""
+    """Show all topics"""
     topics = Topic.objects.order_by("date_added")
     context = {"topics": topics}
-    # context 注入，template 内即可使用 topics 变量
+    # Context injection, template can now use the topics variable
     return render(request, "learning_logs/topics.html", context)
 ```
 
 #### Templates Syntax
 
-> 可以使用模板继承于法对其他模板进行继承，但并非是重点。这部分可以让前端工程师进行专门开发，以定制化更具交互性和观赏性的网站。
+> Template inheritance syntax can be used to inherit from other templates, but this isn't the focus. This part can be handled by frontend engineers for more interactive and visually appealing websites.
 
-`Django` 可以通过内容注入的方式，使 `template` 能够获取读取 `context` 的能力。主要由[三大类语法](https://docs.djangoproject.com/en/4.2/topics/templates/#syntax)组成：
+`Django` enables `templates` to read `context` through content injection. It mainly consists of [three syntax categories](https://docs.djangoproject.com/en/4.2/topics/templates/#syntax):
 
-1. Viriables 变量 `{{ some_expression|Filter }}`
-2. Tags 标签 `{% csrf_token %}` `{% url %}` `{% for %}` 等
-3. Comments `{# 单行注释 #}` `{% comment 多行注释 %}`
+1. Variables: `{{ some_expression|Filter }}`
+2. Tags: `{% csrf_token %}` `{% url %}` `{% for %}` etc.
+3. Comments: `{# single-line comment #}` `{% comment multi-line comment %}`
 
-例如：
+For example:
 
-`{% url 'learning_logs:index' %}`可以生成 `learning_logs/urls` 中名为 `index` 的模式相匹配的 `URL`
+`{% url 'learning_logs:index' %}` generates a URL matching the pattern named `index` in `learning_logs/urls`.
 
-` {% block {name} %}``{% endblock {name} %} `可以规定占位符，具体内容可由子模板确定。 `{% extend "{html_path}" %}` 用于扩展模板
+` {% block {name} %}``{% endblock {name} %} ` defines placeholders whose content can be determined by child templates. `{% extend "{html_path}" %}` extends a template.
 
-::: details {% block %} 示例
+::: details {% block %} Example
 
 ```html
 <!-- learning_logs/base.html -->
 {% block content %}
-<!-- 如果子模板没有相应输入则展示默认模板 -->
+<!-- Default template if child template has no corresponding input -->
 <p>default Template</p>
 {% endblock content %}
 <!-- learning_logs/index.html -->
@@ -268,17 +270,17 @@ def topics(request):
 {% endblock content %}
 ```
 
-如上代码则表示：
+The above code means:
 
-1. 在基础模板 `base.html` 中规定了名为 `content` 的块级占位
-2. 在子模板 `index.html` 中扩展了 `base.html`
-3. 使用 `base.html` 的模板，并将名为 `content` 的块级占位渲染为 `p` 元素
+1. The base template `base.html` defines a block placeholder named `content`
+2. The child template `index.html` extends `base.html`
+3. Uses `base.html`'s template and renders the `content` block placeholder as a `p` element
 
 :::
 
-使用 `{% for i in items %}` `{% endfor %}` 可以使用循环语法，使用 `{% empty %}` 告诉 `Django` 在循环为空时如何处理
+Use `{% for i in items %}` `{% endfor %}` for loop syntax, and `{% empty %}` to tell `Django` what to do when the loop is empty.
 
-::: details {% for %} 示例
+::: details {% for %} Example
 
 ```
 {% for item in list %}
@@ -290,11 +292,11 @@ do something when list is empty
 
 :::
 
-`{% csrf_token %}` 是 `Django` 用来防止`CSRF(Cross Site Request Forgery)` 攻击的模板标签
+`{% csrf_token %}` is a `Django` template tag used to prevent `CSRF (Cross Site Request Forgery)` attacks.
 
 #### Create Forms
 
-可以通过 `Django` 内置的 `forms` 模块快捷创建表单处理模型
+You can quickly create form handling models using `Django`'s built-in `forms` module:
 
 ```python
 # forms.py
@@ -308,23 +310,23 @@ class TopicForm(forms.ModelForm):
         labels = {"text": "topic"}
 ```
 
-随后就可以创建对应的新建表单视图 `def new_topic` 和模板 `new_topic.html`了。其中视图层的 `def new_topic` 同时负责 **模板渲染** 和 **数据更新**
+Then create the corresponding new form view `def new_topic` and template `new_topic.html`. The view `def new_topic` handles both **template rendering** and **data updates**:
 
 ```python
 # views.py
 def new_topic(request):
-    """添加新主题"""
+    """Add a new topic"""
     if request.method != "POST":
-        # 未提交数据：创建一个表单
+        # No data submitted: create a blank form
         form = TopicForm()
     else:
-        # POST提交的数据，对数据进行处理
+        # POST data submitted, process the data
         form = TopicForm(data=request.POST)
         if form.is_valid():
             form.save()
             return redirect("learning_logs:topics")
 
-    # 显示空表单或指出表单数据无效
+    # Display a blank form or indicate form data is invalid
     context = {"form": form}
     return render(request, "learning_logs/new_topic.html", context)
 ```
@@ -338,21 +340,21 @@ def new_topic(request):
 </form>
 ```
 
-最后在 `urls.py` 中补充对应的路由信息即可完成一个表单页面的创建
+Finally, add the corresponding route information in `urls.py` to complete a form page.
 
 ::: tip
 
-`Django` 中 `forms` 模块具体的`Field` 和 `常用方法` 可以参考[这里](http://docs.djangoproject.com/en/4.2/ref/forms/fields/)
+For specific `Field` types and `common methods` in Django's `forms` module, see [here](http://docs.djangoproject.com/en/4.2/ref/forms/fields/).
 
-关于模板 API 可以参考[这里](https://docs.djangoproject.com/en/4.2/ref/forms/api/)
+For the template API, see [here](https://docs.djangoproject.com/en/4.2/ref/forms/api/).
 
 :::
 
 ## Authentication System
 
-`Django` 内置了用户权限系统模块，用以方便的进行注册、登录和注销
+`Django` has a built-in user authentication system module for convenient registration, login, and logout.
 
-修改 `urls.py` 可以快速引入权限相关的 url 地址，（同时需要在 `/learning_log/urls.py`中引入当前 url 地址）
+Modify `urls.py` to quickly introduce authentication-related URL addresses (also need to include the current URL address in `/learning_log/urls.py`):
 
 ```python
 # /users/urls.py
@@ -365,7 +367,7 @@ urlpatterns = [
 
 ```
 
-::: details include('django.contrib.auth.url') 究竟包含了哪些 URL?
+::: details What URLs does include('django.contrib.auth.url') contain?
 
 ```
 accounts/login/ [name='login']
@@ -380,15 +382,15 @@ accounts/reset/done/ [name='password_reset_complete']
 
 :::
 
-更多关于权限系统的介绍可以查看官方文档 [Using the Django authentication system](https://docs.djangoproject.com/en/4.2/topics/auth/default/)
+For more about the authentication system, see the official documentation: [Using the Django authentication system](https://docs.djangoproject.com/en/4.2/topics/auth/default/).
 
 ### User System
 
-#### login
+#### Login
 
-用户在访问 `localhost:8000/users/login` 的时候，`Django` 会访问默认视图函数 `login`，但模板仍然需要手动提供
+When users visit `localhost:8000/users/login`, `Django` accesses the default view function `login`, but the template still needs to be provided manually.
 
-`Django` 默认的权限系统会在文件夹 `registration` 中查找模板，因此在 `/users/template/registration` 中新建 `login.html` 以提供默认的登陆模板
+`Django`'s default authentication system looks for templates in the `registration` folder, so create `login.html` in `/users/template/registration` to provide the default login template:
 
 ```html
 {# login.html #} {% extends "learning_logs/base.html" %} {% block content %} {%
@@ -405,16 +407,16 @@ if form.errors %}
 {% endblock content %}
 ```
 
-模板中有几点需要注意：
+A few things to note in the template:
 
-1. 一个应用的模板可以继承另一个应用中的模板
-2. 模板内置 `context` 中有 `form` 变量，可以参考[创建表单](#创建表单)
-3. 表单的提交和访问地址都是 `users/login`
-4. `input` 标签可以通过 `[name="text"] [value="xxx"]` 告知 `Django`，提交完成后的跳转页面
+1. An app's template can extend templates from another app
+2. The template's built-in `context` has a `form` variable, see [Create Forms](#create-forms)
+3. Both the form's submission and access URLs are `users/login`
+4. The `input` tag can use `[name="text"] [value="xxx"]` to tell `Django` where to redirect after submission
 
-#### logout
+#### Logout
 
-同理可以创建 `logged_out.html` 用以在登出后通知用户操作成功。需要注意的是，即使不创建这个页面， `Django@4.2.9` 也会默认进入一个 `logged_out` 页面
+Similarly, create `logged_out.html` to notify users of successful logout. Note that even without creating this page, `Django@4.2.9` will default to a `logged_out` page.
 
 ```html
 {# logged_out.html #} {% extends "learning_logs/base.html" %} {% block content
@@ -424,24 +426,24 @@ if form.errors %}
 {% endblock content %}
 ```
 
-#### register
+#### Register
 
-借助 `UserCreateForm`，`Django` 可以快速创建用户
+Using `UserCreationForm`, `Django` can quickly create users:
 
 ```python
-# 空的注册表单
+# Empty registration form
 form = UserCreationForm()
 ```
 
-在 `views` 中创建相应视图并注册数据，然后按照[创建表单](#Create Forms)的思路进行 `register` 注册页面的编写即可
+Create the corresponding view in `views`, register the data, then follow the [Create Forms](#create-forms) approach to build the `register` registration page.
 
 ### Access Control
 
-> [装饰器（decorator）](https://docs.djangoproject.com/en/4.2/topics/http/decorators/)是放在函数定义前面的指令，Python 在函数运行前根据它来修改函数代码的行为
+> A [decorator](https://docs.djangoproject.com/en/4.2/topics/http/decorators/) is a directive placed before a function definition. Python uses it to modify the function's code behavior before the function runs.
 
-`Django`提供了装饰器`@login_required`，让你能够轻松地只允许已登录用户访问某些页面
+`Django` provides the `@login_required` decorator, allowing you to easily restrict certain pages to logged-in users only.
 
-通过在 `views` 前增加 `@login_required`，可以限制对应的视图只能在登陆状态下访问
+By adding `@login_required` before `views`, you can restrict the corresponding view to authenticated access only:
 
 ```python
 from django.shortcuts import render, redirect
@@ -452,16 +454,16 @@ from .models import Topic, Entry
 
 @login_required  # [!code ++]
 def topics(request):
-    """显示所有的主题。"""
+    """Show all topics."""
 ```
 
-未登录的用户请求装饰器`@login_required`保护的页面时，`Django` 会重定向到`settings.py`中的`LOGIN_URL`指定的`URL`。如果未指定，则会报一个 `404` 的错误
+When unauthenticated users request a page protected by `@login_required`, `Django` redirects to the URL specified by `LOGIN_URL` in `settings.py`. If not specified, a `404` error occurs.
 
-指定`LOGIN_URL = 'users:login'`代码后，将自动跳转到 `/users`应用下的 `login` 视图
+Setting `LOGIN_URL = 'users:login'` will automatically redirect to the `login` view under the `/users` app.
 
 #### User Related Model
 
-要将数据关联到提交它们的用户。只需将最高层的数据关联到用户，更低层的数据就会自动关联到用户
+To associate data with the users who submitted it, simply associate the top-level data with users — lower-level data will automatically be associated.
 
 ```python
 from django.db import models
@@ -469,16 +471,16 @@ from django.contrib.auth.models import User # [!code ++]
 
 # Create your models here.
 class Topic(models.Model):
-    """用户学习的主题"""
+    """A topic the user is learning about"""
 
     text = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE) # [!code ++]
 ```
 
-迁移数据库时，Django 将对数据库进行修改，使其能够存储`Topic` 和 `User` 之间的关联。但既有 `Topic` 要如何处理呢？最简单的办法是将既有主题都关联到同一个用户，如最开始创建的 `superuser` 。
+When migrating the database, Django will modify it to store the association between `Topic` and `User`. But how should existing `Topics` be handled? The simplest approach is to associate all existing topics with the same user, such as the initially created `superuser`.
 
-在 [Django Shell](#Django Shell) 中可以快速查看当前所有用户的信息
+In the [Django Shell](#django-shell), you can quickly view all user information:
 
 ```
 >>> from django.contrib.auth.models import User
@@ -490,19 +492,19 @@ class Topic(models.Model):
 ll_admin 1
 ```
 
-获取用户 ID 后，就可以迁移数据库了。通过执行 `python manage.py makemigrations learning_logs` 进行数据库迁移，根据指示迁移完毕后，就可以应用迁移了 `python manage.py migrate`
+After obtaining the user ID, you can migrate the database. Run `python manage.py makemigrations learning_logs` for migration, follow the prompts, then apply: `python manage.py migrate`.
 
 #### Specified User Access Control
 
-用户在登陆后，视图的 `request` 参数将有一个 `user` 属性，其中存储了有关该用户的信息。
+After login, the view's `request` parameter has a `user` attribute containing information about the user.
 
-因此在 `Django` 中可以通过对模型对象操作`filter` 实现快捷限制访问的目的，使 `Topic` 只能被当前关联用户访问
+In `Django`, you can use the `filter` operation on model objects to quickly restrict access, ensuring `Topics` can only be accessed by their associated users:
 
 ```python
 --snip--
 @login_required
 def topics(request):
-    """显示所有的主题。"""
+    """Show all topics."""
     topics = Topic.objects.order_by('date_added') # [!code --]
     topics = Topic.objects.filter(owner=request.user).order_by('date_added') # [!code ++]
     context = {'topics': topics}
@@ -510,7 +512,7 @@ def topics(request):
 --snip--
 ```
 
-对于所有的视图，如果有指定用户的需求，都需要在代码中有针对性的修改。例如单个主题，如果没有做限制，那么任何用户都可以通过指定 `URL (localhost:8000/topics/1/)` 来访问对应页面。为此需要对 `topic view` 进行修改
+For all views with user-specific requirements, targeted code modifications are needed. For example, individual topics — without restrictions, any user could access a page by specifying the URL (`localhost:8000/topics/1/`). The `topic view` needs to be modified:
 
 ```python
 from django.shortcuts import render, redirect
@@ -519,9 +521,9 @@ from django.http import Http404 # [!code ++]
 --snip--
 @login_required
 def topic(request, topic_id="1"):
-    """显示单个主题"""
+    """Show a single topic"""
     topic = Topic.objects.get(id=topic_id)
-    # 确认请求的主题属于当前用户
+    # Verify the requested topic belongs to the current user
     if topic.owner != request.user: # [!code ++]
         raise Http404 # [!code ++]
      context = {"topic": topic, "entries": entries}
@@ -529,18 +531,18 @@ def topic(request, topic_id="1"):
 --snip--
 ```
 
-服务器上没有请求的资源时，标准的做法是返回 404 响应。这里导入了异常 `Http404`，并在用户请求时判断用户与当前主题，如果不匹配则引发异常，`Django` 会返回一个 404 页面
+The standard practice when a requested resource doesn't exist on the server is to return a 404 response. Here we import the `Http404` exception and check the user against the current topic during requests. If they don't match, an exception is raised and `Django` returns a 404 page.
 
 ::: tip
 
-关键字`raise` 的作用是主动引发异常，与 `javascript` 中的 `throw` 类似
+The `raise` keyword actively raises an exception, similar to `throw` in JavaScript.
 
 :::
 
 ## Django Shell
 
-通过命令行 `python manage.py shell` ， 输入一些数据后可以通过类似交互式终端的方式查看数据，类似 `Read-Eval-Print-Loop (REPL)`。
+Through the command `python manage.py shell`, after entering some data, you can view data through an interactive terminal-like interface, similar to `Read-Eval-Print-Loop (REPL)`.
 
-一般在编写用户可请求的页面时，使用这种语法可以确认代码能获取所需的数据。
+This syntax is generally used when writing user-requestable pages to confirm that code can retrieve the needed data.
 
-可以参考 `Django` 官方的[Making queries](https://docs.djangoproject.com/en/5.0/topics/db/queries/)查看模型操作相关方法
+See Django's official [Making queries](https://docs.djangoproject.com/en/5.0/topics/db/queries/) for model operation methods.

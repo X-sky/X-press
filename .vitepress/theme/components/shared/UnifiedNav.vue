@@ -3,6 +3,8 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter, withBase } from 'vitepress'
 import { useTheme } from '../../composables/useTheme'
 import { useScrollActive } from '../../composables/useScrollActive'
+import { useI18n } from '../../composables/useI18n'
+import LanguageSwitcher from './LanguageSwitcher.vue'
 
 /**
  * UnifiedNav - Dual-mode navigation component
@@ -18,28 +20,40 @@ import { useScrollActive } from '../../composables/useScrollActive'
 const route = useRoute()
 const router = useRouter()
 
+// --- i18n ---
+const { t, localePath, locale } = useI18n()
+
 const isPortfolioMode = computed(() => {
   const path = route.path
-  return path === '/' || path === '/index.html' || path === withBase('/') || path === withBase('/index.html')
+  return (
+    path === '/' ||
+    path === '/index.html' ||
+    path === '/zh/' ||
+    path === '/zh/index.html' ||
+    path === withBase('/') ||
+    path === withBase('/index.html') ||
+    path === withBase('/zh/') ||
+    path === withBase('/zh/index.html')
+  )
 })
 
 // --- Theme ---
 const { isDark, toggleTheme } = useTheme()
 
-// --- Portfolio nav links ---
-const portfolioLinks = [
-  { title: 'About', href: '#about' },
-  { title: 'Blog', href: '#blog' },
-  { title: 'Projects', href: '#project' },
-  { title: 'Contact', href: '#contact' },
-]
+// --- Portfolio nav links (i18n) ---
+const portfolioLinks = computed(() => [
+  { title: t('nav.about'), href: '#about' },
+  { title: t('nav.blog'), href: '#blog' },
+  { title: t('nav.projects'), href: '#project' },
+  { title: t('nav.contact'), href: '#contact' },
+])
 
-// --- Blog category links ---
-const blogCategories = [
-  { title: 'Frontend', link: '/coding/frontend/auto-hosts/index.html' },
-  { title: 'Python', link: '/coding/python/markdowns/pythonCrashCourse/index.html' },
-  { title: 'Others', link: '/coding/others/shortcuts/index.html' },
-]
+// --- Blog category links (i18n) ---
+const blogCategories = computed(() => [
+  { title: t('nav.frontend'), link: localePath('/coding/frontend/auto-hosts/index.html') },
+  { title: t('nav.python'), link: localePath('/coding/python/markdowns/pythonCrashCourse/index.html') },
+  { title: t('nav.others'), link: localePath('/coding/others/shortcuts/index.html') },
+])
 
 // --- Scroll active tracking for portfolio mode ---
 const aboutRef = ref<HTMLElement | null>(null)
@@ -112,7 +126,7 @@ function navigateTo(link: string) {
 
 // --- Navigate home ---
 function goHome() {
-  router.go(withBase('/'))
+  router.go(withBase(localePath('/')))
 }
 
 // --- Active blog category detection ---
@@ -161,9 +175,9 @@ function isCategoryActive(link: string): boolean {
           <a
             href="javascript:void(0)"
             class="navlink unified-nav__coding-entry"
-            @click.prevent="navigateTo('/coding/frontend/auto-hosts/index.html')"
+            @click.prevent="navigateTo(localePath('/coding/frontend/auto-hosts/index.html'))"
           >
-            Coding
+            {{ t('nav.coding') }}
             <svg
               class="unified-nav__arrow-icon"
               width="14"
@@ -202,7 +216,7 @@ function isCategoryActive(link: string): boolean {
               <path d="M19 12H5" />
               <path d="m12 19-7-7 7-7" />
             </svg>
-            Home
+            {{ t('nav.home') }}
           </a>
           <span class="unified-nav__divider" aria-hidden="true">|</span>
           <a
@@ -218,8 +232,9 @@ function isCategoryActive(link: string): boolean {
         </template>
       </nav>
 
-      <!-- Right side: theme toggle -->
+      <!-- Right side: theme toggle + language switcher -->
       <div class="unified-nav__actions">
+        <LanguageSwitcher mode="inline" />
         <button
           class="unified-nav__theme-btn"
           :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"

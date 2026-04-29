@@ -1,64 +1,66 @@
 ---
 outline: deep
+title: "Frontend Data Analytics Design in Practice"
+description: "General design for frontend data analytics, including event-driven architecture, dimensions and metrics design, and request strategies"
 ---
 
-# 前端数据分析设计实战
+# Frontend Data Analytics Design in Practice
 
-前端业务中经常会遇到一些依赖用户侧的数据统计需求：
+Frontend business often involves data collection requirements that depend on the user side:
 
-1. 统计页面停留时间，浏览次数等指标，对页面重要性进行分析
-2. 统计用户点击热区、浏览路径等习惯，形成用户画像
-3. 进行页面的 `Performance Monitor` `Crash Report` 等
+1. Tracking page dwell time, visit counts, and other metrics to analyze page importance
+2. Tracking user click heatmaps, browsing paths, and other habits to build user profiles
+3. Performing `Performance Monitor`, `Crash Report`, etc.
 
-这些指标基本只能通过前端处理上报后端。在成本有限，且数据业务耦合度不高的情况下，我们通常可以集成 [Google GA](https://developers.google.com/analytics) 等 `Data Analytics Services`，对相关的数据进行统计。但当出现业务耦合度高，场景复杂，且数据请求受限的时候，自建一个数据分析平台就显得尤为重要
+These metrics can essentially only be collected and reported to the backend through the frontend. When costs are limited and data-business coupling is low, we can typically integrate `Data Analytics Services` like [Google GA](https://developers.google.com/analytics) to collect relevant data. However, when business coupling is high, scenarios are complex, and data requests are restricted, building a custom data analytics platform becomes particularly important.
 
-## 数据统计通用设计
+## General Design for Data Analytics
 
-既然是数据统计，那么我们可以宽泛的认为，一切可以数据化的，都可以作为内容进行上报
+Since we're dealing with data analytics, we can broadly consider that anything that can be quantified can be reported as content.
 
-> 内容上报和统计在端侧的行为，也就是我们常说的 “埋点”
+> Content reporting and analytics behavior on the client side is what we commonly call "event tracking" (or "burying points")
 
-对于任何数据来说，重中之重都是数据格式设计
+For any data, the most critical aspect is data format design.
 
-这里我们参考 [google GA](https://support.google.com/analytics/answer/9322688?hl=zh-Hans&ref_topic=12156336,12153943,2986333,&sjid=326724495408096462-AP&visit_id=638549648638940913-1084391665&rd=1#zippy=%2C实时报告%2Cdebugview-报告)，google分析将行为区分为不同的事件，通过事件驱动，转化为数据统计
+Here we reference [Google GA](https://support.google.com/analytics/answer/9322688?hl=zh-Hans&ref_topic=12156336,12153943,2986333,&sjid=326724495408096462-AP&visit_id=638549648638940913-1084391665&rd=1#zippy=%2C实时报告%2Cdebugview-报告). Google Analytics distinguishes behaviors into different events, converting them into data analytics through event-driven approaches.
 
-例如 `page_view` 事件，[官方描述](https://support.google.com/analytics/answer/9216061?sjid=326724495408096462-AP) 为：
+For example, the `page_view` event, [officially described](https://support.google.com/analytics/answer/9216061?sjid=326724495408096462-AP) as:
 
-> 该事件会填充[查看次数](https://support.google.com/analytics/table/13948007?sjid=326724495408096462-AP&visit_id=638549648638940913-1084391665&rd=2#page-screen-metrics)指标。相关参数会填充以下维度：
+> This event populates the [Views](https://support.google.com/analytics/table/13948007?sjid=326724495408096462-AP&visit_id=638549648638940913-1084391665&rd=2#page-screen-metrics) metric. Related parameters populate the following dimensions:
 >
-> - 网页位置（page_location）
-> - 网页引荐来源网址（ page_referrer）
+> - Page location (page_location)
+> - Page referrer (page_referrer)
 
-根据这些信息我们可以总结出事件驱动的数据统计的三要素：
+From this information, we can summarize the three essential elements of event-driven data analytics:
 
-- 事件唯一标识符 id - 标识数据来源
-- 指标 dimensions - 描述数据的属性，它们通常是文本或字符串。维度提供了对数据的分类和分组
-- 维度 metrics - 对数据的数量或度量，它们通常是数字。指标表示了某些维度的量化值
+- Event unique identifier (id) - identifies the data source
+- Dimensions - describe data attributes, typically text or strings. Dimensions provide categorization and grouping of data
+- Metrics - quantitative measurements of data, typically numbers. Metrics represent quantified values of certain dimensions
 
-在实际的报告使用中，通常会将 维度 和 指标 两者结合起来。下图就展示了两个城市（维度）所对应的绘画数量（指标）
+In actual report usage, dimensions and metrics are typically combined. The table below shows the session counts (metric) for two cities (dimension):
 
-| 城市     | 会话数量 |
-| -------- | -------- |
-| New York | 50       |
-| 北京     | 1000     |
+| City     | Session Count |
+| -------- | ------------- |
+| New York | 50            |
+| Beijing  | 1000          |
 
-因此，前端侧的数据统计也大致参考google GA的做法，根据事件驱动，不同的事件填充不同的指标，统计不同的维度
+Therefore, frontend data analytics roughly follows Google GA's approach: driven by events, different events populate different metrics and track different dimensions.
 
-事件和指标、事件和维度之间可能是多对多的关系，需要根据业务及事件类型具体确定
+The relationships between events and metrics, and between events and dimensions, can be many-to-many and need to be determined based on specific business and event types.
 
-### 事件类型
+### Event Types
 
-根据事件触发类型可以简单的将事件划分为 **自动收集的事件** 以及 **自定义事件** 两种。事件类型及统计目标共同决定了数据的统计方式
+Events can be simply categorized into **automatically collected events** and **custom events** based on trigger type. The event type and analytics goal together determine the data collection method.
 
-以 `页面浏览量 page_view` 为例，这是典型的 `自动收集型事件`。`自动收集型事件` 理论上不需要额外编写代码就可以自动收集。当产生页面访问的时候，事件自动触发，填充对应的指标以及维度。
+Taking `page_view` as an example, this is a typical `automatically collected event`. Automatically collected events theoretically don't require additional code to collect. When a page visit occurs, the event triggers automatically, populating the corresponding metrics and dimensions.
 
-需要注意的是，不同的事件无关类型，都会有一套自己的实现逻辑。对于 `自动收集型事件` 来说，不同的实现逻辑同时也会决定事件的上报时机。
+Note that different events, regardless of type, each have their own implementation logic. For automatically collected events, different implementation logic also determines the reporting timing.
 
-- `page_view` 事件可以通过通过拦截 `popState`, `pushState`, `replaceState` 事件以及注册 `load` `hashchange`事件实现监听
-- `form_submit` 事件可以通过拦截 `onsubmit` 事件进行监听
-- `file_download` 事件可以通过拦截 `XMLHttpRequest` 方法进行监听
+- `page_view` events can be monitored by intercepting `popState`, `pushState`, `replaceState` events and registering `load` and `hashchange` event listeners
+- `form_submit` events can be monitored by intercepting the `onsubmit` event
+- `file_download` events can be monitored by intercepting `XMLHttpRequest` methods
 
-还是以 `page_view`  事件为例，我们可以通过如下方法实现一个简易版本的页面浏览事件
+Still using the `page_view` event as an example, we can implement a simple version of the page view event as follows:
 
 ```javascript
 function pageViewRegister(){
@@ -83,67 +85,67 @@ function pageViewRegister(){
 
 ```
 
-对于 `page_view` 事件来说，之所以需要额外拦截 `pushState` `replaceState` `popState` 主要是为了兼顾现代浏览器应用的导航方式
+For the `page_view` event, the reason we need to additionally intercept `pushState`, `replaceState`, and `popState` is mainly to accommodate modern browser application navigation methods.
 
-远古时代网页通常是通过修改 `location.href` 直接进行页面的切换，这种方式仅会触发 `load` 事件，当直接使用 `window.hash = '#/xxx'` 的时候，又仅会触发 `hashchange` 事件
+In the early days, web pages typically switched pages by modifying `location.href`, which only triggers the `load` event. When using `window.hash = '#/xxx'` directly, only the `hashchange` event is triggered.
 
-到了现代业务开发的时候，通常是建立在 `vue` `react` 等框架之上的，那么难免会引入 `vue-router` `react-router`。即便是自己开发，当需要全局维护路由信息的时候，一般的选择也都是使用 `pushState` 等API实现数据管理
+In modern business development, applications are typically built on frameworks like `vue` and `react`, which inevitably introduce `vue-router` or `react-router`. Even with custom development, when global route information management is needed, the common choice is to use `pushState` and similar APIs for data management.
 
-以 `vue-router` 为例，在 `2.8` 或 `3.0` 之后，无论是 `history mode` 还是 `hash mode`，当进行 `router.push`或 `router.replace`时都使用了 `pushState` `replaceState`  实现路由跳转（参考 `router.push` 没有触发 `hashchange` 事件 `issue` 中[尤雨溪的回答](https://github.com/vuejs/vue-router/issues/1807#issuecomment-336494269) 以及 `vue-router` [源码](https://github.com/vuejs/router/blob/0cb5797/packages/router/src/router.ts)），而 `pushState` 和 `replaceState` 将不会触发 `hashchange` 事件
+Taking `vue-router` as an example, after version `2.8` or `3.0`, both `history mode` and `hash mode` use `pushState` and `replaceState` for route navigation when performing `router.push` or `router.replace` (see [Evan You's response](https://github.com/vuejs/vue-router/issues/1807#issuecomment-336494269) in the `router.push` not triggering `hashchange` event issue, and the `vue-router` [source code](https://github.com/vuejs/router/blob/0cb5797/packages/router/src/router.ts)). `pushState` and `replaceState` will not trigger the `hashchange` event.
 
-在实际的业务中，情况会更加复杂。例如在添加了路由守卫/重定向后，`replaceState` 和 `load` 可能会同时触发，或者 `popState` 和 `pushState` 重复发送请求等问题，因此示例代码仅作为展示模式，具体的代码设计需要考虑多种情况
+In real business scenarios, things get more complex. For example, after adding route guards/redirects, `replaceState` and `load` may trigger simultaneously, or `popState` and `pushState` may send duplicate requests. Therefore, the example code is for demonstration only — actual code design needs to account for multiple scenarios.
 
-### 维度及指标设计
+### Dimensions and Metrics Design
 
-一般而言，基础的统计 `维度 dimensions` 和 `指标 metrics` 在设计之初就会固定。例如 [Google GA](https://support.google.com/analytics/table/13948007) 就设计了大量的基础指标和维度以供分析
+Generally speaking, basic `dimensions` and `metrics` are fixed at the design stage. For example, [Google GA](https://support.google.com/analytics/table/13948007) has designed a large number of basic metrics and dimensions for analysis.
 
-进行业务向的数据统计时，由于平台（大部分为网页端）以及关注点（大部分为业务行为）的倾向性，指标通常有限，也不需要这么通用的维度，但有一些基础的维度是网页活动中一定会关心的
+When conducting business-oriented data analytics, due to platform tendencies (mostly web) and focus areas (mostly business behavior), metrics are usually limited and don't require such universal dimensions. However, some basic dimensions are always relevant in web activities.
 
-#### 指标设计
+#### Metrics Design
 
-指标通常与业务息息相关，例如 `page_view` 事件通常会自动填充 `页面浏览量` 指标，而 `form_submit` 事件，则可以根据 `form_id` 的不同，填充 `列表查询 list_query` 或是 `信息补充 info_complete`等指标；`file_download` 也可以通过方法自定义的方式，填充诸如 `附件下载 attachment_download` `表格导出 table_export` 等指标
+Metrics are usually closely tied to business. For example, the `page_view` event typically auto-populates the `page views` metric, while the `form_submit` event can populate metrics like `list_query` or `info_complete` based on different `form_id` values. `file_download` can also populate metrics like `attachment_download` or `table_export` through custom methods.
 
-指标设计具有很强的灵活性，需要根据业务统计内容进行具体的设计
+Metrics design is highly flexible and needs to be specifically designed based on business analytics content.
 
-#### 维度表
+#### Dimensions Table
 
-| 维度     | 描述                                                         | 示例                                                         | 限制长度 |
-| -------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
-| url      | 页面路径，去除查询参数的 location.href                       | <https://www.baidu.com>                                        | 420      |
-| title    | 页面标题                                                     | 百度                                                         | 300      |
-| referrer | 页面来源 （根据事件自定义或document.referrer)                | <https://www.baidu.com>                                        | 420      |
-| trigger  | 统计触发方式                                                 | auto \| click \| hover                                       | 10       |
-| platform | 浏览器类型browser;手机品牌brand;浏览器渲染引擎engine;系统类型os;是否为移动端口isMobile | \{browser: \"chrome\",engine:\"blink\",brand:\"other\",os:\"windows\",isMobile:false\} | 100      |
-| viewport | 页面分辨率                                                   | 1920*1080                                                    | 20       |
+| Dimension | Description                                                  | Example                                                      | Max Length |
+| --------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------- |
+| url       | Page path, location.href without query parameters            | <https://www.baidu.com>                                        | 420        |
+| title     | Page title                                                   | Baidu                                                        | 300        |
+| referrer  | Page source (custom per event or document.referrer)          | <https://www.baidu.com>                                        | 420        |
+| trigger   | Analytics trigger method                                     | auto \| click \| hover                                       | 10         |
+| platform  | Browser type; phone brand; rendering engine; OS type; isMobile | \{browser: \"chrome\",engine:\"blink\",brand:\"other\",os:\"windows\",isMobile:false\} | 100        |
+| viewport  | Page resolution                                              | 1920*1080                                                    | 20         |
 
-*通用维度表 general dimensions*
+*General dimensions table*
 
-针对具体的业务，还需要设计出对应的维度表
+For specific business needs, corresponding dimension tables also need to be designed:
 
-| 维度           | 描述       | 示例                              | 限制长度 |
-| -------------- | ---------- | --------------------------------- | -------- |
-| file_name      | 文件名     | 附件一                            | 300      |
-| file_extension | 文件扩展名 | pdf \| excel \| word \| mp4  etc. | 10       |
-| link_url       | 下载链接   | <https://file-download.server.com>  | 420      |
+| Dimension      | Description    | Example                           | Max Length |
+| -------------- | -------------- | --------------------------------- | ---------- |
+| file_name      | File name      | Attachment 1                      | 300        |
+| file_extension | File extension | pdf \| excel \| word \| mp4  etc. | 10         |
+| link_url       | Download link  | <https://file-download.server.com>  | 420        |
 
-*文件下载业务维度表  file_download dimensions*
+*File download business dimensions table (file_download dimensions)*
 
-| 维度       | 描述     | 示例                           | 限制长度 |
-| ---------- | -------- | ------------------------------ | -------- |
-| form_id    | 表格名称 | user_investigation             | 100      |
-| form_name  | 表格名称 | 用户问卷                       | 100      |
-| form_url   | 提交链接 | <https://form-submit.server.com> | 420      |
-| form_query | 提交参数 | string \| stringiified object  | **1000** |
+| Dimension  | Description      | Example                        | Max Length |
+| ---------- | ---------------- | ------------------------------ | ---------- |
+| form_id    | Form identifier  | user_investigation             | 100        |
+| form_name  | Form name        | User Survey                    | 100        |
+| form_url   | Submit URL       | <https://form-submit.server.com> | 420        |
+| form_query | Submit parameters| string \| stringiified object  | **1000**   |
 
-*表单提交业务维度表  form_submit dimensions*
+*Form submit business dimensions table (form_submit dimensions)*
 
-#### 维度限制
+#### Dimension Limits
 
-通常来说，维度和指标都会有对应的限制，尽管服务端不同，限制也会有所不同
+Generally speaking, both dimensions and metrics have corresponding limits, though limits vary across different server implementations.
 
-比如 google GA 中关于[自动收集的事件](https://support.google.com/analytics/answer/9234069)就有所规定
+For example, Google GA has specific rules for [automatically collected events](https://support.google.com/analytics/answer/9234069):
 
-> 默认情况下，系统会收集每个事件（包括[自定义事件](https://support.google.com/analytics/answer/12229021)）的以下参数：
+> By default, the system collects the following parameters for each event (including [custom events](https://support.google.com/analytics/answer/12229021)):
 >
 > - *language*
 > - *page_location*
@@ -151,9 +153,9 @@ function pageViewRegister(){
 > - *page_title*
 > - *screen_resolution*
 >
-> 事件参数的赋值不得超过 100 个字符。page_title 参数的赋值不得超过 300 个字符。page_referrer 参数的赋值不得超过 420 个字符。page_location 参数的赋值不得超过 1,000 个字符。
+> Event parameter values must not exceed 100 characters. The page_title parameter value must not exceed 300 characters. The page_referrer parameter value must not exceed 420 characters. The page_location parameter value must not exceed 1,000 characters.
 
-因此最好在内部实现的公共方法 `sendAnalytics` 中，对相关维度做好限制和相关容错，具体的统计事件在发送之前也应在内部做好长度限制
+Therefore, it's best to implement limits and error handling for relevant dimensions in the internal `sendAnalytics` method. Specific analytics events should also enforce length limits internally before sending.
 
 ```typescript
 // 内部维度限制处理事件
@@ -190,18 +192,18 @@ function processAnalyticDimensions(dimensions: Record<string, string>): Record<s
 }
 ```
 
-这样的 **具体问题具体分析** 将贯穿整个数据统计的设计过程中，从 `唯一标识符 event_id` 的命名，到 `维度dimensions`  和 `指标 metrics` 统计，对每一个事件都需要做出细节的分析和设计
+This **case-by-case analysis** approach runs throughout the entire data analytics design process — from naming the `event_id`, to `dimensions` and `metrics` analytics, each event requires detailed analysis and design.
 
-类似的，前端性能监控平台，其实也是一种数据统计。因此我们也可以用类似的方式进行前端性能监控设计
+Similarly, a frontend performance monitoring platform is essentially a form of data analytics. Therefore, we can use a similar approach for frontend performance monitoring design.
 
-### 关于请求
+### About Requests
 
-以往埋点通常使用 `xhr` 的方式，以通用的发送请求的方式进行埋点。但 `xhr` 是异步发起的，因此用户可能在埋点请求发起前就关闭页面。这时未完成的请求将不再发送
+Traditionally, event tracking used `xhr` to send tracking data through standard request methods. However, `xhr` is asynchronous, so users might close the page before the tracking request is sent. In that case, incomplete requests will no longer be sent.
 
-更合理的方式，是通过  [sendBeacon API]([Navigator: sendBeacon() method - Web APIs | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon)) 发送请求，该API就是设计用以发送统计信息的。但 `sendBeacon` 对服务器有一定要求：
+A more reasonable approach is to use the [sendBeacon API]([Navigator: sendBeacon() method - Web APIs | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon)) to send requests. This API is specifically designed for sending analytics data. However, `sendBeacon` has certain server requirements:
 
-1. `method` 必须为 `POST`
-2. 当传递 `application/json` 数据时，前端需要额外的处理，并且要求服务端能够配合处理
+1. The `method` must be `POST`
+2. When sending `application/json` data, the frontend needs additional handling, and the server must be able to process it accordingly
 
 ```javascript
 // 用blob模拟json发送数据对象
@@ -226,7 +228,7 @@ navigator.sendBeacon(url, blob);
 
 ```
 
-当 `sendBeacon` 不可用时，也可以用 `fetch` 的 [keepalive属性]([fetch() global function - Web APIs | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/API/fetch#keepalive)) 进行模拟
+When `sendBeacon` is unavailable, you can also use the [keepalive property]([fetch() global function - Web APIs | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/API/fetch#keepalive)) of `fetch` as a fallback:
 
 ```javascript
 // fetch + keepAlive 发送json数据对象
@@ -260,11 +262,11 @@ fetch(url, options).catch(err => console.error('Fetch failed: ', err));
 
 ```
 
-## 设计融合
+## Design Integration
 
-有了通用事件，下面根据数据分析的三要素，就可以通过具体的后端服务，保存对应的要素
+With generic events in place, we can now save the corresponding elements through specific backend services based on the three essential elements of data analytics.
 
-假设有如下接口，请求为 `post` ，接收参数格式如下，并且有相应限制
+Suppose we have the following API endpoint, with `POST` method, accepting parameters in the following format with corresponding constraints:
 
 ```typescript
 /** 服务端接收数据 */
@@ -283,13 +285,13 @@ interface ServerAnalyticsInfo {
 }
 ```
 
-通过分析，我们发现接口是满足通用数据分析的三要素的，我们可以一一对应将其与我们之前提到的三要素进行融合
+Through analysis, we find that the API satisfies the three essential elements of general data analytics. We can map them one-to-one with the three elements we mentioned earlier:
 
-- id -> 事件标识符 event_id
-- fields -> 指标 metrics
-- tags -> 维度 dimensions
+- id -> Event identifier (event_id)
+- fields -> Metrics
+- tags -> Dimensions
 
-对应类型如下
+The corresponding types are:
 
 ```typescript
 /** 统计field数据  */
@@ -317,6 +319,6 @@ interface AnalyticsInfo {
 }
 ```
 
-需要注意的是，由于 `tags` 在服务端的限制，前端在设计具体事件的 `tags` 的时候，需要施加更多的限制避免服务端报错
+Note that due to server-side constraints on `tags`, the frontend needs to impose additional limits when designing `tags` for specific events to avoid server errors.
 
-比如 `form_submit` 事件的 `query` 维度，我们在统计的时候，就可能需要将 `query` 分割为多个字段传递
+For example, the `query` dimension of the `form_submit` event may need to be split into multiple fields for transmission during analytics collection.

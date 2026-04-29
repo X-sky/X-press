@@ -1,63 +1,65 @@
 ---
 outline: deep
+title: "Iterator and Generator"
+description: "Deep dive into JavaScript Iterators and Generators, including the Iterable Protocol, Iterator Protocol, and the yield keyword"
 ---
 
 # Iterator and Generator
 
 ## Iteration
 
-> 迭代的英文 iteration 来自拉丁文 itero，意思是 ⁄“重复”或“再来”。在软开领域，迭代就是**按照顺序反复多次**执行一段程序，通常有明确的终止条件
+> The English word "iteration" comes from the Latin "itero," meaning "repeat" or "again." In software, iteration means **executing a piece of code repeatedly in sequence**, usually with a clear termination condition.
 
-- 循环是一种基础的迭代，可以指定迭代次数(有明确的终止条件)，以及每次迭代要执行什么操作(反复多次执行一段程序)
-- 迭代通常在一个**有序**集合上进行，有序集合中的所有项都可以按照既定的顺序被遍历。数组是 js 中最典型的有序集合，因而我们经常会把迭代与数组遍历混为一谈，实际二者是包含的关系，数组遍历是迭代的一种。
+- A loop is a basic form of iteration that can specify the number of iterations (clear termination condition) and what operation to perform each time (repeatedly executing a piece of code)
+- Iteration typically operates on an **ordered** collection where all items can be traversed in a predetermined order. Arrays are the most typical ordered collection in JS, so we often conflate iteration with array traversal. In reality, the two have a containment relationship — array traversal is one form of iteration.
 
-### Iterator Pattern(迭代器模式)
+### Iterator Pattern
 
-> 早期版本的 ECMAScript 中，迭代必须借助循环或者其他辅助结构。随着代码量的不断增加，结构会变的越发混乱。很多语言通过原生的语言结构解决了这个问题，开发者无需事先知道如何迭代就能实现迭代操作。这个解决方案就是迭代器模式
+> In early versions of ECMAScript, iteration had to rely on loops or other auxiliary structures. As code volume grew, structures became increasingly messy. Many languages solved this problem through native language constructs, allowing developers to perform iteration without knowing how to iterate beforehand. This solution is the Iterator Pattern.
 
 #### Concept
 
-> 迭代器模式描述了一个方案：Something can be described as “**iterable**” and can implement a formal **Iterable interface** and consumed by an **Iterator**
+> The Iterator Pattern describes a solution: Something can be described as "**iterable**" and can implement a formal **Iterable interface** and be consumed by an **Iterator**
 
-Iterable 既可以描述一个对象是可迭代的，也可以直接指代一个可迭代对象。可迭代对象可以理解为具有特定数据结构的对象，其满足两个条件：
+Iterable can both describe an object as iterable and directly refer to an iterable object. An iterable object can be understood as an object with a specific data structure that satisfies two conditions:
 
-1. 包含的元素都是有限的
-2. 具有无歧义的遍历顺序
+1. The contained elements are finite
+2. It has an unambiguous traversal order
 
-当然可迭代的这一概念并不局限于上述结构，凡是具有类似表现的，比如计数循环，都是可迭代的。
+Of course, the concept of iterability is not limited to the above structures — anything with similar behavior, such as counting loops, is iterable.
 
-#### Iterable Protocol(可迭代协议)
+#### Iterable Protocol
 
-> 实现可迭代协议要求同时具备两种能力：自我识别和创建 iterator Interface(迭代器接口)的能力
+> Implementing the Iterable Protocol requires two capabilities: self-identification and the ability to create an Iterator interface.
 >
-> ECMAScript 暴露了[Symbol.iterator]的属性，该属性指向一个迭代器工厂函数。调用这个工厂函数，则可以生成一个新的迭代器
+> ECMAScript exposes a [Symbol.iterator] property that points to an iterator factory function. Calling this factory function generates a new iterator.
 
-很多内置类型都实现了迭代接口，包括：String, Array, Map, Set, arguments, NodeList 等 DOM Collection。
+Many built-in types implement the iteration interface, including: String, Array, Map, Set, arguments, NodeList, and other DOM Collections.
 
-实际开发中，并非一定要显式调用这个工厂函数来生成 iterator，实现可迭代协议的所有类型结构都会自动兼容可迭代对象：
+In practice, you don't necessarily need to explicitly call this factory function to generate an iterator. All types that implement the Iterable Protocol automatically support iterable objects:
 
-1. for...of 循环 ` for (const x of [0, 1, 2]) console.log(x)`
-2. 数组结构 ` const [a, b] = [0, 1, 2]`
-3. 扩展操作符 `doSomeThing(...restArgs)`
+1. for...of loop: `for (const x of [0, 1, 2]) console.log(x)`
+2. Array destructuring: `const [a, b] = [0, 1, 2]`
+3. Spread operator: `doSomeThing(...restArgs)`
 4. Array.from
-5. 创建 Set `const newSet = new Set([a, b, c])`
-6. 创建 Map
-7. Promise.all() ` Promise.all([a, b, c])`
+5. Creating Set: `const newSet = new Set([a, b, c])`
+6. Creating Map
+7. Promise.all(): `Promise.all([a, b, c])`
 8. Promise.race()
-9. yield \* 操作符 (在 Generator 生成器章节中讲解)
+9. yield \* operator (covered in the Generator section)
 
-这种兼容可以沿着原型链进行追溯
+This compatibility can be traced along the prototype chain.
 
-#### Iterator Protocol(迭代器协议)
+#### Iterator Protocol
 
-> 通过查看[Symbol.iterator]属性，可以获得这个工厂函数，直接调用可以生成一个一次性的迭代器
+> By checking the [Symbol.iterator] property, you can get this factory function. Calling it directly generates a one-time iterator.
 
-迭代器是一种**一次性**使用的**对象**，用于迭代与其关联的可迭代对象。
+An iterator is a **one-time use** **object** used to iterate over its associated iterable object.
 
-- 通过定义 next()方法来推进迭代进度。next 返回一个对象，其中包含迭代进度(done)和迭代数据(value)，一旦迭代到达 done 为 true 的状态时，调用 next 方法是幂等的
-- 有可选的 return 方法用来定义迭代器在特殊情况下过早结束时，调用的方法，同样需要返回一个包含迭代进度(done)的对象，需要自行定义。调用 return 并不会强制使迭代器关闭，但 return 依然会被调用。特殊情况包括：
-  1. for...of 中通过 return/throw/break 关键字退出迭代
-  2. 解构没有消耗全部的值 `const [a, b] = [0, 1, 2]`
+- Progress is advanced by defining a next() method. next returns an object containing iteration progress (done) and iteration data (value). Once iteration reaches the done: true state, calling next is idempotent.
+- There's an optional return method to define what happens when the iterator ends prematurely under special circumstances. It also needs to return an object containing iteration progress (done), which must be self-defined. Calling return doesn't force the iterator to close, but return will still be called. Special circumstances include:
+  1. Exiting iteration in for...of via return/throw/break keywords
+  2. Destructuring that doesn't consume all values: `const [a, b] = [0, 1, 2]`
 
 ```javascript
 const list = [0, 1];
@@ -68,7 +70,7 @@ iter.next(); //{done: true; value: undefined}
 iter.next(); //{done: true; value: undefined}
 ```
 
-不同的迭代器之间并没有联系。
+Different iterators are unrelated to each other:
 
 ```javascript
 const list = [0, 1];
@@ -79,23 +81,23 @@ iter2.next(); //{done: false; value: 0}
 iter2.next(); //{done: false; value: 1}
 ```
 
-迭代器内部是一个“黑箱”，既无法知道当前所处的迭代位置，也无法知道迭代对象的数据状态。他不保存被创建时的数据快照，只是通过一个指针追踪迭代进度。这意味着如果迭代对象产生了变化迭代器会实时反映这个变化。
+An iterator is a "black box" internally — you can neither know the current iteration position nor the data state of the iterable object. It doesn't save a snapshot of the data at creation time but tracks iteration progress through a pointer. This means if the iterable object changes, the iterator will reflect the change in real time:
 
 ```javascript
 const list = [0, 1, 2];
 const iter = list[Symbol.iterator]();
 iter.next(); //{done: false; value: 0}
-// 插入新的值
+// Insert a new value
 list.splice(1, 0, 'insert');
 iter.next(); //{done: false; value: 'insert'}
 iter.next(); //{done: false; value: 1}
 ```
 
-⚠️ 注意：因为迭代器内部维护着一个指向可迭代对象的引用，所以迭代器的存在会阻止垃圾回收程序回收可迭代对象
+⚠️ Note: Because the iterator internally maintains a reference to the iterable object, the iterator's existence prevents the garbage collector from reclaiming the iterable object.
 
-### Custom Iterator(自定义迭代器)
+### Custom Iterator
 
-迭代器模式会让期望迭代数据的结构自动兼容可迭代协议，因此我们可以在 class 中使用[Symbol.iterator]暴露迭代器工厂函数，从而自定义迭代器
+The Iterator Pattern makes structures that expect to iterate over data automatically compatible with the Iterable Protocol. Therefore, we can use [Symbol.iterator] in a class to expose an iterator factory function, creating custom iterators:
 
 ```javascript
 class Counter {
@@ -104,7 +106,7 @@ class Counter {
     this.limit = limit;
   }
   [Symbol.iterator]() {
-    // 闭包变量，可多次迭代
+    // Closure variables, enabling multiple iterations
     let count = 1,
       limit = this.limit;
     return {
@@ -116,7 +118,7 @@ class Counter {
         }
       },
       return() {
-        console.log('我还没迭代完呢！');
+        console.log('I haven\'t finished iterating yet!');
         return { done: true, value: 'someValue' };
       }
     };
@@ -132,42 +134,42 @@ for (let i of counter) {
   console.log(i);
 }
 //1
-//'我还没迭代完呢！'
+//'I haven\'t finished iterating yet!'
 const [a, b] = counter;
-// (非输出)a => 1; b => 2
-// '我还没迭代完呢！'
+// (no output) a => 1; b => 2
+// 'I haven\'t finished iterating yet!'
 ```
 
 ## Generator
 
-> Generator 是 ES6 新增的一个强大的能力，拥有在一个函数块内**暂停**和**恢复**代码执行的能力
+> Generator is a powerful capability added in ES6, with the ability to **pause** and **resume** code execution within a function block.
 
-生成器的形式是一个函数，函数名称前加一个星号(\*)表示它是一个生成器(星号忽略空格)。只要是可以定义函数的地方，就可以定义生成器。函数声明，函数表达式，对象字面量的方法，class 实例/静态方法，都可以定义生成器。箭头函数不可用做生成器函数
+A generator takes the form of a function with an asterisk (\*) before the function name indicating it's a generator (the asterisk ignores spaces). Generators can be defined anywhere a function can be defined: function declarations, function expressions, object literal methods, class instance/static methods. Arrow functions cannot be used as generator functions.
 
-### generator object(生成器对象)
+### Generator Object
 
-调用 generator 会产生一个生成器对象。生成器对象可以类比迭代器，也通过 next 方法推动执行，其中也包含迭代进度(done)和迭代数据(value)。
+Calling a generator produces a generator object. A generator object can be compared to an iterator — it also advances execution through next, containing iteration progress (done) and iteration data (value).
 
-事实上，生成器对象内部实现了可迭代协议，其[Symbol.iterator]属性的工厂函数调用结果指向自身，在这种层面上可以说，生成器对象本身就是一种迭代器。
+In fact, generator objects internally implement the Iterable Protocol. Their [Symbol.iterator] property's factory function call result points to themselves. In this sense, a generator object is itself a type of iterator.
 
-generator**调用即挂起**，generator object 一开始处于暂停执行(suspended)的状态。通过调用其 next 方法，让 generator 继续执行。当 next 到达 done: true 时，其 value 就是 generator 的 return 的值
+A generator is **suspended upon invocation**. A generator object starts in a suspended execution state. Execution continues by calling its next method. When next reaches done: true, its value is the generator's return value.
 
 ```javascript
 function* generatorFn() {
-  console.log('执行了');
+  console.log('Executed');
   return 'returnValue';
 }
 let gen = generatorFn();
-// (没有任何日志)
+// (no logs)
 gen.next();
-// '执行了'
+// 'Executed'
 // {done: true; value: 'returnValue'}
 gen[Symbol.iterator]() === gen; // true
 ```
 
-generator object 类比迭代器，generator 产生的每个 generator object 都会区分作用域，互不影响。
+Like iterators, each generator object produced by a generator has its own scope and doesn't affect others.
 
-generator object 可以作为可迭代对象被迭代
+Generator objects can be iterated as iterable objects:
 
 ```javascript
 function* generatorFn() {
@@ -180,11 +182,11 @@ for (const x of generatorFn()) {
 }
 ```
 
-### yield 关键字
+### The yield Keyword
 
-> yield 是生成器最有用的地方，它赋予了函数内部暂停与继续执行的能力。生成器在 yield 之前会正常执行，遇到这个关键字后，执行会暂停，函数的作用与的状态会被保留。
+> yield is the most useful aspect of generators. It gives functions the ability to pause and resume execution internally. A generator executes normally before yield. Upon encountering this keyword, execution pauses and the function's scope state is preserved.
 
-yield 可以类比为“函数内部的 return”，通过 yield 退出的函数会处于 done: false 状态，yield 的值会作为 next 中 value 的值
+yield can be compared to a "return inside a function." A function that exits via yield is in the done: false state, and the yielded value becomes the value in next's return.
 
 ```javascript
 function* generatorFn() {
@@ -198,7 +200,7 @@ gen.next(); // {done: false, value: '2nd'}
 gen.next(); // {done: false, value: 'finished'}
 ```
 
-yield 既可作为输入，也可作为输出。第一次调用 next()传入的值不会被使用，因为这次调用是为了开始执行 generator
+yield can serve as both input and output. The value passed to the first next() call is not used, because that call is meant to start the generator's execution:
 
 ```javascript
 function* generatorFn() {
@@ -212,7 +214,7 @@ gen.next('2nd pass'); // '2nd' // '2nd pass'
 gen.next('3rd pass'); // '3rd' // '3rd pass'
 ```
 
-yield* 迭代对象，一次产出一个值。与生成器星号类似，星号标志也是忽略空格的。而与 yield 不同，yield*不可以作为输出使用
+yield*iterates over an object, yielding one value at a time. Like the generator asterisk, the asterisk marker also ignores spaces. Unlike yield, yield* cannot be used as output:
 
 ```javascript
 function* generatorFn() {

@@ -1,86 +1,88 @@
 ---
 outline: deep
+title: "Hosts Extension Development: From Start to Finish"
+description: "Chrome browser Hosts extension development practice, including PAC scripts, proxy configuration, and HTTPS handling"
 ---
 
-# Hosts 插件开发从入门到放弃
+# Hosts Extension Development: From Start to Finish
 
-## 什么是 hosts
+## What is hosts
 
-根据[维基百科](<https://en.wikipedia.org/wiki/Hosts_(file)>)的定义，`hosts` 是操作系统用来将 `host names` 映射为 `ip address` 的系统文件。是一个纯文本文件。关于 `IP` 和 `DNS` 这里先不展开
+According to [Wikipedia](<https://en.wikipedia.org/wiki/Hosts_(file)>), `hosts` is a system file used by the operating system to map `host names` to `ip addresses`. It is a plain text file. We won't go into detail about `IP` and `DNS` here.
 
-## 业务场景
+## Business Scenario
 
-在实际的开发业务中，一个功能往往要经过 开发环境->测试环境->预发布环境->正式环境 等不同环境下的功能测试，而在更多的情况下，开发环境、测试环境以及预发布都并非对外开放的。当域名无法从 DNS 服务器正确解析的时候，页面就会加载失败。于是经常需要进行的操作，就是配置系统层面的 host 文件，通过手动加入 DNS 缓存的方式，让浏览器能够正确解析域名，访问对应的 ip 地址
+In real-world development, a feature typically goes through functional testing across different environments: development -> testing -> staging -> production. In most cases, the development, testing, and staging environments are not publicly accessible. When a domain name cannot be correctly resolved by the DNS server, the page will fail to load. A common workaround is to configure the system-level host file, manually adding DNS cache entries so the browser can correctly resolve domain names and access the corresponding IP addresses.
 
-但是有一些业务域名，在所有环境中都是一样的，需要通过 ip 辨别，于是我们的 host 文件就会如下所示，然后通过 注释-取消 对应的 host，来进行环境的切换。这样在无形中增加了许多重复劳动，还可能会导致因为少注释了一些 host，导致测试结果不准确，从而影响到业务的进度
+However, some business domains share the same domain name across all environments and can only be distinguished by IP address. In that case, our host file would look like the following, and we'd switch environments by commenting/uncommenting the corresponding host entries. This invisibly adds a lot of repetitive work and may lead to inaccurate test results due to missed host entries, ultimately affecting business progress.
 
 ```
-# 预发布
+# Staging
 172.127.80.1 common-url.com
-# 测试环境
+# Testing
 172.127.230.16 common-url.com
 ```
 
-`Don't Repeat Yourself` 是程序开发中很重要的一个原则。实际上这完全可以上升到日常的工作中。重复修改 host 既不优雅，也不是长久之道。自动化或者说至少可视化是当务之急
+`Don't Repeat Yourself` is an important principle in software development, and it absolutely applies to daily work as well. Repeatedly modifying host files is neither elegant nor sustainable. Automation, or at least visualization, is urgently needed.
 
-## 解决方案
+## Solutions
 
-主要解决思路有两个：
+There are two main approaches:
 
-1. 自动化脚本修改系统内的 host 文件
-2. 浏览器插件转发浏览器的请求
+1. Automated scripts to modify the system host file
+2. Browser extensions to redirect browser requests
 
-### 自动化脚本
+### Automated Scripts
 
-关于自动化脚本修改暂不展开。大体思路如下:
+We won't go into detail about automated scripts here. The general idea is:
 
-1. 创建 `env1.txt` `env2.txt`等不同环境的 host 文件
-2. 创建一个自动化脚本，用系统管理员权限修改系统内的 host 文件，通过单行命令控制 `hosts` 的清除与写入
+1. Create separate host files like `env1.txt`, `env2.txt` for different environments
+2. Create an automation script that modifies the system host file with administrator privileges, controlling host clearing and writing through a single command
 
-甚至可以直接创建一个应用，动态切换 host，比如 [SwitchHosts](https://github.com/oldj/SwitchHosts)
+You could even create a dedicated application for dynamic host switching, such as [SwitchHosts](https://github.com/oldj/SwitchHosts).
 
-这种方式的优点是方便，快速。可以全局接管 `hosts`
+The advantage of this approach is convenience and speed. It can globally manage `hosts`.
 
-缺点是修改 `hosts` 文件需要系统管理员权限，这样在一些场景下，如果用户无法获取系统管理员权限，那么就无法做到修改 `hosts`
+The downside is that modifying the `hosts` file requires system administrator privileges. In some scenarios, if the user cannot obtain admin privileges, they won't be able to modify `hosts`.
 
-### 浏览器插件开发
+### Browser Extension Development
 
-浏览器插件开发的思路很简单，通过 [`Chrome.proxy`](https://developer.chrome.com/docs/extensions/reference/proxy) 提供的 API，我们可以通过 `mode=pac_script` 的模式，使用 `PacScript` 进行 `hosts` 代理
+The idea behind browser extension development is straightforward. Through the API provided by [`Chrome.proxy`](https://developer.chrome.com/docs/extensions/reference/proxy), we can use `PacScript` in `mode=pac_script` mode to proxy `hosts`.
 
-而且由于插件开发的特点~~（其实就是个富 api 的网页）~~，相比自动化脚本，插件可以实现更好的可视化效果
+Moreover, due to the nature of extension development ~~(it's basically a feature-rich web page)~~, extensions can achieve better visualization compared to automated scripts.
 
-#### 前置知识
+#### Prerequisites
 
-浏览器插件可以通过不同的文件和功能配置实现不同的效果，但通常有以下几个组成部分：
+Browser extensions can achieve different effects through various file and feature configurations, but they typically consist of the following components:
 
 - The manifest
 
-`manifest.json` 是一个插件系统必须要有的文件，且必须处于插件的根目录下。这个文件定义了 `metadata` , `resources` , `permissions` , `background files` 等信息
+`manifest.json` is a required file for any extension system and must be located in the extension's root directory. This file defines `metadata`, `resources`, `permissions`, `background files`, and other information.
 
 - The service worker
 
-插件的 `service worker` 可以监听浏览器的[事件](https://developer.chrome.com/docs/extensions/reference/)，比如导航、书签变更、或者关闭标签页等。需要注意的是，`service worker` 虽然可以监听事件，但无法与页面内容发生交互，那是 `content script` 的任务
+The extension's `service worker` can listen to browser [events](https://developer.chrome.com/docs/extensions/reference/), such as navigation, bookmark changes, or tab closures. Note that while the `service worker` can listen to events, it cannot interact with page content — that's the job of `content scripts`.
 
 - Content scripts
 
-顾名思义，`content script` 是注入页面的脚本。可以直接读取或操作页面的 DOM。我们常见的一些插件比如[划词翻译](https://hcfy.app/)，就是通过这个功能实现页面内容替换的。 `content script` 只能调用部分[Chrome APIs](https://developer.chrome.com/docs/extensions/reference/)，但是可以通过与 `service worker` 的通信使用其他的 api
+As the name suggests, `content scripts` are scripts injected into pages. They can directly read or manipulate the page's DOM. Some common extensions like [Immersive Translate](https://hcfy.app/) use this feature to replace page content. `Content scripts` can only call a subset of [Chrome APIs](https://developer.chrome.com/docs/extensions/reference/), but can access other APIs through communication with the `service worker`.
 
 - The popup and other pages
 
-一个插件可以包括很多 HTML 页面，例如 popup 弹窗，options 选项页面，仍以划词翻译插件为例，鼠标左键打开的就是 popup 弹窗
+An extension can include many HTML pages, such as popup windows and options pages. Using the Immersive Translate extension as an example, left-clicking opens the popup window:
 
 ![popup](./assets/eg_popup.jpg)
 
-鼠标右键点击打开的是额外配置的 options page 的入口
+Right-clicking opens the entry to the additionally configured options page:
 
 ![other](./assets/eg_other.jpg)
 
-根据上述的条件，我们需要开发的插件其实很简单，主要实现功能有两个：
+Based on the above requirements, the extension we need to develop is actually quite simple, with two main features:
 
-1. 通过 popup 编辑 hosts 列表
-2. 通过 Chrome APIs 提供的功能代理 host
+1. Edit the hosts list through the popup
+2. Proxy hosts through Chrome APIs
 
-不需要修改页面内容，也不需要后台运行服务。因此不需要 `service worker` 和 `content script` 。主要通过 `popup and other pages` 功能。因此我们构想的 host extension 的 `manifest` 初步如下
+No page content modification or background services are needed. Therefore, we don't need `service worker` or `content scripts`. We mainly use the `popup and other pages` functionality. So the initial `manifest` for our host extension looks like this:
 
 ```json
 {
@@ -94,20 +96,20 @@ outline: deep
     "48": "icons/logo-48.png",
     "128": "icons/logo-128.png"
   },
-  // 控制 icon 点击行为
+  // Controls icon click behavior
   "action": {
     "default_icon": "icons/logo-16.png",
     "default_title": "Host Manager",
     "default_popup": "index.html"
   },
-  // 扩展权限
+  // Extension permissions
   "permissions": ["proxy"]
 }
 ```
 
-#### 开发思路
+#### Development Approach
 
-由于涉及页面开发，现代 web 当然应该使用框架，方便以后拓展。以 vite@4.2.0 和 vue@3.2.47 为例，不包含脚手架文件等内容的项目架构应该如下
+Since page development is involved, modern web development should naturally use a framework for future extensibility. Using vite@4.2.0 and vue@3.2.47 as an example, the project structure (excluding scaffolding files) should look like this:
 
 ```
 // source
@@ -127,7 +129,7 @@ outline: deep
     └─style.css
 ```
 
-这样在 `src` 目录内编写 popup 文件，在 `build` 之后，编译结果和 public 文件都会被移动到 `dist` 目录内，这时的 `dist` 目录就是用来调试的 extension 源文件。
+Write popup files in the `src` directory. After `build`, the compiled output and public files will be moved to the `dist` directory, which then serves as the extension source files for debugging.
 
 ```
 ├─index.html
@@ -142,13 +144,13 @@ outline: deep
     └─logo.png
 ```
 
-#### 插件流程
+#### Extension Workflow
 
-具体的页面开发略去不提，唯一需要注意的一点是，我们希望插件能够记录用户的 host 信息，而并非每次打开浏览器都需要重新输入 host，因此在进行数据管理的时候，需要通过 `localStorage` 进行持久化处理。当然，结合 `@vueuse/core` 和 `pinia` ，这些行为都可以自动进行。
+We'll skip the specific page development details. The only thing worth noting is that we want the extension to remember the user's host information rather than requiring re-entry every time the browser opens. Therefore, data management needs to use `localStorage` for persistence. Of course, with `@vueuse/core` and `pinia`, this can all be handled automatically.
 
-而整个插件的核心在于对 proxy 的配置。根据[官方文档](https://developer.chrome.com/docs/extensions/reference/proxy/)，首先需要在 `permissions` 中加入对应权限字段 `proxy`。
+The core of the entire extension lies in the proxy configuration. According to the [official documentation](https://developer.chrome.com/docs/extensions/reference/proxy/), we first need to add the `proxy` permission field to `permissions`.
 
-关于 `proxy` ，Chrome 提供了多种模式：
+Regarding `proxy`, Chrome provides several modes:
 
 - direct
 - auto_detect
@@ -156,18 +158,18 @@ outline: deep
 - fixed_servers
 - system
 
-`direct` 直接请求，`system` 使用系统代理，`fixed_servers` 主要用于将所有请求转发到一个固定的地址，这个特性通常被用作 **魔法插件** 的一部分，比如 [SwitchyOmega](https://github.com/FelisCatus/SwitchyOmega/)。`auto_detect` 虽然也是通过 PAC 脚本解析，但是该选项的脚本必须是‘can be downloaded at http://wpad/wpad.dat’，并且不允许其他配置。
+`direct` makes direct requests, `system` uses the system proxy, and `fixed_servers` is mainly used to forward all requests to a fixed address — this feature is commonly used as part of **proxy extensions** like [SwitchyOmega](https://github.com/FelisCatus/SwitchyOmega/). `auto_detect` also resolves through PAC scripts, but the script must be 'downloadable at <http://wpad/wpad.dat>' and allows no other configuration.
 
-因此我们选择的是 `pac_script` 这种模式。该模式允许我们自定义来自 _数据字面量_ 或者 _URL_ 的脚本，因此也是最适合我们想要实现的 _自定义 host_ 的功能的一种模式。
+Therefore, we chose the `pac_script` mode. This mode allows us to customize scripts from _data literals_ or _URLs_, making it the most suitable mode for implementing our _custom host_ functionality.
 
-至此，整个业务的流程已经完成了。
+At this point, the entire business workflow is complete:
 
-1. popup 页面，用户输入自定义 hosts
-2. 将 hosts 解析为可识别的 pacScript
-3. 使用 chrome api 进行解析
+1. Popup page where users input custom hosts
+2. Parse hosts into recognizable pacScript
+3. Use Chrome API for resolution
 
 ```typescript
-// 官方示例
+// Official example
 const config = {
   mode: 'pac_script',
   pacScript: {
@@ -184,29 +186,29 @@ chrome.proxy.settings.set({ value: config, scope: 'regular' }, function () {});
 
 #### PAC
 
-如果说插件的核心是 `proxy` 的配置，那么这个配置的核心就是 `pacScript` 的生成。那么到底什么是 `PAC`？ `PAC` 实际上是 `Proxy Auto Config` 的缩写，字面意义上理解，就是“代理自动配置”
+If the core of the extension is the `proxy` configuration, then the core of that configuration is `pacScript` generation. So what exactly is `PAC`? `PAC` stands for `Proxy Auto Config` — literally, "proxy auto-configuration."
 
-根据[mdn 的定义](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file)：
+According to [MDN's definition](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file):
 
 > A Proxy Auto-Configuration (PAC) file is a JavaScript function that determines whether web browser requests (HTTP, HTTPS, and FTP) go directly to the destination or are forwarded to a web proxy server.
 
-而根据[wikipediea](https://en.wikipedia.org/wiki/Proxy_auto-config)的定义：
+And according to [Wikipedia](https://en.wikipedia.org/wiki/Proxy_auto-config):
 
 > A proxy auto-config (PAC) file defines how web browsers and other user agents can automatically choose the appropriate proxy server (access method) for fetching a given URL
 
 ```javascript
-// PAC file 中的 function
+// Function in a PAC file
 function FindProxyForURL(url, host) {
   // code
 }
 ```
 
-这个函数的接收两个参数：`url` & `host`，需要注意的有两点：
+This function receives two parameters: `url` & `host`. Two important notes:
 
-1. 当请求地址为 `https` 时，`URL` 中的 `path` 和 `query` 会被剥离。在不同的浏览器以及用户自定义设置下，表现可能不一致。因此，对于 `https://test.com/url.html?type=add` 这样一个地址，最安全的方式是用 `test.com` 去匹配 `url` 字段，而非全量匹配
-2. `host` 是从 URL 中分解出来的字段。它跟 `URL` 中 `://` 以后到第一个 `:` 或 `/` 之间的字符串是等效的。也就是说，这个字段不会带有 `port` 的信息。
+1. When the request URL is `https`, the `path` and `query` in the `URL` will be stripped. Behavior may vary across different browsers and user settings. Therefore, for a URL like `https://test.com/url.html?type=add`, the safest approach is to match the `url` field using `test.com` rather than a full match.
+2. `host` is a field extracted from the URL. It is equivalent to the string between `://` and the first `:` or `/` in the `URL`. In other words, this field does not contain `port` information.
 
-PAC 文件中的 `FindProxyForURL` 函数可以返回一个字符串，该字符串需要满足以下任意格式：
+The `FindProxyForURL` function in a PAC file can return a string that must match one of the following formats:
 
 - DIRECT
 - PROXY host:port
@@ -215,21 +217,21 @@ PAC 文件中的 `FindProxyForURL` 函数可以返回一个字符串，该字符
 - HTTPS: host:port
 - SOCKS4 host:port, SOCKS5 host:port
 
-其中 `PROXY` 为自适应协议头
+Where `PROXY` is a protocol-adaptive header.
 
-##### 一个简单实现
+##### A Simple Implementation
 
-现在再回顾一下我们最初的目标：
+Let's revisit our original goal:
 
 ```
-# 自动切换以下两个地址
-# 预发布
+# Automatically switch between the following two addresses
+# Staging
 172.127.80.1 common-url.com
-# 测试环境
+# Testing
 172.127.230.16 common-url.com
 ```
 
-简易版的 `PAC` 函数实现如下
+A simple `PAC` function implementation:
 
 ```javascript
 // ipConfig.js
@@ -246,25 +248,25 @@ function FindProxyForURL(url, host) {
 }
 ```
 
-这样就可以实现对 `common-url.com` 这个地址的动态变化，只需要在 `popup` 页面上增加一个跟 `env` 变量相关的开关即可。当然这个 `PAC` 还有很多不成熟的地方：
+This enables dynamic switching for the `common-url.com` address — just add a toggle related to the `env` variable on the `popup` page. Of course, this `PAC` still has several immature aspects:
 
-1. 如果 `preIp` 或者 `testIp` 失效，那么请求会直接失败，最好增加一个例如 `SYSTEM` 的降级选项
-2. 对于常规页面的 `host` 设置，一般涉及的应用层协议为 `http` 以及 `https`。当前方法会代理所有可能的应用层协议，比如 `ftp`
-3. 对于 `localhost` ，走 `SYSTEM` proxy 会导致无法访问
+1. If `preIp` or `testIp` becomes invalid, the request will fail directly. It's better to add a fallback option like `SYSTEM`.
+2. For regular page `host` settings, the application-layer protocols involved are typically `http` and `https`. The current method proxies all possible application-layer protocols, including `ftp`.
+3. For `localhost`, going through `SYSTEM` proxy will make it inaccessible.
 
-在此基础上完善方法
+Let's improve the method:
 
 ```javascript
 // setProxy.js
 const env = 'pre';
 function FindProxyForURL(url, host) {
   if (shExpMatch(url, 'http:*') || shExpMatch(url, 'https:*')) {
-    // 仅代理 http https
+    // Only proxy http and https
     if (host === 'localhost') {
-      // 特殊处理 localhost
+      // Special handling for localhost
       return 'DIRECT';
     } else {
-      // 增加 fallback
+      // Add fallback
       return `PROXY ${getIpByEnv(env)}; SYSTEM`;
     }
   } else {
@@ -273,18 +275,18 @@ function FindProxyForURL(url, host) {
 }
 ```
 
-##### 预定义函数
+##### Predefined Functions
 
-`FindProxyForURL` 方法中的 `shExpMatch(str, shexp)` 是一种 预定义函数 _predefined function_，用法可以参考[mdn](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file#shexpmatch)，用于判断一个 `str` 是否匹配给出的 `shexp` shell expression。
+The `shExpMatch(str, shexp)` used in the `FindProxyForURL` method is a _predefined function_. Its usage can be found on [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file#shexpmatch), used to determine whether a `str` matches a given `shexp` shell expression.
 
-借助预定义函数，我们可以实现更多配置选项，比如 `isPlainHostName(host)`，判断 `host` 是否为非域名型 hostname.
+With predefined functions, we can implement more configuration options. For example, `isPlainHostName(host)` determines whether a `host` is a non-domain-style hostname:
 
 ```javascript
 isPlainHostName('www.mozilla.org'); // false
 isPlainHostName('www'); // true
 ```
 
-再比如，在实际操作中，我们可以借用了预定义函数中的 `localHostOrDomainIs()` 来匹配所有 `sub domain` 的地址
+Another example: in practice, we can use the predefined function `localHostOrDomainIs()` to match all `sub domain` addresses:
 
 ```javascript
 localHostOrDomainIs('www.mozilla.org', 'www.mozilla.org'); // true (exact match)
@@ -293,14 +295,17 @@ localHostOrDomainIs('www.google.com', 'www.mozilla.org'); // false (domain name 
 localHostOrDomainIs('home.mozilla.org', 'www.mozilla.org'); // false (hostname mismatch)
 ```
 
-:::tip 自定义 url 处理函数
+:::tip Custom URL Handler Functions
 
-尽管 `FindProxyForURL` 为我们提供了许多常用的 `内置函数 (predefined functions)`. 我们仍然可以通过自定义函数扩展 `PAC file` 的能力
+Although `FindProxyForURL` provides many commonly used `predefined functions`, we can still extend the capabilities of a `PAC file` through custom functions.
 
 ```javascript
 function isNumericIP(host) {
   // A regular expression that matches a valid IP address in dotted-decimal notation
-  var ipRegex = new RegExp('^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$', 'g');
+  var ipRegex = new RegExp(
+    '^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}',
+    'g'
+  );
   // Test the host against the regular expression and return the result
   return ipRegex.test(host);
 }
@@ -313,59 +318,59 @@ function FindProxyForURL(url, host) {
 }
 ```
 
-可以通过 [PAC 在线测试工具](https://thorsen.pm/proxyforurl) 测试编写的 `PAC file` 是否可用
+You can use the [PAC Online Testing Tool](https://thorsen.pm/proxyforurl) to test whether your `PAC file` works correctly.
 
 :::
 
-#### https
+#### HTTPS
 
-插件的初步开发到此基本就结束了。综合使用的技术回顾一下代理流程
+The initial development of the extension is basically complete at this point. Let's review the proxy workflow with the technologies used:
 
-1. 使用 `vue` + `tailwindcss` 开发 `popup` 页面，在该页面内编辑对应的 `hosts` 内容
-2. 使用 `pinia` + `vueuse` 对 `hosts` 进行实时更新和持久化
-3. 将 `hosts` 解析后，根据解析结果生成对应的 `FindProxyForURL` 函数，调用 `Chrome api`，更新代理
+1. Develop the `popup` page using `vue` + `tailwindcss` to edit `hosts` content
+2. Use `pinia` + `vueuse` for real-time updates and persistence of `hosts`
+3. After parsing `hosts`, generate the corresponding `FindProxyForURL` function and call the `Chrome API` to update the proxy
 
-按照结论来说， `FindProxyForURL` 函数中已经代理了 https，那么我们在输入任意地址，只要域名匹配，应该就能够成功代理。但是实际上输入 `https` 的时候，是无法正确代理的。 ![https_fail](./assets/eg_httpsfail.jpg)
+In theory, since `FindProxyForURL` already proxies https, entering any address with a matching domain should successfully proxy. However, in practice, `https` cannot be correctly proxied. ![https_fail](./assets/eg_httpsfail.jpg)
 
-原因在于 https 本身的性质和 [PAC](####PAC)的原理。
+The reason lies in the nature of https itself and the principles of [PAC](####PAC).
 
-回顾 `PAC` 的定义，实际上是浏览器通过代理对地址进行转发
+Recall the definition of `PAC` — the browser essentially forwards addresses through a proxy.
 
-假设我们配置的是本地代理
+Suppose we configure a local proxy:
 
 ```
 SOCK5 127.0.0.1:7890
 ```
 
-那么对于任意请求，浏览器会将请求转发给 `127.0.0.1:7890`，随后 `7890` 服务器将请求进行二次转发，获取返回的结果
+For any request, the browser forwards it to `127.0.0.1:7890`, and then the `7890` server performs a secondary forward to obtain the response.
 
-那么对于如下 `host`
+For the following `host`:
 
 ```
 192.0.200.1 test.com
 ```
 
-我们解析出来的 `PAC Rule` 将是 `PROXY 192.0.200.1` ，当请求 `http://test.com` 这个地址时，会根据规则代理到 `http://192.0.200.1`，而转发的服务器 `http://192.0.200.1` 直接对响应进行返回，没有进行二次转发，进而实现与`DNS`解析类似的效果。
+The parsed `PAC Rule` would be `PROXY 192.0.200.1`. When requesting `http://test.com`, it gets proxied to `http://192.0.200.1`, and the forwarding server `http://192.0.200.1` directly returns the response without secondary forwarding, achieving an effect similar to `DNS` resolution.
 
-而 https 的设计从本质上就不允许代理。因为 `HTTP over TLS` 出现的动机就是防止 [中间人攻击(Man-in-the-middle_attack)](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)，实现对交换数据的完整性和隐私性的保护。
+However, HTTPS is fundamentally designed to prevent proxying. Because the motivation behind `HTTP over TLS` is to prevent [Man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) and protect the integrity and privacy of exchanged data.
 
-这里可能有两个小问题：
+Two small questions may arise here:
 
-1. 为什么系统级别的 https 是可以通过 http 进行代理？比如一些魔法工具进行命令行代理时候的命令是 `set http_proxy=http://127.0.0.1:7890 & set https_proxy=http://127.0.0.1:7890`
-2. 为什么浏览器中通过 `SOCKS` 可以进行 `https` 的代理？这两个问题还有待研究
+1. Why can system-level HTTPS be proxied through HTTP? For example, some proxy tools use commands like `set http_proxy=http://127.0.0.1:7890 & set https_proxy=http://127.0.0.1:7890`
+2. Why can `SOCKS` proxy `https` in browsers? These questions still need further research.
 
-现在根据分析结果发现，我们在浏览器中借助 `PAC Rules` 将 `https://test.com` 转发至 `http://192.0.200.1` 的行为本身就是一种“中间人”行为。因此将 `https` 转发到基于 `https` 或者 `http` 的服务器代理，必然无法成功
+Based on our analysis, forwarding `https://test.com` to `http://192.0.200.1` via `PAC Rules` in the browser is itself a "man-in-the-middle" behavior. Therefore, forwarding `https` to an `https` or `http` server proxy will inevitably fail.
 
-这也是为什么系统级的 [SwitchHosts](https://github.com/oldj/SwitchHosts) 项目核心实现 [setSystemHosts.ts](https://github.com/oldj/SwitchHosts/blob/master/src/main/actions/hosts/setSystemHosts.ts) 直接写入系统级的 hosts 文件不会有这种问题
+This is why system-level projects like [SwitchHosts](https://github.com/oldj/SwitchHosts), whose core implementation [setSystemHosts.ts](https://github.com/oldj/SwitchHosts/blob/master/src/main/actions/hosts/setSystemHosts.ts) directly writes to the system-level hosts file, don't have this problem.
 
-SwitchHosts 这类系统级的软件直接修改了 `hosts` 文件，在**真正意义**上改变了系统对 DNS 的解析；而浏览器插件本质上是一种代理请求拦截，系统对于 DNS 并没有发生改变。
+System-level software like SwitchHosts directly modifies the `hosts` file, **truly** changing the system's DNS resolution. Browser extensions, on the other hand, are essentially proxy request interceptions — the system's DNS remains unchanged.
 
-##### 解决方案设想
+##### Solution Ideas
 
-1. 先将 `https` 请求转化为 `http` 请求，再走代理。
+1. First convert `https` requests to `http` requests, then go through the proxy.
 
-- v2 版本解决方案，通过 [webRequest api](https://developer.chrome.com/docs/extensions/reference/webRequest/) 用来进行阻塞请求，同步修改
-- v3 版本引入 [declarativeNetRequest](https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/) 用来以特定的声明式规则 _阻塞_ 以及 _修改_ 网络请求，注意如果需要进行 `host` 级别的重定向，在 `manifest.json` 中 `permission` 需要额外申请 `declarativeNetRequestWithHostAccess`
+- v2 solution: use the [webRequest API](https://developer.chrome.com/docs/extensions/reference/webRequest/) for blocking requests and synchronous modification
+- v3 introduces [declarativeNetRequest](https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/) for _blocking_ and _modifying_ network requests with specific declarative rules. Note that for `host`-level redirects, you need to additionally request `declarativeNetRequestWithHostAccess` permission in `manifest.json`
 
 ```javascript
 chrome.webRequest.onBeforeRequest.addListener(
@@ -407,37 +412,37 @@ chrome.declarativeNetRequest.updateDynamicRules(
 );
 ```
 
-这个方案可以解决绝大部分情况，但是会有一些特殊情况无法解决
+This solution handles most cases, but there are some edge cases it cannot resolve:
 
-- iframe 重定向报错
+- iframe redirect errors
 
-  考虑一个页面 `https://www.test.com`，页面内部有一个 `iframe` `https://a.test.com`，对于这两个页面：
+  Consider a page `https://www.test.com` with an internal `iframe` `https://a.test.com`. For both pages:
 
-  - 都配置了 `host`
-  - `https://www.test.com` 和 `https://a.test.com` 都依赖于 `test.com` 域名下的 `cookie`
+  - Both have `host` configured
+  - Both `https://www.test.com` and `https://a.test.com` depend on cookies under the `test.com` domain
 
-  这时候打开页面会发现， `iframe` 的请求会发生错误，如果 cookie 是用来权限认证的，页面则会直接显示权限认证失败之类的错误码。
+  When opening the page, the `iframe` request will error. If the cookie is used for authentication, the page will directly show an authentication failure error code.
 
-  原因：iframe 中重定向后没有正确携带 Cookie。本质上与 [HTTP Cookie 策略](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)和浏览器的[cookie 机制](https://chromestatus.com/feature/5088147346030592)有关，导致 iframe 的导航链接中的 set-cookie 会被浏览器阻止，因而使得当前 iframe 没有 cookie。如果请求中的 `SameSite=Strict` 或者 `SameSite=Lax`（如果没有设置，chrome 会默认为 `SameSite=Lax`），那么浏览器就会阻止非顶级的请求 set-cookie，导致请求没有携带 cookie。当然如果都是 https 请求是没有问题，但是在重定向为 http 之后，就会出现错误
+  Reason: The iframe doesn't correctly carry cookies after redirection. This is fundamentally related to [HTTP Cookie policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies) and the browser's [cookie mechanism](https://chromestatus.com/feature/5088147346030592), causing the browser to block set-cookie in the iframe's navigation link, leaving the iframe without cookies. If the request has `SameSite=Strict` or `SameSite=Lax` (Chrome defaults to `SameSite=Lax` if not set), the browser will block non-top-level set-cookie requests, resulting in requests without cookies. This works fine with https requests, but errors occur after redirecting to http.
 
   > This Set-Cookie header didn't specify a 'SameSite" attribute and was defaulted to "SameSite=Lax," and was blocked becaus a cross-site response which was not the response to a top-level navigation. The Set-Cookie had to have been set with "Sam to enable cross-site usage.
 
-- 无限重定向
+- Infinite redirects
 
-  某些特定页面在设置了 `Upgrade-Insecure-Requests: 1` 的情况下可能会导致无限重定向的问题。当服务端返回 `Location` 的时候，`http` 请求会被重定向为 `https` 的 `Location`，而新的 `https` 地址会被 extension 重定向为 `http`，因而导致无限循环
+  Certain pages with `Upgrade-Insecure-Requests: 1` set may cause infinite redirect loops. When the server returns a `Location`, the `http` request gets redirected to an `https` `Location`, and the new `https` address gets redirected back to `http` by the extension, causing an infinite loop.
 
-  注：这个问题在无痕模式下不会产生。观察请求头 `Upgrade-Insecure-Requests: 1`仍然是存在的，推测是浏览器内部表现
+  Note: This issue doesn't occur in incognito mode. The `Upgrade-Insecure-Requests: 1` request header is still present, suggesting this is internal browser behavior.
 
-#### 成品
+#### Final Product
 
-把流程和技术点理清后，可以直接上 github 搜了，这种插件必然已经存在，但是出乎意料的是，插件并不多
+After clarifying the workflow and technical points, you can search directly on GitHub — such extensions must already exist. Surprisingly though, there aren't many.
 
-举例来说，有两个比较有代表性(star 较多)的插件 [host-switch-plus](https://github.com/Riant/host-switch-plus) 和 [awesome-host-manager](https://github.com/keelii/awesome-host-manager)
+For example, two relatively representative (higher star count) extensions are [host-switch-plus](https://github.com/Riant/host-switch-plus) and [awesome-host-manager](https://github.com/keelii/awesome-host-manager).
 
-其中 `host-switch-plus` 已经从 Chrome WebStore 下架了，虽然 `awesome-host-manager` 仍能从商店安装使用，但上一次 feat 更新也已经是四年前了，并且这两个插件技术相对较为老旧，本地调试困难， `manifest` 版本也还停留在 2 的版本
+`host-switch-plus` has already been delisted from the Chrome WebStore. While `awesome-host-manager` can still be installed from the store, its last feature update was four years ago. Both extensions use relatively outdated technology, are difficult to debug locally, and their `manifest` versions are still at version 2.
 
-于是干脆重开了一个项目，[HostsWitch](https://github.com/X-sky/HostsWitch)，使用 react+mui+jotai 开发
+So I started a new project from scratch: [HostsWitch](https://github.com/X-sky/HostsWitch), built with React + MUI + Jotai.
 
-#### 开发痛点
+#### Development Pain Points
 
-初次开发的时候只研究了架构，开发流程为直接开发静态页面，再通过 build+reload，更新浏览器插件进行联调。后来发现已经有对应的轮子了。。。可用脚手架[vitesse-webext](https://github.com/antfu/vitesse-webext/blob/main/README.md)
+During initial development, I only researched the architecture. The development workflow was to build static pages directly, then update the browser extension through build + reload for debugging. Later I discovered there were already existing scaffolding tools for this... such as [vitesse-webext](https://github.com/antfu/vitesse-webext/blob/main/README.md).

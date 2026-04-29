@@ -1,16 +1,22 @@
+---
+outline: deep
+title: "Web Performance Specifications"
+description: "Detailed explanation of Web Performance specifications, including Navigation Timing and Navigation Timing Level 2"
+---
+
 # Web Performance Specifications
 
 ## Navigation Timing - 2012
 
-为了帮助开发者更好地衡量页面性能，`W3C` 在 2012 年提出了 [Navigation Timing](https://www.w3.org/TR/navigation-timing)
+To help developers better measure page performance, `W3C` proposed [Navigation Timing](https://www.w3.org/TR/navigation-timing) in 2012.
 
-该标准提供了 `PerformanceTiming` `PerformanceNavigation` 接口，通过只读属性的方式，提供了完整的客户端延迟度量 （complete client-side latency measurements），具体内容可以查看 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/PerformanceTiming) 或者 [W3C Recommendation](https://www.w3.org/TR/navigation-timing/#sec-navigation-timing-interface)
+This standard provides the `PerformanceTiming` and `PerformanceNavigation` interfaces, offering complete client-side latency measurements through read-only properties. For details, see [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/PerformanceTiming) or the [W3C Recommendation](https://www.w3.org/TR/navigation-timing/#sec-navigation-timing-interface).
 
-标准细化的指标都存储在全局的 `performance` 上，可以直接通过 `const {navigation, timing} = window.performance` 的方式读取
+The detailed metrics defined by the standard are stored on the global `performance` object and can be read directly via `const {navigation, timing} = window.performance`.
 
-### 为什么需要 `Navigation Timing`
+### Why Navigation Timing is Needed
 
-假设有如下代码，旨在衡量页面的加载时间
+Consider the following code, intended to measure page load time:
 
 ```html
 <html>
@@ -32,41 +38,41 @@
 </html>
 ```
 
-实际上该脚本有一个明显的问题：它只会在 `script` 执行时才开始计算，而没有累计任何 *从服务端获取页面* 的时间
+This script has an obvious problem: it only starts measuring when the `script` executes, without accounting for any time spent *fetching the page from the server*.
 
-基于以上原因，`W3C` 基于页面的生命周期，在`PerformanceTiming` 和 `NavigationTiming` 中定义了包含了 `navigationStart` 在内的属性，方便衡量从前一个页面卸载开始的整个页面周期内页面加载耗时的各项指标
+For this reason, `W3C` defined properties including `navigationStart` in `PerformanceTiming` and `NavigationTiming` based on the page lifecycle, making it convenient to measure various page loading metrics throughout the entire page cycle starting from the previous page's unload.
 
-### `Navigation Timing` 的处理模型
+### Navigation Timing Processing Model
 
-`Performance Timing` 以及 `Navigation Timing` 准确来讲并不是直接的衡量指标，而是基于页面周期的 **时间点**
+`Performance Timing` and `Navigation Timing` are not direct measurement metrics per se, but rather **time points** based on the page lifecycle.
 
-如下图所示，整个生命周期经历了以下阶段
+As shown in the diagram below, the entire lifecycle goes through the following phases:
 
-1. 导航开始：记录 `navigationStart` 时间点
-2. 重定向处理：如果存在重定向，记录 `redirectStart` 和 `redirectEnd` 时间点
-3. `DNS` 查找：记录 `domainLookupStart` 和 `domainLookupEnd` 时间点
-4. `TCP` 连接：记录 `connectStart` 和 `connectEnd` 时间点
-5. 请求发送：记录 `requestStart` 时间点
-6. 响应接收：记录 `responseStart` 和 `responseEnd` 时间点
-7. `DOM` 处理：记录 `domLoading` `domInteractive` `domContentLoadedEventStart` `domContentLoadedEventEnd` 和 `domComplete` 时间点
-8. 页面加载：记录 `loadEventStart` 和 `loadEventEnd` 时间点
+1. Navigation start: Records the `navigationStart` time point
+2. Redirect processing: If redirects exist, records `redirectStart` and `redirectEnd` time points
+3. `DNS` lookup: Records `domainLookupStart` and `domainLookupEnd` time points
+4. `TCP` connection: Records `connectStart` and `connectEnd` time points
+5. Request sent: Records the `requestStart` time point
+6. Response received: Records `responseStart` and `responseEnd` time points
+7. `DOM` processing: Records `domLoading`, `domInteractive`, `domContentLoadedEventStart`, `domContentLoadedEventEnd`, and `domComplete` time points
+8. Page load: Records `loadEventStart` and `loadEventEnd` time points
 
-在不同的阶段中，用户代理 (User agents 多数情况下为 browsers)会将对应的时间点写入 `window.performance.timing` 和 `window.performance.navigation` 对象中，方便后续使用
+During different phases, user agents (mostly browsers) write the corresponding time points to the `window.performance.timing` and `window.performance.navigation` objects for subsequent use.
 
-![Navigation Timing 标准处理模型](./assets/process-model-navigation-timing.png)
+![Navigation Timing standard processing model](./assets/process-model-navigation-timing.png)
 
-*图片来源 <https://www.w3.org/TR/navigation-timing/#processing-model>*
+*Image source: <https://www.w3.org/TR/navigation-timing/#processing-model>*
 
 ::: warning
 
-1. 当 `window` 对象创建后，`window.performance.timing` 和 `window.performance.navigation` 才能被写入
-2. `window.performance.timing` 和 `window.performance.navigation` 可能被浏览器禁用，此时两者的值返回 `null`
+1. `window.performance.timing` and `window.performance.navigation` can only be written after the `window` object is created
+2. `window.performance.timing` and `window.performance.navigation` may be disabled by the browser, in which case both return `null`
 
 :::
 
-### 属性
+### Properties
 
-可以通过 `window.performance` 访问对应内容 `timing` 和 `navigation`
+Access corresponding content `timing` and `navigation` through `window.performance`:
 
 ```typescript
 interface PerformanceTiming {
@@ -113,27 +119,27 @@ interface Window {
 
 ::: warning
 
-需要注意的是 `Navigation Timing` 特性已被标注为[废弃](https://w3c.github.io/navigation-timing/#obsolete)，并不推荐使用。但由于其良好的兼容性（Chrome 6），仍有了解的必要
+Note that the `Navigation Timing` feature has been marked as [deprecated](https://w3c.github.io/navigation-timing/#obsolete) and is not recommended for use. However, due to its excellent compatibility (Chrome 6), it's still worth understanding.
 
 :::
 
 ## Navigation Timing Level 2
 
-目前在 `W3C` 议程上的是最新的 [Navigation Timing Level2 标准](https://www.w3.org/TR/navigation-timing-2/#abstract)。简而言之，该标准相对于 `Navigation Timing - 2012` 主要有以下改变：
+Currently on the `W3C` agenda is the latest [Navigation Timing Level 2 standard](https://www.w3.org/TR/navigation-timing-2/#abstract). In short, compared to `Navigation Timing - 2012`, this standard mainly introduces:
 
-1. 提供了更多的时间点和属性
-2. 提供协议支持
+1. More time points and properties
+2. Protocol support
 
-使用方式与 `Navigation Timing - 2012` 也有所不同，可以通过 [performance.getEntriesByType](https://developer.mozilla.org/en-US/docs/Web/API/Performance/getEntriesByType) 或者 [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) 获取到对应的属性
+The usage also differs from `Navigation Timing - 2012`. You can obtain corresponding properties through [performance.getEntriesByType](https://developer.mozilla.org/en-US/docs/Web/API/Performance/getEntriesByType) or [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
 
-`performance.getEntriesByType` 支持[多种类型的资源](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry/entryType)，通过指定 `type` 可以指定获取对应的 `performance` 数据
+`performance.getEntriesByType` supports [multiple resource types](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry/entryType). By specifying `type`, you can retrieve the corresponding `performance` data:
 
 ``` typescript
 const [navigationTl] = performance.getEntriesByType("navigation");
 const srcTimelines = performance.getEntriesByType("resource");
 ```
 
-需要注意的是，`performance.getEntriesByType` 不会通知到对应 `performanceNavigationTiming` 属性的变化，返回的是 `FrozenArray` 格式的 **调用时的** `performance timeline`。如果需要动态监听变化，应该使用 `PerformanceObserver`
+Note that `performance.getEntriesByType` does not notify changes to `performanceNavigationTiming` properties. It returns a `FrozenArray` format of the **current** `performance timeline` at the time of the call. To dynamically monitor changes, use `PerformanceObserver`:
 
 ```typescript
 function perfObserver(list, observer) {
@@ -151,48 +157,48 @@ observer.observe({ entryTypes: ["measure", "mark"] });
 
 ```
 
-::: details 变更详情，摘自 [w3c Editor's Draft](https://w3c.github.io/navigation-timing/#introduction)
+::: details Change details, excerpted from [W3C Editor's Draft](https://w3c.github.io/navigation-timing/#introduction)
 
-1. `Performance interface` 移动到单独的 [PERFORMANCE-TIMELINE-2](https://www.w3.org/TR/performance-timeline/) 标准中，支持该标准
-2. 建立在的 [RESOURCE-TIMING-2](https://www.w3.org/TR/resource-timing/) 基础上
-3. 支持 [HR-TIME-2](https://www.w3.org/TR/hr-time-2/)
-4. 支持 [RESOURCE-HINTS] 的预渲染技术
-5. 暴露自上次非重定向导航以来的重定向次数
-6. 暴露 [next hop network protocol](https://www.w3.org/TR/resource-timing/#dom-performanceresourcetiming-nexthopprotocol)
-7. 暴露 `transfer` 以及编解码的请求体大小
-8. 强制 `secureConnectionStart` 属性
+1. `Performance interface` moved to a separate [PERFORMANCE-TIMELINE-2](https://www.w3.org/TR/performance-timeline/) standard
+2. Built on [RESOURCE-TIMING-2](https://www.w3.org/TR/resource-timing/)
+3. Supports [HR-TIME-2](https://www.w3.org/TR/hr-time-2/)
+4. Supports [RESOURCE-HINTS] prerendering technology
+5. Exposes redirect count since the last non-redirect navigation
+6. Exposes [next hop network protocol](https://www.w3.org/TR/resource-timing/#dom-performanceresourcetiming-nexthopprotocol)
+7. Exposes `transfer` and encoded/decoded request body sizes
+8. Mandates the `secureConnectionStart` property
 
 :::
 
-### Level 2 处理模型
+### Level 2 Processing Model
 
-![Navigation Timing Level2 处理模型](./assets/process-model-navigation-timing-2.svg)
+![Navigation Timing Level 2 processing model](./assets/process-model-navigation-timing-2.svg)
 
-1. 导航开始：记录 `startTime` 和 `navigationStart` 时间点
-2. `Service Worker` ：如果存在 `Service Worker`，记录 `workerStart` 时间点
-3. 重定向处理：如果存在重定向，记录 `redirectStart` 和 `redirectEnd` 时间点，并更新 `redirectCount` 属性
-4. `DNS` 查找：记录 `domainLookupStart` 和 `domainLookupEnd` 时间点
-5. `TCP` 连接：记录 `connectStart` `secureConnectionStart`（如果适用）和 `connectEnd` 时间点
-6. 请求发送：记录 `requestStart` 时间点
-7. 响应接收：记录 `responseStart` `responseEnd` `transferSize` `encodedBodySize` 和 `decodedBodySize` 时间点
-8. 底层协议：记录 `nextHopProtocol` 属性
-9. `DOM` 处理：记录 `domInteractive` `domContentLoadedEventStart` `domContentLoadedEventEnd` `domComplete`时间点
-10. 页面加载：记录 `loadEventStart` 和 `loadEventEnd` 时间点
-11. 预渲染：如果存在预渲染，记录 `prerenderStart` 和 `prerenderEnd` 时间点
+1. Navigation start: Records `startTime` and `navigationStart` time points
+2. `Service Worker`: If a Service Worker exists, records the `workerStart` time point
+3. Redirect processing: If redirects exist, records `redirectStart` and `redirectEnd` time points, and updates the `redirectCount` property
+4. `DNS` lookup: Records `domainLookupStart` and `domainLookupEnd` time points
+5. `TCP` connection: Records `connectStart`, `secureConnectionStart` (if applicable), and `connectEnd` time points
+6. Request sent: Records the `requestStart` time point
+7. Response received: Records `responseStart`, `responseEnd`, `transferSize`, `encodedBodySize`, and `decodedBodySize` time points
+8. Underlying protocol: Records the `nextHopProtocol` property
+9. `DOM` processing: Records `domInteractive`, `domContentLoadedEventStart`, `domContentLoadedEventEnd`, and `domComplete` time points
+10. Page load: Records `loadEventStart` and `loadEventEnd` time points
+11. Prerendering: If prerendering exists, records `prerenderStart` and `prerenderEnd` time points
 
-对比 [Navigation Timing 2012](#navigation-timing---2012) 可以发现，`Navigation Timing Level2` 的记录颗粒度明显更细致，并且多了诸如 `Service Worker` 等
+Comparing with [Navigation Timing 2012](#navigation-timing---2012), `Navigation Timing Level 2` clearly has finer granularity and adds features like `Service Worker` support.
 
-### 属性
+### Properties
 
 ```typescript
-/** 导航类型 */
+/** Navigation type */
 enum NavigationTimingType {
     "navigate",
     "reload",
     "back_forward",
     "prerender"
 };
-/** 未存储原因 */
+/** Not restored reasons */
 interface NotRestoredReasons {
   readonly src?: string;
   readonly id?: string;

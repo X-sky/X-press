@@ -2,6 +2,8 @@
 import { computed, ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter, withBase } from 'vitepress'
 import { useTheme } from '../../composables/useTheme'
+import { useI18n } from '../../composables/useI18n'
+import LanguageSwitcher from './LanguageSwitcher.vue'
 
 /**
  * MobileNav - Mobile navigation component (visible below 768px)
@@ -25,33 +27,40 @@ const toggleBtnRef = ref<HTMLElement | null>(null)
 const route = useRoute()
 const router = useRouter()
 
+// --- i18n ---
+const { t, localePath, locale } = useI18n()
+
 const isPortfolioMode = computed(() => {
   const path = route.path
   return (
     path === '/' ||
     path === '/index.html' ||
+    path === '/zh/' ||
+    path === '/zh/index.html' ||
     path === withBase('/') ||
-    path === withBase('/index.html')
+    path === withBase('/index.html') ||
+    path === withBase('/zh/') ||
+    path === withBase('/zh/index.html')
   )
 })
 
 // --- Theme ---
 const { isDark, toggleTheme } = useTheme()
 
-// --- Portfolio nav links ---
-const portfolioLinks = [
-  { title: 'About', href: '#about' },
-  { title: 'Blog', href: '#blog' },
-  { title: 'Projects', href: '#project' },
-  { title: 'Contact', href: '#contact' },
-]
+// --- Portfolio nav links (i18n) ---
+const portfolioLinks = computed(() => [
+  { title: t('nav.about'), href: '#about' },
+  { title: t('nav.blog'), href: '#blog' },
+  { title: t('nav.projects'), href: '#project' },
+  { title: t('nav.contact'), href: '#contact' },
+])
 
-// --- Blog category links ---
-const blogCategories = [
-  { title: 'Frontend', link: '/coding/frontend/auto-hosts/index.html' },
-  { title: 'Python', link: '/coding/python/markdowns/pythonCrashCourse/index.html' },
-  { title: 'Others', link: '/coding/others/shortcuts/index.html' },
-]
+// --- Blog category links (i18n) ---
+const blogCategories = computed(() => [
+  { title: t('nav.frontend'), link: localePath('/coding/frontend/auto-hosts/index.html') },
+  { title: t('nav.python'), link: localePath('/coding/python/markdowns/pythonCrashCourse/index.html') },
+  { title: t('nav.others'), link: localePath('/coding/others/shortcuts/index.html') },
+])
 
 // --- Toggle menu ---
 function toggleMenu() {
@@ -83,7 +92,7 @@ function navigateTo(link: string) {
 // --- Navigate home ---
 function goHome() {
   closeMenu()
-  router.go(withBase('/'))
+  router.go(withBase(localePath('/')))
 }
 
 // --- Active blog category detection ---
@@ -202,9 +211,9 @@ watch(() => route.path, () => {
             <a
               href="javascript:void(0)"
               class="mobile-nav__link mobile-nav__link--accent"
-              @click.prevent="navigateTo('/coding/frontend/auto-hosts/index.html')"
+              @click.prevent="navigateTo(localePath('/coding/frontend/auto-hosts/index.html'))"
             >
-              Coding
+              {{ t('nav.coding') }}
               <svg
                 class="mobile-nav__link-arrow"
                 width="16"
@@ -243,7 +252,7 @@ watch(() => route.path, () => {
                 <path d="M19 12H5" />
                 <path d="m12 19-7-7 7-7" />
               </svg>
-              Home
+              {{ t('nav.home') }}
             </a>
             <div class="mobile-nav__separator" aria-hidden="true" />
             <a
@@ -259,7 +268,7 @@ watch(() => route.path, () => {
           </template>
         </div>
 
-        <!-- Theme toggle -->
+        <!-- Theme toggle + Language switcher -->
         <div class="mobile-nav__footer">
           <button
             class="mobile-nav__theme-btn"
@@ -305,9 +314,10 @@ watch(() => route.path, () => {
               <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
             </svg>
             <span class="mobile-nav__theme-label">
-              {{ isDark ? 'Light Mode' : 'Dark Mode' }}
+              {{ isDark ? t('nav.lightMode') : t('nav.darkMode') }}
             </span>
           </button>
+          <LanguageSwitcher mode="block" />
         </div>
       </nav>
     </Transition>

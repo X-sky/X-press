@@ -18,8 +18,10 @@
  */
 import { ref } from 'vue'
 import { useGsapAnimation } from '../../composables/useGsapAnimation'
+import { useI18n } from '../../composables/useI18n'
 
 const sectionRef = ref<HTMLElement | null>(null)
+const { t } = useI18n()
 
 useGsapAnimation(sectionRef, {
   setup({ el, gsap }) {
@@ -123,7 +125,7 @@ useGsapAnimation(sectionRef, {
         class="flex text-xs group-hover:text-accentColor font-light tracking-[0.3em] items-center gap-2 dark:text-gray-400 text-gray-600"
         style="writing-mode: vertical-lr;"
       >
-        Contact me
+        {{ t('social.contactMe') }}
       </a>
       <div class="h-24 w-[0.4px] bg-gray-400 group-hover:bg-accentColor" />
     </div>
@@ -135,7 +137,7 @@ useGsapAnimation(sectionRef, {
         aria-label="View Projects"
         class="flex items-center gap-2 dark:text-gray-400 text-gray-600 hover:text-accentColor dark:hover:text-accentColor"
       >
-        <span class="text-sm tracking-widest">View Project</span>
+        <span class="text-sm tracking-widest">{{ t('social.viewProject') }}</span>
         <!-- Arrow right icon -->
         <svg
           width="15"

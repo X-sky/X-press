@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useGsapAnimation } from '../../composables/useGsapAnimation'
+import { useI18n } from '../../composables/useI18n'
+
+const { t } = useI18n()
 
 const sectionRef = ref<HTMLElement | null>(null)
 
@@ -37,7 +40,7 @@ useGsapAnimation(sectionRef, {
       <div
         class="text-animation dark:bg-[linear-gradient(#fff,rgba(255,255,255,.6))] inline-block text-black dark:text-transparent bg-clip-text leading-none text-4xl md:text-6xl font-semibold"
       >
-        Welcome to
+        {{ t('hero.welcome') }}
       </div>
     </div>
 
@@ -57,7 +60,7 @@ useGsapAnimation(sectionRef, {
     <div
       class="bio-animation dark:bg-[linear-gradient(#fff,rgba(255,255,255,.6))] inline-block text-black dark:text-transparent bg-clip-text text-md md:text-lg"
     >
-      A stage where enthusiasm meets technology.
+      {{ t('hero.tagline') }}
     </div>
 
     <!-- Contact Me button -->
@@ -66,7 +69,7 @@ useGsapAnimation(sectionRef, {
       aria-label="Contact Me"
       class="contact_me_btn px-4 py-[6px] shadow-md mt-10 md:mt-3 group flex items-center gap-2"
     >
-      <div class="dark:text-black relative z-[3] text-sm">Contact Me</div>
+      <div class="dark:text-black relative z-[3] text-sm">{{ t('hero.contactMe') }}</div>
       <span class="sr-only">Contact Me</span>
       <div class="contact_me_btn_overlay group-hover:opacity-100" />
       <div class="relative group overflow-hidden w-4 z-[3]">

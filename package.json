@@ -6,18 +6,21 @@
     "@types/node": "^18.18.13",
     "@unocss/preset-wind3": "^66.5.1",
     "consola": "^3.2.3",
+    "fast-check": "^4.7.0",
     "fast-glob": "^3.3.2",
     "fs-extra": "^11.2.0",
     "tsx": "^4.7.0",
     "typescript": "^5.3.2",
     "unocss": "^66.5.1",
-    "vitepress": "1.6.3"
+    "vitepress": "1.6.3",
+    "vitest": "^2.1.9"
   },
   "scripts": {
     "dev": "pnpm prepare && vitepress dev",
     "build": "pnpm prepare && vitepress build",
     "preview": "vitepress preview",
-    "prepare": "tsx ./scripts/python-prepare"
+    "prepare": "tsx ./scripts/python-prepare",
+    "test": "vitest --run"
   },
   "dependencies": {
     "gsap": "^3.12.7",

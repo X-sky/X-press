@@ -1,29 +1,31 @@
 ---
 outline: deep
+title: "About Text Justify Alignment"
+description: "Issues with CSS text-align:justify and iOS compatibility solutions"
 ---
 
-# 关于文本内容两端对齐
+# About Text Justify Alignment
 
-`text-align:justify` 这个 css 属性是用来将盒子内部的行内内容相对父元素两端对齐。一般情况下，直接使用即可达到效果。但有两点需要注意：
+The CSS property `text-align:justify` is used to justify inline content within a box relative to the parent element. In most cases, simply using it achieves the desired effect. However, there are two things to note:
 
-- 单行文本时无法两端对齐
-- ios 下可能会无法生效
+- Single-line text cannot be justified
+- It may not work on iOS
 
-## 单行文本对齐
+## Single-Line Text Alignment
 
-文本内容仅一行时，`text-align`不会处理最后一行的行内元素。因此 `text-align: justify` 看起来就像是没有生效一样。
+When text content is only one line, `text-align` does not process the last line of inline elements. Therefore, `text-align: justify` appears as if it has no effect.
 
-### text-align-last 属性
+### The text-align-last Property
 
-这时可以增加 `text-align-last: justify`强制让最后一行也两端对齐。
+In this case, you can add `text-align-last: justify` to force the last line to also be justified.
 
-![单行文本两侧对齐](./assets/image-20230421172249429.png)
+![Single-line text justify alignment](./assets/image-20230421172249429.png)
 
-**缺点**：`text-align-last: justify` 在 safari 16 以下(Released 2022-09-12)以下是[**不支持**](https://developer.mozilla.org/en-US/docs/Web/CSS/text-align-last#browser_compatibility)的
+**Drawback**: `text-align-last: justify` is [**not supported**](https://developer.mozilla.org/en-US/docs/Web/CSS/text-align-last#browser_compatibility) in Safari versions below 16 (Released 2022-09-12).
 
-### 伪元素
+### Pseudo-elements
 
-要实现类似 `text-align-last: justify` 的效果也可以通过补充一个伪元素，来让文本强制换行，变为多行文本
+To achieve an effect similar to `text-align-last: justify`, you can also add a pseudo-element to force the text to wrap, turning it into multi-line text:
 
 ```html
 <style>
@@ -45,17 +47,17 @@ outline: deep
 <div class="test">测试只有单行的内容 </div>
 ```
 
-**缺点**：这样会导致容器多出一行文本的高度（如下图），需要做额外的处理。
+**Drawback**: This causes the container to have an extra line height (as shown below), requiring additional handling.
 
 ![image-20230421173439687](./assets/image-20230421173439687.png)
 
-所以实际上这种情况用处有限，基本上只有在表单内容的 label 需要两端对齐的时候才会出现。对于多行文本展示，强制让所有文本拉伸的视觉效果并不好（如下图）
+So in practice, this approach has limited use — it's basically only needed when form label content needs to be justified. For multi-line text display, forcibly stretching all text doesn't look good visually (as shown below):
 
 ![image-20230421173917817](./assets/image-20230421173917817.png)
 
-### js 实现
+### JavaScript Implementation
 
-如果不嫌麻烦或者不愿意处理伪元素兼容法带来的副作用，还有一种解法是如下所示，将所有文本全部分开，再用`span`包裹，令父元素为`flex`布局，设置`justify-content: space-between`，同样可以实现效果。
+If you don't mind the extra work or don't want to deal with the side effects of the pseudo-element compatibility approach, another solution is to split all text characters, wrap each in a `span`, set the parent element to `flex` layout with `justify-content: space-between`, which also achieves the effect:
 
 ```html
 <style>
@@ -100,11 +102,11 @@ outline: deep
 </script>
 ```
 
-**缺点**：最主要的缺点在于浪费性能且场景有限。因为使用的前提条件就是需要额外的脚本计算与元素变动，在文本内容非常多的情况下无论是计算还是再插入都会带来页面的负担
+**Drawback**: The main drawback is wasted performance and limited scenarios. The prerequisite is additional script computation and element manipulation. When text content is very large, both the computation and re-insertion will burden the page.
 
-## 多行文本 ios 下的问题
+## Multi-line Text Issues on iOS
 
-实际业务中经常有一种场景，用户在后台管理页面中上传了一段长文本，文本内容中包含`\n` `\r` `空格`等特殊内容，而在实际的页面展示中需要正确进行换行展示。
+In real business, there's a common scenario where users upload long text in a backend management page. The text content contains special characters like `\n`, `\r`, and `spaces`, and the actual page display needs to correctly show line breaks.
 
 ```html
 <style>
@@ -125,78 +127,80 @@ outline: deep
 </script>
 ```
 
-可以看到，的确是两端对齐的，但是没有正确展示换行和空格符。
+As you can see, the text is indeed justified, but line breaks and spaces are not displayed correctly.
 
 ![image-20230421174757636](./assets/image-20230421174757636.png)
 
-这时候很容易想到 `white-space: pre-wrap` 这个属性。
+The natural thought is to use the `white-space: pre-wrap` property:
 
 ```css
 .test {
      margin: 10px;
      text-align: justify;
 +    white-space: pre-wrap;
-	/*省略代码*/
+ /*code omitted*/
 }
 ```
 
-然后 _换行_ 以及 _两侧对齐_ 都可以实现。的确，在 web 端这样似乎确实解决了问题。既保证了两端对齐，又保证了文本内容格式正确（如下图）。
+Then both _line breaks_ and _justify alignment_ can be achieved. Indeed, on the web this seems to solve the problem — ensuring both justify alignment and correct text formatting (as shown below):
 
 ![image-20230421175652747](./assets/image-20230421175652747.png)
 
-**但是，如果这样处理，在 ios 下是无法实现两端对齐的**（如下图）
+**However, this approach does not achieve justify alignment on iOS** (as shown below):
 
 ![image-20230421175103784](./assets/image-20230421175103784.png)
 
-网上大多数问题回答都描述的是第一种情况下的问题，无论是添加伪元素还是增加 text-align-last，都 **无法** 让 ios 能够实现“两端对齐，最后一行不拉伸”的最佳情况。
+Most online answers describe the first scenario's problem. Neither adding pseudo-elements nor `text-align-last` can achieve the ideal case of "justify alignment with the last line not stretched" on iOS.
 
-### ios 中的 white-space
+### white-space on iOS
 
-> TL;DR: pre、pre-wrap、break-spaces 都会影响到 text-align:justify 的生效
+> TL;DR: pre, pre-wrap, and break-spaces all affect the effectiveness of text-align:justify
 
-在 stackoverflow 上找到了一篇回答 [如何在火狐和 safari 上两端对齐文本](https://stackoverflow.com/questions/51664036/how-to-justify-text-in-firefox-and-safari-with-css)。回答中说是 `white-space:pre-wrap` 会跟 `text-align: justify` 冲突，导致无法文本两端对齐。
+I found an answer on Stack Overflow about [how to justify text in Firefox and Safari](https://stackoverflow.com/questions/51664036/how-to-justify-text-in-firefox-and-safari-with-css). The answer states that `white-space:pre-wrap` conflicts with `text-align: justify`, preventing text justify alignment.
 
-那么这里就产生了一系列新的问题：为什么安卓没有问题，而 ios 下 `white-space:pre-wrap` 会跟 `text-align: justify` 冲突呢？如果 `text-align: justify` 和 `white-space: pre-wrap` 这个属性冲突，那么 `white-space` 下的其他属性是不是也会冲突呢？为什么安卓没有问题这个问题是很容易想到答案。原因就是二者排版引擎不同。关于这个可以参考关于[宿主引擎](../engine/engine.md)。其余的问题我们可以通过比对试验得出答案。
+This raises a series of new questions: Why does Android work fine while `white-space:pre-wrap` conflicts with `text-align: justify` on iOS? If `text-align: justify` conflicts with `white-space: pre-wrap`, do other `white-space` values also conflict? The answer to why Android works fine is easy to guess — the two platforms use different layout engines. For more on this, see the article on [browser engines](../engine/engine.md). We can answer the remaining questions through comparative testing.
 
-于是我选择了三种[近似的属性](https://developer.mozilla.org/zh-CN/docs/Web/CSS/white-space)进行对比测试(保留换行/保留空格)：
+So I chose three [similar properties](https://developer.mozilla.org/zh-CN/docs/Web/CSS/white-space) for comparison testing (preserve line breaks / preserve spaces):
 
 1. pre-wrap
 2. pre-line
 3. break-spaces
 
-之所以不测试其他的属性原因如下：
+The reasons for not testing other properties are:
 
-1. `pre` 是因为 `pre` 不会进行 [inline-formatting](https://www.w3.org/TR/CSS2/visuren.html#inline-formatting)，也就是不会进行行内文本自动换行，这种情况下讨论两端对齐是没有意义的。
-2. `nowrap` 同理
-3. `normal`作为默认值，在最开始没有添加 `white-space: pre-wrap` 的时候就是生效的
+1. `pre` doesn't perform [inline-formatting](https://www.w3.org/TR/CSS2/visuren.html#inline-formatting), meaning it won't auto-wrap inline text. Discussing justify alignment in this case is meaningless.
+2. `nowrap` — same reason
+3. `normal` as the default value was already working when we hadn't added `white-space: pre-wrap`
 
-从测试结果上来看，当且仅当 `white-space: pre-line` 时，`text-align: justify` 才能够正常生效，当然这种情况下又产生了新的问题：那就是原本数据中的空格没有正确展示（如下图）。 ![image-20230421175600792](./assets/image-20230421175600792.png)
+From the test results, `text-align: justify` only works correctly when `white-space: pre-line` is used. Of course, this introduces a new problem: the spaces in the original data are not displayed correctly (as shown below):
+![image-20230421175600792](./assets/image-20230421175600792.png)
 
-现在先把这个空格的问题放在一边。首先需要考虑的是，为什么在众多 `white-space` 的可选属性中，只有 `pre-line` 可以生效。参考 [W3C Draft](https://w3c.github.io/csswg-drafts/css-text/#white-space-property)：
+Let's set aside the space issue for now. First, we need to consider why among all `white-space` options, only `pre-line` works. Referring to the [W3C Draft](https://w3c.github.io/csswg-drafts/css-text/#white-space-property):
 
-> `pre-wrap`：Like `pre`, this value preserves white space; but like `normal` , it allows wrapping;
+> `pre-wrap`: Like `pre`, this value preserves white space; but like `normal` , it allows wrapping;
 
 > `break-spaces`: The behavior is identical to that of `pre-wrap`, except...
 
 > `pre-line`: Like `normal`, this value collapses consecutive white space characters and allows wrapping, but it preserves segment breaks in the source as forced line breaks
 
-从定义我们可以理解，`pre-line` 和 `pre-wrap` 虽然都是 `pre-*` 的前缀，但他们的表现方式有所不同。
+From the definitions, we can understand that although `pre-line` and `pre-wrap` both have the `pre-*` prefix, their behaviors differ.
 
-`pre-line` 更接近 `normal`，在此基础上保留 `segment breaks` ，而 `pre-wrap` 和 `break-spaces` 更接近 `pre`，保留了 `wrapping`。
+`pre-line` is closer to `normal`, preserving `segment breaks` on top of that, while `pre-wrap` and `break-spaces` are closer to `pre`, preserving `wrapping`.
 
-于是可以发现，之前将属性修改为 `white-space: pre-line` 之后出现的 _空格消失_ 的原因也就找到了。既然 `pre-line` 是 'like normal' 的，那么根据 `normal`的定义：
+So we can now identify the reason for the _disappearing spaces_ after changing to `white-space: pre-line`. Since `pre-line` is 'like normal', according to `normal`'s definition:
 
 > This value directs user agents to collapse sequences of white space into a single character (or in some cases, no character)
 
-所以根据 w3c 的定义，`pre-line` 下空白消失是必然的表现。而要在 ios 上实现 `text-align: justify` ，有两种解决思路：
-1. 将问题转换为 “如何在 `white-space: normal` 的情况下保留空白与换行”，然后用 `text-align: justify` 实现两端对齐
-2. 保留 `white-space: pre-wrap` ，用js根据宽度计算长文本的行数，在每一行添加 `display:flex; justify-content: justify-between`，但最后一行保留 `justify-content:flex-start`
+So according to the W3C definition, spaces disappearing under `pre-line` is the expected behavior. To implement `text-align: justify` on iOS, there are two approaches:
 
-这里我们仅实现第一种。第二种思路其实既没有必要，还容易出问题。因为js的计算无法保证所有浏览器下对 `空白符` 相同的解析效果。毕竟 `空白符` 是 "in some cases, no character" 的。由于用户端输入的文本是用普通的 `textarea` 接收的，粗暴的换算为半角字符容易导致用户输入与实际展示效果不一致。但是不进行空白符的换算，就无法将长文本分散为由“多个单行文本”组成的多行文本。因此在业务层面上不应该采取这个方法。
+1. Transform the problem into "how to preserve spaces and line breaks under `white-space: normal`", then use `text-align: justify` for justify alignment
+2. Keep `white-space: pre-wrap`, use JS to calculate the number of lines based on width, and add `display:flex; justify-content: justify-between` to each line, while keeping `justify-content:flex-start` for the last line
 
-### 兼容 ios 的文本对齐实现
+Here we'll only implement the first approach. The second approach is neither necessary nor reliable, because JS calculations cannot guarantee identical `whitespace` parsing across all browsers. After all, `whitespace` is "in some cases, no character." Since user-side text input is received through a regular `textarea`, crude conversion to half-width characters could cause inconsistency between user input and actual display. But without whitespace conversion, long text cannot be split into "multiple single-line texts" forming multi-line text. Therefore, this method should not be adopted at the business level.
 
-对于简单需求（非富文本无交互纯展示）的实现方法，其实就是将空白和换行符替换为 html 标签，然后页面生成方式从渲染文本 `textContent` 变为渲染内容 `innerHTML`
+### iOS-Compatible Text Alignment Implementation
+
+For simple requirements (non-rich-text, non-interactive, display-only), the implementation is to replace spaces and line breaks with HTML tags, then change the page generation method from rendering text via `textContent` to rendering content via `innerHTML`:
 
 ```html
 <style>
@@ -235,12 +239,12 @@ outline: deep
 </script>
 ```
 
-对比最初的[问题代码](#多行文本-ios-下的问题)，需要注意的有三个地方：
+Compared to the original [problem code](#multi-line-text-issues-on-ios), there are three things to note:
 
-1. 将空格替换为 `<span>` 的时候，中间的字符 **必须** 是空格，并且需要给 span 补充 `white-space: pre-wrap` 属性。这样做是为了保证浏览器对于空格解释是正确的。如果我们替换为 `<span style="opacity: 0">1</span>` ，最终的空白区域与用户侧真正输入的空格是对不上的，因为浏览器对于长文本中空格的解释并非一个空格一个半角字符，而我们全都填充半角字符后，浏览器会展示为实际的文本，而非`white-space`。尤其如果涉及到空格换行等情况，可能会产生意想不到的问题。因此 `<span>` 内部仍保留空格，并且将`span` 本身设置 `white-space: pre-wrap` 以保留空格。
-2. 在 `style` 中补充了 `white-space: pre-line` 这条属性。事实上当我们开始用 js 替换空白符、换行符的时候，完全可以不设置这个属性，将换行符替换为 `<br />`，也可以实现相同的效果
-3. 在 `placeWhiteSpaceSpan` 之前，调用了 `stripAllTags` 这个方法。因为直接使用用户输入的文本作为 `innerHTML` 是有很大的 xss 风险的，这里添加的函数可以把所有包含\<\>的文本都去掉，可以防止 xss 攻击。当然这个方法只是最简单粗暴的一种，在实际的业务情况下可能会“误伤”用户输入文本，但这里只是举个例子，xss 是另一个话题，这里暂不展开
+1. When replacing spaces with `<span>`, the character inside **must** be a space, and the span needs the `white-space: pre-wrap` property. This ensures the browser interprets spaces correctly. If we replace with `<span style="opacity: 0">1</span>`, the resulting whitespace won't match the actual spaces the user entered, because the browser's interpretation of spaces in long text is not one space per half-width character. If we fill everything with half-width characters, the browser will display them as actual text rather than `white-space`. Especially when spaces cause line breaks, unexpected issues may arise. Therefore, the `<span>` still contains a space internally, and the `span` itself is set to `white-space: pre-wrap` to preserve spaces.
+2. The `white-space: pre-line` property was added to `style`. In fact, once we start using JS to replace whitespace and line break characters, we could skip this property entirely and replace line breaks with `<br />` to achieve the same effect.
+3. Before `placeWhiteSpaceSpan`, `stripAllTags` is called. Because directly using user input text as `innerHTML` poses significant XSS risks, this function strips all text containing \<\> to prevent XSS attacks. Of course, this is the simplest and most crude approach — in real business scenarios it might "accidentally remove" user input text, but this is just an example. XSS is a separate topic that we won't expand on here.
 
-综上所述，如果是非常复杂的文本，涉及 `\n` `\r` `\t` `空格` 等多种符号，或者文本内容多语种夹杂，那么需要估计开发成本和回报，因为移动端的兼容是个复杂问题，如果按照上述我的 `span代替法` 进行处理，在空格过多的时候还可能影响渲染性能。因此如果非强需求，尽量*避免两端对齐*。但两端不对齐需要额外注意要在曲面屏上留够`padding`，避免出现文字超出边缘的情况。
+In summary, for very complex text involving `\n`, `\r`, `\t`, `spaces`, and other symbols, or multi-language mixed content, you need to estimate the development cost versus return. Mobile compatibility is a complex issue, and if you follow the `span replacement method` described above, too many spaces could also affect rendering performance. Therefore, if it's not a hard requirement, try to _avoid justify alignment_. However, without justify alignment, extra attention should be paid to leaving enough `padding` on curved screens to prevent text from extending beyond the edges.
 
-如果有复杂文本输入并且输出侧有特殊样式、交互等的强需求，可以考虑富文本开发，专门实现一套系统。
+If there's a strong requirement for complex text input with special styling and interactions on the output side, consider rich text development with a dedicated system.

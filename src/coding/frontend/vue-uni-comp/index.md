@@ -1,56 +1,58 @@
 ---
 outline: deep
+title: "Vue Universal Component Library Development"
+description: "Cross-version Vue universal component library development practice, including dispatch mode and monorepo architecture"
 ---
 
-# vue 通用组件库开发
+# Vue Universal Component Library Development
 
-代码开源地址 <https://github.com/X-sky/vue-uni-component>
+Open source code at <https://github.com/X-sky/vue-uni-component>
 
-## 开发背景
+## Background
 
-在日常的 `2B` 业务开发中，我们不可避免的会遇到一个系统内部出现跨版本框架————甚至跨时代框架的使用。以我之前碰到的一个项目而言，项目横跨 `jquery+LayUI` ，`vue2`，`vue2.7`, `vue3`。但作为同一个项目，难免会有部分业务组件有所重合。
+In daily `2B` business development, it's inevitable to encounter cross-version frameworks — or even cross-generation frameworks — within a single system. Take a project I previously worked on: it spanned `jQuery+LayUI`, `Vue 2`, `Vue 2.7`, and `Vue 3`. But as part of the same project, some business components inevitably overlap.
 
-以往的做法是，将原有的业务组件迁移至新项目中。但考虑以下场景，有一个通用组件 `反馈按钮 FeedbackDialog`，目前已经完成了迁移，在该项目所有版本的代码中都有应用。也就是说，一个相同逻辑的业务，出现在四种不同的框架中。现在产品需求要求优化反馈弹窗。那么可想而知这个开发和测试的成本都是巨大的，开发需要在四个框架中分别进行该组建的修改，而测试也需要熟悉不同的框架出现在系统的哪个部分，并针对性的进行测试
+The traditional approach is to migrate existing business components to the new project. But consider this scenario: there's a universal component `FeedbackDialog` that has already been migrated and is used across all framework versions in the project. That means identical business logic exists in four different frameworks. Now when the product team requests an optimization of the feedback dialog, the development and testing costs are enormous — developers need to modify the component in four frameworks, and testers need to understand which parts of the system use which framework and test accordingly.
 
-![一个跨框架的巨石应用](./mono-app-exp.png)
+![A cross-framework monolith application](./mono-app-exp.png)
 
-_一个跨框架的巨石应用_
+_A cross-framework monolith application_
 
-而如果这种时候，我们的 `FeedbackDialog` 组件可以避免在不同框架中重复开发，那么开发和测试都能够节约极大的工作量，如下图所示
+If our `FeedbackDialog` component could avoid redundant development across different frameworks, both development and testing could save tremendous effort, as shown below:
 
-![一个跨框架的巨石应用](./mono-app-target-exp.png)
+![A cross-framework monolith application](./mono-app-target-exp.png)
 
-_使用跨框架通用组件的跨框架巨石应用_
+_A cross-framework monolith application using universal components_
 
-## 组件库开发
+## Component Library Development
 
-### vue 组件库原理
+### Vue Component Library Principles
 
-在开发组件库之前，我们需要先搞清楚两个问题：
+Before developing a component library, we need to understand two questions:
 
-1. 什么是组件
-2. 什么是组件库
+1. What is a component?
+2. What is a component library?
 
-尽管我们在开发过程中更多的仍然是扮演“调包工程师”的身份，但只有搞清楚这两个问题，我们才能知道自己要开发什么，自己在开发什么
+Although we mostly play the role of "package consumer" during development, only by understanding these two questions can we know what we're building.
 
-#### 什么是组件
+#### What is a Component?
 
-我们日常开发中最常接触的就是组件开发。但这里首先需要澄清一个概念：组件 ≠ SFC。根据 `vue` 官网的[定义](https://vuejs.org/guide/scaling-up/sfc.html)
+The most common thing we work with daily is component development. But first, a clarification: component ≠ SFC. According to the `Vue` official [definition](https://vuejs.org/guide/scaling-up/sfc.html):
 
-> SFC 是一种特殊的文件格式，允许我们 Vue 组件的把模板、逻辑和样式聚合在一个文件中。Vue SFC 是一种框架特定(framework-specific)类型文件，因此必须被 `@vue/compiler-sfc` 预编译成标准的 javascript 和 css。
+> SFC is a special file format that allows us to encapsulate the template, logic, and styling of a Vue component in a single file. Vue SFC is a framework-specific file format and must be pre-compiled by `@vue/compiler-sfc` into standard JavaScript and CSS.
 
-因此，SFC 只是 vue 组件的一种表现形式，jsx，h 函数无不如是。但 SFC 是一个帮助我们理解组件的很好的切口————它最终会被编译为标准的 javascript。一个编译后的 SFC 是标准的 ES 模块，`vue`官网也提供了 [SFC-playfround](https://play.vuejs.org/)，可以更直观的看到它们是如何被编译的。
+Therefore, SFC is just one representation of a Vue component — JSX and render functions are others. But SFC is a great entry point for understanding components — it ultimately gets compiled into standard JavaScript. A compiled SFC is a standard ES module, and Vue's official site also provides an [SFC Playground](https://play.vuejs.org/) for a more intuitive view of how they're compiled.
 
-于是我们的第一个问题【什么是组件？】就得到了很好的回答：
+So our first question — "What is a component?" — gets a clear answer:
 
-**Nothing magic, just javascript**
+**Nothing magic, just JavaScript**
 
-#### app.use 的时候发生了什么
+#### What Happens During app.use?
 
-当我们使用各种基于 `vue` 的插件/组件的时候，我们熟悉了这样的用法：
+When using various `Vue`-based plugins/components, we're familiar with this pattern:
 
 ```typescript
-// 摘自element-plus官网 https://element-plus.org/zh-CN/guide/quickstart.html
+// From element-plus docs https://element-plus.org/zh-CN/guide/quickstart.html
 // main.ts
 import { createApp } from 'vue';
 import ElementPlus from 'element-plus';
@@ -63,10 +65,10 @@ app.use(ElementPlus);
 app.mount('#app');
 ```
 
-或者是 `vue2` 版本的
+Or the `Vue 2` version:
 
 ```javascript
-// 摘自element-ui官网 https://element.eleme.cn/2.0/#/zh-CN/component/installation
+// From element-ui docs https://element.eleme.cn/2.0/#/zh-CN/component/installation
 import Vue from 'vue';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -80,11 +82,11 @@ new Vue({
 });
 ```
 
-那么 `.use()` 到底做了哪些事情？查阅 [vue2 版本的`.use`api](https://v2.vuejs.org/v2/api/#Vue-use) 以及 [vue3 版本的`.use`api](https://vuejs.org/api/application.html#app-use)，我们不难理解，神奇的 `.use` 归根到底只做了一件事：安装插件(Plugins)
+So what exactly does `.use()` do? Checking the [Vue 2 `.use` API](https://v2.vuejs.org/v2/api/#Vue-use) and the [Vue 3 `.use` API](https://vuejs.org/api/application.html#app-use), we can understand that the magical `.use` ultimately does one thing: install plugins.
 
-`.use` 接收一个为 带有 `install` 方法的 `Object`，或者是作为 `install` 方法本身的 `Function`。而 `install` 方法接收两个参数：应用实例`App` 和 插件选项`Options`。在 `vue2`中，第一个参数是全局 `Vue` 对象
+`.use` accepts either an `Object` with an `install` method, or a `Function` that serves as the `install` method itself. The `install` method receives two parameters: the application instance `App` and plugin options `Options`. In `Vue 2`, the first parameter is the global `Vue` object.
 
-以 `vue3` 为例，我们可以在 [runtime-core 源码](https://github.com/vuejs/core/blob/638a79f64a7e184f2a2c65e21d764703f4bda561/packages/runtime-core/src/apiCreateApp.ts#L158) 中找到对应的类型定义
+Using `Vue 3` as an example, we can find the corresponding type definition in the [runtime-core source code](https://github.com/vuejs/core/blob/638a79f64a7e184f2a2c65e21d764703f4bda561/packages/runtime-core/src/apiCreateApp.ts#L158):
 
 ```ts
 type PluginInstallFunction<Options = any[]> = Options extends unknown[]
@@ -92,100 +94,100 @@ type PluginInstallFunction<Options = any[]> = Options extends unknown[]
   : (app: App, options: Options) => any;
 ```
 
-所以当我们在说“`vue` 组件库开发”的时候，这种说法或许太过特化。更通用的说法应该是：vue 插件开发。
+So when we say "Vue component library development," this phrasing might be too specific. A more general description would be: Vue plugin development.
 
-至此，最开始提出的第二个问题我们也已经得到了解答：
+With that, our second question is also answered:
 
-**组件库是一种插件**
+**A component library is a type of plugin**
 
-### 常用打包工具
+### Common Build Tools
 
-目前前端社区流行的打包库主要有三种：[webpack](https://webpack.js.org/), [rollup](https://rollupjs.org/), [esbuild](https://esbuild.github.io/)。当然近期还有 [rspack](https://www.rspack.dev/) [rolldown](https://rolldown.rs/) 等基于 `Rust` 的打包库兴起。但由于生态和稳定性的原因，不适合用于企业生产。也正是由于这个原因，也应该放弃 `esbuild`。尽管它基于 `go` 开发，速度非常快，但生态并不完善，对于我们接下去要做的项目来说，灵活度也稍显不足
+Currently, the popular bundling tools in the frontend community are mainly: [webpack](https://webpack.js.org/), [rollup](https://rollupjs.org/), and [esbuild](https://esbuild.github.io/). Recently, Rust-based bundlers like [rspack](https://www.rspack.dev/) and [rolldown](https://rolldown.rs/) have also emerged. However, due to ecosystem and stability concerns, they're not suitable for enterprise production. For the same reason, `esbuild` should also be ruled out — despite being very fast (built with `Go`), its ecosystem isn't mature enough and lacks flexibility for our upcoming project.
 
-尽管说起稳定性我们应该优先选择 `webpack`，但 `webpack` 其实并不适合作为组件库打包的工具。或者说，使用 `webpack` 打包组件库会较为麻烦，因为 `webpack` 会默认将所有依赖项打包进产物当中，为了得到合适的分发结果，需要做出很多额外的配置
+Although `webpack` should be the priority for stability, it's actually not ideal for component library bundling. Or rather, using `webpack` to bundle component libraries is cumbersome because `webpack` bundles all dependencies into the output by default, requiring many extra configurations to get proper distribution results.
 
-并且就 `vue` 的生态发展趋势而言，拥抱 `vite` 几乎是不可避免的。而 `vite` 天然基于 `rollup`。因此最终选定 `rollup` 作为打包工具
+Moreover, given the Vue ecosystem's development trend, embracing `vite` is almost inevitable, and `vite` is natively based on `rollup`. Therefore, `rollup` was chosen as the build tool.
 
-### 方案决策
+### Approach Decision
 
-在选择方案的时候有两条路摆在我们面前：
+Two paths lay before us when choosing an approach:
 
-1. dispatch 模式
-2. adaptor 模式
+1. Dispatch mode
+2. Adaptor mode
 
-#### dispatch 模式
+#### Dispatch Mode
 
-> 使用 Vue SFC 进行开发，在编译阶段通过 monorepo/container 中不同版本的 template compiler 进行编译。最终由各个容器输出不同版本的产物
+> Develop using Vue SFC, compile through different version template compilers in the monorepo/container during the build phase. Each container outputs artifacts for different versions.
 
-理论上来说，`vue2` 和 `vue3` 的模板语法差距其实并不大。`vue2.7` 不仅内置了 `setup` 支持，`vue2` 也可以通过 `@vue/composition-api` 结合 `unplugin-vue2-script-setup` 来进行语法层面的抹平。
+Theoretically, the template syntax differences between `Vue 2` and `Vue 3` aren't that large. `Vue 2.7` has built-in `setup` support, and `Vue 2` can also achieve syntax-level alignment through `@vue/composition-api` combined with `unplugin-vue2-script-setup`.
 
-![dispatch 模式原理](./dispatch.png)
+![Dispatch mode principle](./dispatch.png)
 
-这种模式的优点在于：
+Advantages of this mode:
 
-1. 开发成本较低，不需要改变原有开发习惯。后续交付团队后，团队成员不需要了解实现细节即可开发
-2. 针对不同的版本进行编译。有一定优化机制
-3. 使用不同的 `container` 进行分发编译，方便进行定制化配置，
-4. 将不同版本 `vue` 的代码进行了隔离
+1. Lower development cost — no need to change existing development habits. Team members don't need to understand implementation details to develop
+2. Compilation targets different versions, with some optimization mechanisms
+3. Using different `containers` for distribution compilation makes customized configuration convenient
+4. Isolates code for different `Vue` versions
 
-缺点：
+Disadvantages:
 
-1. 舍弃了其他组件库的复用，所有组件都需要手撸
-2. 组件间引用的时候，需要放弃部分语法糖
-3. 后续如果出现破坏当前 SFC 模式的 `vue` 版本，或者出现了新特性，仓库将无法持续更新（比如 `defineOptions` 语法糖由于 `unplugin-vite-script-setup` 没有提供，我们只能选择放弃该语法糖，或者对该仓库进行 `PR`）
+1. Abandons reuse of other component libraries — all components must be built from scratch
+2. Some syntactic sugar must be abandoned when referencing between components
+3. If a future `Vue` version breaks the current SFC mode or introduces new features, the repository cannot continue updating (e.g., the `defineOptions` syntactic sugar isn't provided by `unplugin-vite-script-setup`, so we can only abandon it or submit a PR to that repository)
 
 :::tip
 
-相较于我的这个 [demo](https://github.com/X-sky/vue-uni-component) 示例，目前已经有相对更成熟的开源库使用了类似的思想，详见 [tiny-vue](https://github.com/opentiny/tiny-vue/blob/dev/README.md)。虽然不是使用 `monorepo` 进行分发，但也是使用了类似的思想，对不同版本的 `vue` 进行了编译层的分发转译
+Compared to my [demo](https://github.com/X-sky/vue-uni-component) example, there are now more mature open-source libraries using similar ideas. See [tiny-vue](https://github.com/opentiny/tiny-vue/blob/dev/README.md). Although it doesn't use `monorepo` for distribution, it uses a similar concept of compile-level distribution and transpilation for different `Vue` versions.
 
 :::
 
-#### adaptor 模式
+#### Adaptor Mode
 
-> 定义内置 adaptor-runtime 语法，使用自定义的模板语法 template syntax 进行开发，最终打包一套产物与不同版本的 runtime-adaptor，在应用中利用 adaptor 对不同版本的 vue 进行适配
+> Define a built-in adaptor-runtime syntax, develop using custom template syntax, and finally bundle a single set of artifacts with different version runtime-adaptors. In the application, use the adaptor to adapt to different Vue versions.
 
-初步考虑是类似当时最开始做小程序转 ArkUI 的思路，使用类 `vue` 的模板语法进行开发，单独开发一层`adaptor-runtime`，最终根据用户侧的 `vue` 版本不同使用不同的 `runtime`。
+The initial idea was similar to the approach used when converting mini-programs to ArkUI — develop using Vue-like template syntax, separately develop an `adaptor-runtime` layer, and ultimately use different `runtimes` based on the user's `Vue` version.
 
-优点：
+Advantages:
 
-1. 不需要多次编译，多版本 `vue` 使用相同的产物，进一步减小业务层代码差异
-2. 使用 `runtime-adaptor` 方式，**可扩展性极强**。理论上这种方式甚至可以通过对不同其他组件库如 `element-plus` 的适配，甚至其他框架如 `react`，实现一套代码，处处使用的结果
-3. 从编译层到运行时都由组件库内部控制，相较于 `dispatch` 模式委托 `vue/template-compiler` 和 `runtime/core` 更可控
+1. No need for multiple compilations — multiple Vue versions use the same artifacts, further reducing business-layer code differences
+2. The `runtime-adaptor` approach has **extremely strong extensibility**. Theoretically, this approach could even adapt to other component libraries like `element-plus`, or even other frameworks like `react`, achieving "write once, use everywhere"
+3. Both the compilation layer and runtime are controlled internally by the component library, offering more control compared to the dispatch mode's delegation to `vue/template-compiler` and `runtime/core`
 
-缺点：
+Disadvantages:
 
-1. 开发成本**极高**。需要团队实现 `dsl`，如果使用标准 `tsx`，则需要团队成员开发时学习 `tsx`。同时还需要根据目标产物实现不同的 `adaptor-runtime`
-2. `runtime-adaptor` 的存在会导致运行时有性能损耗
+1. **Extremely high** development cost. The team needs to implement a `DSL`; if using standard `TSX`, team members need to learn `TSX`. Additionally, different `adaptor-runtimes` need to be implemented for different target outputs
+2. The `runtime-adaptor` introduces runtime performance overhead
 
-毫无疑问，作为独立开发而言，这个模式下的通用组件库开发无疑是地狱难度
+Undoubtedly, for independent development, building a universal component library in this mode is nightmare difficulty.
 
-PS. 看到[这篇文章](https://juejin.cn/post/7243413934765916219#heading-0)的时候组件库已经使用 dispatch 模式基本搭建完毕，而且其使用的 jsx transform 模式，不仅需要对 `vue` 不同版本差距有所了解，而且需要对 `tsx` 流程和产物有所了解，一开始就不在选择范围内
+PS. By the time I saw [this article](https://juejin.cn/post/7243413934765916219#heading-0), the component library was already basically built using the dispatch mode. Moreover, the JSX transform mode it uses requires understanding both the differences between `Vue` versions and the `TSX` workflow and output, so it was never in the selection range.
 
-#### 选择
+#### Decision
 
-考虑到组件库的使用场景，综合团队规模和后期维护的复杂度，最终选择了 `dispatch 模式` 进行开发
+Considering the component library's use cases, combined with team size and long-term maintenance complexity, the `dispatch mode` was ultimately chosen for development.
 
-### 仓库结构
+### Repository Structure
 
-> 使用 `monorepo` 实现 `dispatch` 模式
+> Using `monorepo` to implement the `dispatch mode`
 
-#### 多版本模板编译支持
+#### Multi-Version Template Compilation Support
 
-提到多版本 `vue` 的支持，自然绕不开 `vue-demi`。`vue-demi` 是 Vue 核心团队成员 antfu 开发的一个小工具，能够支持对 `vue` 代码引用的转发。[Vueuse](https://vueuse.org/)内部就是用了 `vue-demi`，从而实现对多版本的 `vue` 的支持。
+When it comes to multi-version `Vue` support, `vue-demi` is unavoidable. `vue-demi` is a small utility developed by Vue core team member antfu that supports forwarding `Vue` code references. [VueUse](https://vueuse.org/) internally uses `vue-demi` to support multiple `Vue` versions.
 
-但由于 `vue-demi` 只是对 `vue` 版本做了转发，因此如果是纯 js 库开发(例如 `@vueuse/core`)之类的库，不必关心_模板解析器冲突_的问题。而开发组件库则必须关注这个问题。因为不同版本的 `vue` 使用了不同版本的模板编译：
+However, since `vue-demi` only forwards `Vue` versions, pure JS library development (like `@vueuse/core`) doesn't need to worry about _template parser conflicts_. Component library development, however, must address this issue because different `Vue` versions use different template compilers:
 
 - vue3.x: vue/compiler-sfc
 - vue2.7.x: vue/compiler-sfc@2.7
 - vue2.x: vue-template-compiler
 
-可以预见的是，即使使用`render`函数，我们也无法绕开版本问题。因此不如将这个问题提前到编译阶段解决。借助 `pnpm` 的 `monorepo` 模式，我们可以分别创建三个不同的 `vue` 仓库，利用各自不同的 `package.json` `vite.config.ts` 配置，编译多个版本的 `vue` 组件产物。
+Predictably, even using `render` functions, we can't avoid version issues. So it's better to solve this problem at the compilation stage. Using `pnpm`'s `monorepo` mode, we can create three different `Vue` repositories, each with their own `package.json` and `vite.config.ts` configurations, compiling component artifacts for multiple Vue versions.
 
 - containers/v2 -> @vue-uni-ui/v2
 - containers/v2.7 -> @vue-uni-ui/v2.7
 - containers/v3 -> @vue-uni-ui/v3
 
-通过在 `vite.config.ts` 中配置 `resolve.alias` ，手动将 `vue` 以及 `vue-demi` 版本映射到对应的仓库内，例如`containers/v3`中的`vite.config.ts`需要配置的 alias 如下：
+By configuring `resolve.alias` in `vite.config.ts`, we manually map `vue` and `vue-demi` versions to the corresponding repositories. For example, the alias configuration in `containers/v3`'s `vite.config.ts`:
 
 ```js
 export default {
@@ -201,9 +203,9 @@ export default {
 };
 ```
 
-理论上这样我们就暂时实现了不同的容器隔离。
+Theoretically, this achieves container isolation for different versions.
 
-但是实际上这里有一个潜在的问题，那就是 `vue-template-compiler` 的 `vue` 依赖是没有显性的规定在 `peerDependencies` 中的。因为 `vue` 的版本需要与 `vue-template-compiler` 的版本 **完全一致**，因此 `vue-template-compiler` 只是在其 `index.js` 的头部做了一次检测:
+However, there's a potential issue: `vue-template-compiler`'s `vue` dependency isn't explicitly specified in `peerDependencies`. Because the `vue` version must **exactly match** the `vue-template-compiler` version, `vue-template-compiler` only performs a check at the top of its `index.js`:
 
 ```js
 try {
@@ -238,7 +240,7 @@ if (vueVersion && vueVersion !== packageVersion) {
 }
 ```
 
-这就导致我们如果在安装了多个 `vue` 仓库，那么 `vue-template-compiler` 实际引用的 `vue` 包将是不可控的。以 `pnpm` 为例，由于 `vue-template-compiler` 内部没有相关依赖声明，因此 `pnpm-lock.yaml` 也就没有相关的依赖绑定，则 `require('vue')` 完全依赖于 `.pnpm` 仓库内的 vue 版本。我的测试结果是 windows 下基本会报错，而 mac 下则不会报错。但开发环境不能依靠运气，这时候可以用 `pnpm` 提供的一个设置项 [pnpm.packageExtensions](https://pnpm.io/package_json#pnpmpackageextensions) 强制设置依赖。在根目录的 `package.json` 下添加如图所示的代码，给 `vue-template-compiler` 添加依赖项
+This means that if multiple `vue` repositories are installed, the `vue` package actually referenced by `vue-template-compiler` is uncontrollable. With `pnpm`, since `vue-template-compiler` has no internal dependency declaration, `pnpm-lock.yaml` has no related dependency binding, so `require('vue')` entirely depends on the vue version in the `.pnpm` store. My testing showed that Windows basically throws errors while Mac doesn't. But development environments can't rely on luck. You can use `pnpm`'s [pnpm.packageExtensions](https://pnpm.io/package_json#pnpmpackageextensions) setting to force dependencies. Add the following code to the root `package.json` to add a dependency to `vue-template-compiler`:
 
 ```json
 "pnpm": {
@@ -252,50 +254,52 @@ if (vueVersion && vueVersion !== packageVersion) {
 }
 ```
 
-注：这里的 `~2.6.14` 需要与 `containers/v2` 中的`vue-template-compiler` 版本一致
+Note: The `~2.6.14` here must match the `vue-template-compiler` version in `containers/v2`.
 
-同时，我们修改 `path.ts` 中的相关 `VUE_LIB` 代码，将 `alias` 映射为 `containers` 内部的 `vue`，将 `vue-demi` 直接映射为对应 `vue-demi/lib` 内部的 `index.mjs`。这样我们就实现了依赖的完全解耦。根目录的 `vue` 仅负责 `@vue-uni-components` 相关仓库的开发，而 `dev` 以及 `build` 则由 `containers` 的内部依赖负责。
+Additionally, we modify the related `VUE_LIB` code in `path.ts`, mapping `alias` to the internal `vue` of `containers` and mapping `vue-demi` directly to the corresponding `vue-demi/lib` internal `index.mjs`. This achieves complete dependency decoupling. The root-level `vue` is only responsible for `@vue-uni-components` related repository development, while `dev` and `build` are handled by `containers`' internal dependencies.
 
-#### style 支持
+#### Style Support
 
-通过在不同容器内部编译对应的模板，我们已经可以实现通过对应的 compiler 编译 `style` 文件。通常设计组件库样式时需要的问题有两个：
+By compiling corresponding templates within different containers, we can already compile `style` files through the corresponding compiler. There are typically two issues when designing component library styles:
 
-1. 如何设计统一的样式，以：
-1. 方便组件间的样式共享
-1. 保证组件的样式不受外部环境 css-reset 的影响
-1. 如何设计结构，使得用户可以自定义样式
+1. How to design unified styles to:
+   1. Facilitate style sharing between components
+   2. Ensure component styles aren't affected by external CSS resets
+2. How to design the structure so users can customize styles
 
-目前市面上主流的组件库样式设计都会影响到全局。比如:
+Currently, mainstream component library style designs all affect the global scope. For example:
 
-- `Vuetify` 中的 [\_reset.scss](https://github.com/vuetifyjs/vuetify/blob/master/packages/vuetify/src/styles/generic/_reset.scss)
-- `element-plus` 中的 [reset.scss](https://github.com/element-plus/element-plus/blob/dev/packages/theme-chalk/src/reset.scss)
-- `arco-design` 中的 [normalize.less](https://github.com/arco-design/arco-design-vue/blob/main/packages/web-vue/components/style/normalize.less) 而且这些组件库都全局使用，且可能与其他组件库互斥。而 `vuetify` 通过提供对应的 scss 变量以供手动关闭 reset。
+- `Vuetify`'s [\_reset.scss](https://github.com/vuetifyjs/vuetify/blob/master/packages/vuetify/src/styles/generic/_reset.scss)
+- `element-plus`'s [reset.scss](https://github.com/element-plus/element-plus/blob/dev/packages/theme-chalk/src/reset.scss)
+- `arco-design`'s [normalize.less](https://github.com/arco-design/arco-design-vue/blob/main/packages/web-vue/components/style/normalize.less)
 
-但按照当前所要实现的 `vue`通用组件库的使用场景，很可能是无法使用全局`reset-css`的，因此同样需要考虑提供配置项，在使用阶段判断是否需要重置。
+These component libraries are used globally and may be mutually exclusive. `Vuetify` provides corresponding SCSS variables for manually disabling the reset.
 
-另外，上述几个库都使用了 css 变量进行组件样式的统一，在使用阶段也使用 css 变量进行自定义主题设置。
+However, given the use case of our Vue universal component library, global `reset-css` may not be usable, so we also need to consider providing configuration options to determine whether reset is needed during usage.
+
+Additionally, the above libraries all use CSS variables for unified component styling and custom theme settings during usage.
 
 - `Vuetify`
 - [arco-design](https://arco.design/react/docs/theme)
 
-但是有几个缺点：
+But there are several drawbacks:
 
-1. 无法与 js 结合。如果 UI 涉及 `echarts` 等图标库的使用，则无法避免在 js 额外维护主题色变量
-2. 覆写与重设涉及多个配置，较为复杂，其中 `Vuetify` 还有 `config` 和 `scss` 两套主题色需要维护
-3. 如果不需要使用组件库，但是想要使用组件库的样式设计规范时（如调色板 palette, 文本规范 font 等），我们必须深入到 `node_modules` 或者**源码**内部了解各个 css 变量名
+1. Cannot integrate with JS. If the UI involves chart libraries like `echarts`, theme color variables must be additionally maintained in JS
+2. Overwriting and resetting involve multiple configurations, and `Vuetify` even has two sets of theme colors (`config` and `scss`) to maintain
+3. If you want to use the component library's design specifications (like palette, font specs, etc.) without using the components themselves, you must dive into `node_modules` or **source code** to understand each CSS variable name
 
-因此我们考虑一套流程
+Therefore, we consider a workflow:
 
-1. 开发时通过 js 定义 css 变量，组件内部使用变量名开发
-2. 使用时，在 hook 初始化的时候进行 css 变量注册，同时暴露变量提供给诸如 `echarts` 等库使用。如果项目有 ts 支持，甚至可以提供变量名提示
+1. During development, define CSS variables through JS, and use variable names internally in components
+2. During usage, register CSS variables during hook initialization while exposing variables for libraries like `echarts`. With TypeScript support, variable name hints can even be provided
 
-## 组件库调试
+## Component Library Debugging
 
-### 源码调试
+### Source Code Debugging
 
-`pnpm dev:3` `pnpm dev:27` `pnpm dev:2` 三个脚本可以同时执行。在各自的 `container` 内部，`resolve` 会将依赖解析为正确的地址。
+The three scripts `pnpm dev:3`, `pnpm dev:27`, and `pnpm dev:2` can run simultaneously. Within each `container`, `resolve` will resolve dependencies to the correct addresses.
 
-注意：在编写测试用例以及开发的时候，部分语法由于 `vue2` 与 `vue3` 的解析不同，因此需要使用更为通用的写法。例如 **属性的双向绑定** 操作，在 `vue2` 中，模板语法糖为 `:visible.sync` ； 而在 `vue3` 中，语法糖则为 `v-model:visible`，因此需要使用通用写法：
+Note: When writing test cases and during development, some syntax differs between `Vue 2` and `Vue 3` parsing, so more universal syntax is needed. For example, **two-way attribute binding**: in `Vue 2`, the template syntactic sugar is `:visible.sync`; in `Vue 3`, it's `v-model:visible`. Therefore, the universal approach is:
 
 ```vue
 <script>
@@ -310,75 +314,75 @@ const updateVisible = (v) => {
 </template>
 ```
 
-如果每次都需要在 `container` 容器内部手写一个测试组件，那么加上 `cdn` 调试，我们会需要编写四次近似的组件。因此通过上述 _通用写法_ ，我们可以考虑新增一个测试组件仓库 `@vue-uni-ui/components-test`。在仓库内编写测试组件，然后取消 `containers` 中每个容器对 `@vue-uni-ui/components` 的依赖，修改为对测试仓库的依赖，然后引用对应的测试组件即可。因此我们也需要补充脚本，在 `ui:create` 的时候，补充自动新增对应的测试组件模板，避免免手动创建的心智负担
+If we need to hand-write a test component inside the `container` every time, including `CDN` debugging, we'd need to write nearly identical components four times. Therefore, using the _universal syntax_ above, we can consider adding a test component repository `@vue-uni-ui/components-test`. Write test components in this repository, then remove each container's dependency on `@vue-uni-ui/components` in `containers`, replacing it with the test repository dependency, and reference the corresponding test components. We also need to supplement scripts to automatically create corresponding test component templates during `ui:create`, avoiding the mental burden of manual creation.
 
-::: details 关于 `@vue-uni-ui/components-test`
+::: details About `@vue-uni-ui/components-test`
 
-尽管为了减小后续开发时候的心智负担，补充了 `ui:create` 命令进行自动化创建。但在实际开发中，会出现开发不按照开发文档进行开发的问题。过度依赖脚本命令，也是团队协作中的一个错误实践。或许需要通过在提交时补充校验，或者简化开发流程的方式，避免不同开发经手过的项目结构完全不同的问题
+Although the `ui:create` command was added for automated creation to reduce mental burden during subsequent development, in practice, developers may not follow the development documentation. Over-reliance on script commands is also a bad practice in team collaboration. Perhaps commit-time validation or simplified development workflows are needed to prevent different developers from leaving completely different project structures.
 
-在后续集成了 `unit-test` 以及 `e2e test` 后，`components-test` 包将从代码中移除
+After integrating `unit-test` and `e2e test`, the `components-test` package will be removed from the codebase.
 
 :::
 
-### 产物调试
+### Artifact Debugging
 
-此调试仅需要在开发阶段进行。理论上框架搭建完成后，无需每次都进行所有产物的调试。只要编译成功，产物都将包含相同的业务逻辑
+This debugging is only needed during the development phase. Theoretically, once the framework is set up, not every artifact needs to be debugged. As long as compilation succeeds, all artifacts will contain the same business logic.
 
 #### mjs
 
-`link:local` 脚本。先在产物内部 link 对应的依赖，再全局 link 对应依赖。
+`link:local` script. First link the corresponding dependencies inside the artifact, then globally link the corresponding dependencies.
 
-#### cdn
+#### CDN
 
-cdn 形式的产物调试则相对来说简单很多。在 `pnpm build` 之后执行 `pnpm dev:cdn` 即可。`pnpm dev:cdn` 命令会自动执行复制 `iife.js` `style.css` 等文件至对应文件夹的命令，并执行 `vite` 调试。通过注释 `cdn-playground/index.html` 文件中不同版本的 `vue` 及其对应的内容。进行多版本产物的调试。
+CDN artifact debugging is relatively simpler. After `pnpm build`, execute `pnpm dev:cdn`. The `pnpm dev:cdn` command automatically copies `iife.js`, `style.css`, and other files to the corresponding folders and runs `vite` for debugging. Debug multiple version artifacts by commenting different versions of `vue` and their corresponding content in the `cdn-playground/index.html` file.
 
-⚠Attention 注意：cdn 模式调试下，自定义组件有两点注意事项，这两点同时也是 [html 标准的限制](https://v2.vuejs.org/v2/style-guide/#Self-closing-components-strongly-recommended)：
+⚠Attention: In CDN mode debugging, custom components have two caveats, which are also [HTML standard limitations](https://v2.vuejs.org/v2/style-guide/#Self-closing-components-strongly-recommended):
 
-- 不能使用自闭合标签
+- Self-closing tags cannot be used
 
 ```html
-<!-- 可以，但只会渲染第一个自定义组件 -->
+<!-- Works, but only renders the first custom component -->
 <uni-template />
-<!-- 会无效 -->
+<!-- Won't work -->
 <uni-dialog />
 ```
 
-- 不能使用大驼峰形式组件
+- PascalCase component names cannot be used
 
 ```html
-<!-- html会默认转化组件名，等效于 unitemplate。由于我们的注册名为 UniTemplate，因此 UniTemplate 或 uni-template 都是可行的。而unitemplate无法匹配到 -->
+<!-- HTML will convert the component name by default, equivalent to unitemplate. Since our registered name is UniTemplate, both UniTemplate and uni-template work. But unitemplate won't match -->
 <UniTemplate />
 ```
 
-## 问题记录
+## Issue Log
 
-### 关于模块化
+### About Modularization
 
 ```javascript
-// exportLib.js 导出
+// exportLib.js export
 const foo = () => {};
 export { foo };
-// 使用
+// Usage
 import { foo } from 'exportLib.js';
 foo();
-// 使用2
+// Usage 2
 import * as exportLib from 'exportLib.js';
 exportLib.foo();
 ```
 
 ```javascript
-// 导出
+// Export
 const foo = () => {};
 export { foo };
 export default {
   foo
 };
-// 使用
+// Usage
 import exportLib, { foo } from 'exportLib.js';
 exportLib.foo === foo; // true
 ```
 
-如果是第一种方式，在 import 引入的时候会显得有些啰嗦；但如果是第二种导出方式，在进行 cdn 或者 umd 方式导出的时候，如果我们要使用整体对象，就必须使用 `.default` 的方式获取默认导出
+With the first approach, imports become somewhat verbose. But with the second export approach, when exporting as CDN or UMD, accessing the overall object requires using `.default`:
 
 ```html
 <script src="./exportLib.iife.js"></script>
@@ -388,24 +392,24 @@ exportLib.foo === foo; // true
 </script>
 ```
 
-因此我们在第一种导出方式的基础上进行优化
+So we optimize based on the first export approach:
 
 ```javascript
-// exportLib.js 导出
+// exportLib.js export
 const foo = () => {};
 const defaultExport = {
   foo
 };
 export { defaultExport as default, foo };
-// 使用
+// Usage
 import exportLib, { foo } from 'exportLib.js';
 foo();
 ```
 
-当然这样在 `import * as exportLib from ‘exportLib.js’` 的时候就会出现 default 了。没有全部兼顾的方法，只能根据使用场景具体优化
+Of course, this means `import * as exportLib from 'exportLib.js'` will include `default`. There's no way to accommodate everything — optimization must be based on specific use cases.
 
-### 关于创建服务式组件
+### About Creating Service-Style Components
 
-vue2 和 vue3 的 render 模式不同。`vue3` 每一个组件都有对应的 appContext，可以通过 [customRender](https://vuejs.org/api/custom-renderer.html#createrenderer) 创建自定义渲染。`element-plus` 中的 [MessageBox](https://github.com/element-plus/element-plus/blob/dev/packages/components/message-box/src/messageBox.ts) 就是使用了对应的方式，利用 `render` 函数实现 api 调用时，挂载组件。(`render` 就是 `vue` 内部利用 `createRenderer`创建的函数)。
+Vue 2 and Vue 3 have different render modes. `Vue 3` has a corresponding appContext for each component, and you can create custom rendering through [customRender](https://vuejs.org/api/custom-renderer.html#createrenderer). `element-plus`'s [MessageBox](https://github.com/element-plus/element-plus/blob/dev/packages/components/message-box/src/messageBox.ts) uses this approach, mounting components via the `render` function when called through API. (`render` is a function created internally by `Vue` using `createRenderer`).
 
-但是 `vue2` 单实例的模式决定了 `vue2` 不会有所谓的 `appContext`，也不会有 `render` 这样的 api。因此只能通过 `Vue.extend(comp)` 的方式创建新的实例。因此我们的 `util` 中的 `useComponentService` 函数就不得不使用 `vue-demi` 的 `isVue2` 字段进行判断，造成输出代码的冗余。
+However, `Vue 2`'s single-instance mode means it won't have `appContext` or APIs like `render`. Therefore, new instances can only be created through `Vue.extend(comp)`. As a result, the `useComponentService` function in our `util` must use `vue-demi`'s `isVue2` field for conditional logic, causing output code redundancy.

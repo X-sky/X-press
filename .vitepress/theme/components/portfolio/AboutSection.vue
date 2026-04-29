@@ -13,13 +13,19 @@
  * Uses useGsapAnimation composable for lifecycle management.
  * ScrollTrigger is already registered inside useGsapAnimation.
  */
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { withBase } from 'vitepress'
 import { useGsapAnimation } from '../../composables/useGsapAnimation'
+import { useI18n } from '../../composables/useI18n'
+import { locales } from '../../../../src/locales'
 import TechStack from './TechStack.vue'
 import SplitType from 'split-type'
 
 const sectionRef = ref<HTMLElement | null>(null)
+const { t, locale } = useI18n()
+
+/** Access bio array directly from locale data since t() only resolves strings */
+const bioList = computed(() => locales[locale.value].about.bio)
 
 useGsapAnimation(sectionRef, {
   setup({ el, gsap }) {
@@ -115,7 +121,7 @@ useGsapAnimation(sectionRef, {
     <div class="w-full max-w-[1100px] h-full m-auto flex flex-col items-center gap-24">
       <!-- Title with SplitType animation -->
       <div class="relative title text-xl md:text-4xl tracking-tight font-medium w-fit dark:text-white">
-        Keep Looking. Don&apos;t settle.
+        {{ t('about.title') }}
         <div class="absolute -right-[10px] top-2">
           <img
             class="w-14 pointer-events-none select-none"
@@ -133,7 +139,7 @@ useGsapAnimation(sectionRef, {
           <div class="relative">
             <div class="overflow-hidden">
               <div class="text-animation dark:text-accentColor text-3xl md:text-4xl font-medium">
-                About me
+                {{ t('about.heading') }}
               </div>
             </div>
 
@@ -158,10 +164,7 @@ useGsapAnimation(sectionRef, {
             <div class="overflow-hidden">
               <div class="dark:text-white text-animation">
                 <ul>
-                  <li>- A frontend developer with over 6 years of experience</li>
-                  <li>- Mastering various frontend frameworks, especially Vue and its ecosystem.</li>
-                  <li>- Proficient in toolchains and infrastructure with unique insights into coding and architecture</li>
-                  <li>- A meticulous scholar and a cheerful optimist in life</li>
+                  <li v-for="(item, index) in bioList" :key="index">- {{ item }}</li>
                 </ul>
               </div>
             </div>
@@ -169,13 +172,11 @@ useGsapAnimation(sectionRef, {
             <!-- Education info -->
             <div class="flex gap-1 flex-col items-start">
               <div class="text-accentColor">
-                Bachelor&apos;s degree, CET-6
+                {{ t('about.education.degree') }}
               </div>
               <div class="overflow-hidden">
                 <div class="dark:text-white text-animation">
-                  Graduated from Zhejiang Sci-Tech University. Currently under
-                  postgraduate at Tongji University, majoring in Artificial
-                  Intelligence
+                  {{ t('about.education.school') }}
                 </div>
               </div>
             </div>
@@ -191,7 +192,7 @@ useGsapAnimation(sectionRef, {
                 <span class="experience-count">0</span>
                 <span class="text-accentColor">+</span>
               </div>
-              <div class="dark:text-white text-sm">Experiences</div>
+              <div class="dark:text-white text-sm">{{ t('about.counters.experiences') }}</div>
             </div>
 
             <div class="flex flex-col font-medium items-center">
@@ -199,7 +200,7 @@ useGsapAnimation(sectionRef, {
                 <span class="project-count">0</span>
                 <span class="text-accentColor">+</span>
               </div>
-              <div class="dark:text-white text-sm">Completed Projects</div>
+              <div class="dark:text-white text-sm">{{ t('about.counters.completedProjects') }}</div>
             </div>
 
             <div class="flex flex-col font-medium items-center">
@@ -207,7 +208,7 @@ useGsapAnimation(sectionRef, {
                 <span class="user-count">0</span>
                 <span class="text-accentColor">+</span>
               </div>
-              <div class="dark:text-white text-sm">Contributions</div>
+              <div class="dark:text-white text-sm">{{ t('about.counters.contributions') }}</div>
             </div>
           </div>
         </div>

@@ -19,8 +19,10 @@
 import { ref } from 'vue'
 import { withBase } from 'vitepress'
 import { useGsapAnimation } from '../../composables/useGsapAnimation'
+import { useI18n } from '../../composables/useI18n'
 
 const sectionRef = ref<HTMLElement | null>(null)
+const { t } = useI18n()
 
 useGsapAnimation(sectionRef, {
   setup({ el, gsap }) {
@@ -58,12 +60,12 @@ useGsapAnimation(sectionRef, {
       <div class="flex flex-col items-center gap-2">
         <div class="overflow-hidden">
           <div class="title-animation dark:text-white text-lg">
-            Want to collaborate?
+            {{ t('contact.wantToCollaborate') }}
           </div>
         </div>
         <div class="overflow-hidden">
           <div class="title-animation text-5xl navlink text-accentColor">
-            Contact me!
+            {{ t('contact.contactMe') }}
           </div>
         </div>
         <!-- WeChat QR code -->
@@ -143,16 +145,13 @@ useGsapAnimation(sectionRef, {
         <!-- Description text -->
         <div class="overflow-hidden flex justify-center items-center">
           <div class="title-animation w-full md:max-w-[80%] text-center dark:text-gray-400">
-            I'm always excited to connect with like-minded professionals
-            and potential collaborators. Whether you have a project in mind,
-            need assistance, or just want to say hello, feel free to reach
-            out!
+            {{ t('contact.description') }}
           </div>
         </div>
 
         <!-- End title with scale animation -->
         <div class="end-title dark:text-white text-md">
-          Let's make the world better together!
+          {{ t('contact.endTitle') }}
           <br /><br /><br /><br /><br /><br />
         </div>
       </div>
