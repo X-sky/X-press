@@ -125,7 +125,15 @@ export default defineConfig({
       themeConfig: {
         nav: getZhNavList(),
         sidebar: {
-          '/zh/coding/': getZhCodeSidebarList()
+          '/zh/coding/': getZhCodeSidebarList(),
+          '/zh/daily/': [
+            {
+              text: '日报',
+              items: [
+                { text: '日报列表', link: '/zh/daily/' }
+              ]
+            }
+          ]
         },
         outline: {
           label: '----本页目录----'
@@ -279,7 +287,8 @@ function getZhNavList(): DefaultTheme.NavItem[] {
             '/zh/coding/others/shortcuts'
         }
       ]
-    }
+    },
+    { text: '日报', link: '/zh/daily/' }
   ];
 }
 
